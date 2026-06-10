@@ -40,14 +40,14 @@ const Input = forwardRef<
     return (
       <div className="space-y-2">
         {label && (
-          <label className="text-sm font-medium">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {label}
           </label>
         )}
 
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
               {leftIcon}
             </div>
           )}
@@ -66,12 +66,19 @@ const Input = forwardRef<
             rounded-xl
             border
             bg-white
+            dark:bg-slate-900/50
+            text-slate-950
+            dark:text-slate-50
+            placeholder-slate-400
+            dark:placeholder-slate-500
             px-4
             py-3
             transition-all
             duration-300
+            focus:outline-none
             focus:ring-2
             focus:ring-blue-500
+            focus:border-blue-500
             ${
               leftIcon
                 ? "pl-10"
@@ -79,8 +86,8 @@ const Input = forwardRef<
             }
             ${
               error
-                ? "border-red-500"
-                : "border-slate-300"
+                ? "border-red-500 bg-red-50/10 focus:ring-red-500/50"
+                : "border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700"
             }
             `}
             {...props}
@@ -94,6 +101,9 @@ const Input = forwardRef<
               right-3
               top-1/2
               -translate-y-1/2
+              text-slate-400
+              hover:text-slate-600
+              dark:hover:text-slate-350
               "
               onClick={() =>
                 setShowPassword(
@@ -111,13 +121,13 @@ const Input = forwardRef<
         </div>
 
         {helperText && (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {helperText}
           </p>
         )}
 
         {error && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-red-500 dark:text-red-400 font-medium">
             {error}
           </p>
         )}

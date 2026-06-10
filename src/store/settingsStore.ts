@@ -15,7 +15,14 @@ interface SettingsState {
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
-  settings: null,
+  settings: (() => {
+    try {
+      const local = localStorage.getItem("ss_settings");
+      return local ? JSON.parse(local) : { darkMode: false, language: "en", notifications: true };
+    } catch (e) {
+      return { darkMode: false, language: "en", notifications: true };
+    }
+  })(),
   companyInfo: null,
   isLoading: false,
   error: null,

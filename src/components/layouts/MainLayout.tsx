@@ -2,7 +2,7 @@ import { type ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useSettingsStore } from "@/store/settingsStore";
-import { Menu, X, User, LogOut, ChevronDown, Phone, Mail, MapPin, Sun, Moon } from "lucide-react";
+import { Menu, X, User, LogOut, ChevronDown, Phone, Mail, MapPin, Sun, Moon, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 
@@ -15,6 +15,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const { settings, updateSettings, fetchSettings } = useSettingsStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,9 +24,107 @@ export default function MainLayout({ children }: MainLayoutProps) {
     fetchSettings();
   }, [fetchSettings]);
 
-  const toggleTheme = async () => {
+  const handleSelectTheme = async (mode: "light" | "dark") => {
     if (settings) {
-      await updateSettings({ ...settings, darkMode: !settings.darkMode });
+      await updateSettings({ ...settings, darkMode: mode === "dark" });
+      setIsThemeMenuOpen(false);
+    }
+  };
+
+  const renderNavDropdownContent = (name: string) => {
+    switch (name) {
+      case "services":
+        return (
+          <div className="grid grid-cols-2 gap-4 p-5 w-[420px]">
+            <div className="col-span-2 text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2 mb-1">
+              Popular Branding Services
+            </div>
+            <Link to="/services" className="flex flex-col gap-0.5 group/item">
+              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Large Format Printing</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Flex banners & outdoor advertising</span>
+            </Link>
+            <Link to="/services" className="flex flex-col gap-0.5 group/item">
+              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Acrylic Sign Boards</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Premium back-lit LED offices board</span>
+            </Link>
+            <Link to="/services" className="flex flex-col gap-0.5 group/item">
+              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Vehicle Wraps</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Adhesive decals for client fleets</span>
+            </Link>
+            <Link to="/services" className="flex flex-col gap-0.5 group/item">
+              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Frosted Stickers</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Office glass frosting & branding</span>
+            </Link>
+            <div className="col-span-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+              <Link to="/services" className="text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
+                Explore All Services &rarr;
+              </Link>
+            </div>
+          </div>
+        );
+      case "gallery":
+        return (
+          <div className="p-5 w-[280px] space-y-3">
+            <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
+              Media Showcases
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
+                <span>Signage Boards</span>
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">LED</span>
+              </Link>
+              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
+                <span>Large Format Banners</span>
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">Flex</span>
+              </Link>
+              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
+                <span>Vehicle Wraps</span>
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">Car</span>
+              </Link>
+              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
+                <span>Digital Prints</span>
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">Paper</span>
+              </Link>
+            </div>
+          </div>
+        );
+      case "projects":
+        return (
+          <div className="p-5 w-[320px] space-y-4">
+            <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
+              Featured Case Studies
+            </div>
+            <div className="space-y-3">
+              <div className="rounded-xl overflow-hidden border border-slate-200/50 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-3">
+                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Featured Install</p>
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1 leading-snug">Biratnagar Corporate Office Branding wrap & 3D acrylic signage boards</p>
+              </div>
+              <Link to="/projects" className="block text-center text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
+                View Case Projects &rarr;
+              </Link>
+            </div>
+          </div>
+        );
+      case "testimonials":
+        return (
+          <div className="p-5 w-[300px] space-y-4">
+            <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
+              Client Trust Index
+            </div>
+            <div className="space-y-3">
+              <div className="flex flex-col gap-1">
+                <div className="flex text-amber-500 text-xs font-bold">★★★★★</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 italic">"Saved our annual launch with premium overnight flex banner installations!"</p>
+                <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider">— Tech Solutions Nepal</p>
+              </div>
+              <Link to="/testimonials" className="block text-center text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
+                Read Customer Reviews &rarr;
+              </Link>
+            </div>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -35,6 +135,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsProfileDropdownOpen(false);
+    setHoveredNav(null);
   }, [location.pathname]);
 
   const handleLogout = async () => {
@@ -90,37 +191,104 @@ export default function MainLayout({ children }: MainLayoutProps) {
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
+              const hasDropdown = ["services", "gallery", "projects", "testimonials"].includes(link.name.toLowerCase());
               return (
-                <Link
+                <div
                   key={link.path}
-                  to={link.path}
-                  className={`text-sm font-medium transition-all hover:text-blue-600 dark:hover:text-blue-400 relative py-1 ${
-                    isActive
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-slate-600 dark:text-slate-300"
-                  }`}
+                  className="relative py-6"
+                  onMouseEnter={() => hasDropdown && setHoveredNav(link.name.toLowerCase())}
+                  onMouseLeave={() => hasDropdown && setHoveredNav(null)}
                 >
-                  {link.name}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activePublicNav"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
-                    />
-                  )}
-                </Link>
+                  <Link
+                    to={link.path}
+                    className={`text-sm font-semibold transition-all hover:text-blue-600 dark:hover:text-blue-400 relative py-1 ${
+                      isActive
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-slate-650 dark:text-slate-200"
+                    }`}
+                  >
+                    {link.name}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activePublicNav"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
+                      />
+                    )}
+                  </Link>
+
+                  {/* Dropdown Menu Previews */}
+                  <AnimatePresence>
+                    {hasDropdown && hoveredNav === link.name.toLowerCase() && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="absolute left-1/2 -translate-x-1/2 mt-4 rounded-2xl border border-slate-200/80 bg-white/95 dark:border-slate-800/95 dark:bg-slate-950/95 shadow-[0_20px_50px_rgba(8,112,184,0.12)] dark:shadow-none z-50 overflow-hidden backdrop-blur-xl"
+                      >
+                        {renderNavDropdownContent(link.name.toLowerCase())}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               );
             })}
           </nav>
 
           {/* CTAs and Profile dropdown */}
           <div className="hidden lg:flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-              aria-label="Toggle theme"
-            >
-              {settings?.darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
+                aria-label="Theme options"
+              >
+                {settings?.darkMode ? <Moon className="h-5 w-5 text-indigo-400" /> : <Sun className="h-5 w-5 text-amber-500" />}
+              </button>
+
+              <AnimatePresence>
+                {isThemeMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsThemeMenuOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute right-0 mt-3 w-48 rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-2 shadow-xl backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 z-50 flex flex-col gap-1"
+                    >
+                      <div className="px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
+                        Theme Options
+                      </div>
+                      
+                      <button
+                        onClick={() => handleSelectTheme('light')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                          !settings?.darkMode
+                            ? "bg-blue-50/80 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                            : "text-slate-700 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-850"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">☀️ Light Mode</span>
+                        {!settings?.darkMode && <Check size={14} className="stroke-[2.5]" />}
+                      </button>
+
+                      <button
+                        onClick={() => handleSelectTheme('dark')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                          settings?.darkMode
+                            ? "bg-blue-50/80 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                            : "text-slate-700 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-850"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">🌙 Dark Mode</span>
+                        {settings?.darkMode && <Check size={14} className="stroke-[2.5]" />}
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
             <Link
               to="/quote"
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5 rounded-xl shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95 transition-all"
@@ -227,7 +395,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
               <div className="pt-4 border-t border-slate-100 dark:border-slate-900 space-y-2">
                 <button
-                  onClick={toggleTheme}
+                  onClick={() => handleSelectTheme(settings?.darkMode ? "light" : "dark")}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                 >
                   {settings?.darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

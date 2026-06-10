@@ -20,7 +20,8 @@ import {
   Printer,
   ChevronDown,
   Sun,
-  Moon
+  Moon,
+  Check
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -35,6 +36,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -44,9 +46,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     fetchSettings();
   }, [fetchNotifications, fetchSettings]);
 
-  const toggleTheme = async () => {
+  const handleSelectTheme = async (mode: "light" | "dark") => {
     if (settings) {
-      await updateSettings({ ...settings, darkMode: !settings.darkMode });
+      await updateSettings({ ...settings, darkMode: mode === "dark" });
+      setIsThemeMenuOpen(false);
     }
   };
 
@@ -152,13 +155,58 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {settings?.darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors text-slate-755 dark:text-slate-300 flex items-center justify-center cursor-pointer"
+                aria-label="Theme options"
+              >
+                {settings?.darkMode ? <Moon className="h-5 w-5 text-indigo-400" /> : <Sun className="h-5 w-5 text-amber-500" />}
+              </button>
+
+              <AnimatePresence>
+                {isThemeMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsThemeMenuOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute right-0 mt-3 w-48 rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-2 shadow-xl backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 z-50 flex flex-col gap-1"
+                    >
+                      <div className="px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
+                        Theme Options
+                      </div>
+                      
+                      <button
+                        onClick={() => handleSelectTheme('light')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                          !settings?.darkMode
+                            ? "bg-blue-50/80 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                            : "text-slate-700 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-850"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">☀️ Light Mode</span>
+                        {!settings?.darkMode && <Check size={14} className="stroke-[2.5]" />}
+                      </button>
+
+                      <button
+                        onClick={() => handleSelectTheme('dark')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                          settings?.darkMode
+                            ? "bg-blue-50/80 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400"
+                            : "text-slate-700 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-855"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">🌙 Dark Mode</span>
+                        {settings?.darkMode && <Check size={14} className="stroke-[2.5]" />}
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
             {/* Notification alert Bell */}
             <div className="relative">
               <button

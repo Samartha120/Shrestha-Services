@@ -18,6 +18,10 @@ export default function Checkbox({
       items-center
       gap-3
       cursor-pointer
+      select-none
+      text-sm
+      text-slate-700
+      dark:text-slate-350
       "
     >
       <input
@@ -28,9 +32,22 @@ export default function Checkbox({
             e.target.checked
           )
         }
+        className="
+        h-5
+        w-5
+        rounded-lg
+        border-slate-300
+        dark:border-slate-800
+        bg-white
+        dark:bg-slate-900/50
+        text-blue-600
+        focus:ring-blue-500
+        dark:focus:ring-offset-slate-900
+        transition-all
+        "
       />
 
-      <span>{label}</span>
+      <span className="font-semibold">{label}</span>
     </label>
   );
 }

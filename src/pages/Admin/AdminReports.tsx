@@ -3,8 +3,54 @@ import { reportsApi } from "@/services/reportsApi";
 import Card from "@/components/ui/Card";
 import Button from "@/components/common/Button";
 import Badge from "@/components/ui/Badge";
-import { DownloadCloud, FileSpreadsheet, Plus } from "lucide-react";
+import {
+  DownloadCloud,
+  FileSpreadsheet,
+  Plus,
+  FileText,
+  BarChart3,
+  Users,
+  Receipt,
+} from "lucide-react";
 import { toast } from "sonner";
+
+const reportTypes = [
+  {
+    value: "revenue",
+    label: "Revenues Sheet & Income",
+    sublabel: "Monthly billing summary",
+    icon: Receipt,
+    color: "blue",
+  },
+  {
+    value: "orders",
+    label: "Print Orders Dispatch List",
+    sublabel: "Order fulfillment breakdown",
+    icon: BarChart3,
+    color: "indigo",
+  },
+  {
+    value: "quotes",
+    label: "Audited Customer Quotes",
+    sublabel: "Quote specification summaries",
+    icon: FileText,
+    color: "emerald",
+  },
+  {
+    value: "users",
+    label: "Registered Business PAN/VAT",
+    sublabel: "Client verification records",
+    icon: Users,
+    color: "amber",
+  },
+];
+
+const colorClasses: Record<string, string> = {
+  blue: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
+  indigo: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400",
+  emerald: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
+  amber: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400",
+};
 
 export default function AdminReports() {
   const [reports, setReports] = useState<any[]>([]);
@@ -31,19 +77,13 @@ export default function AdminReports() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const title =
-        selectedType === "revenue"
-          ? "Revenue Summary Sheet"
-          : selectedType === "orders"
-          ? "Orders Breakdown Sheet"
-          : selectedType === "quotes"
-          ? "Quotes Specification Summary"
-          : "Registered PAN VAT Clients";
+      const selected = reportTypes.find((r) => r.value === selectedType);
+      const title = selected?.label || "Report";
       const type = selectedType === "revenue" || selectedType === "quotes" ? "PDF" : "CSV";
 
       const newReport = await reportsApi.generate(title, type);
       setReports((prev) => [newReport, ...prev]);
-      toast.success("Billing spreadsheet generated successfully.");
+      toast.success(`"${title}" generated successfully.`);
     } catch (err) {
       toast.error("Failed to generate report sheets");
     } finally {
@@ -52,45 +92,90 @@ export default function AdminReports() {
   };
 
   const handleDownload = (title: string) => {
-    toast.success(`Started downloading document "${title}"`);
+    toast.success(`Downloading "${title}"`);
   };
+
+  const selectedTypeInfo = reportTypes.find((r) => r.value === selectedType);
+  const SelectedIcon = selectedTypeInfo?.icon || FileSpreadsheet;
 
   return (
     <div className="space-y-8">
-      
-      {/* Title */}
+
+      {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Financial & Order Reports</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Export audits sheets, PAN/VAT reports, and print operations spreadsheets.
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Export audit sheets, PAN/VAT summaries, and print operations spreadsheets.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Generation Panel */}
-        <div className="space-y-6">
-          <h3 className="font-bold text-base text-slate-800 dark:text-slate-200 font-medium">Request Audit Export</h3>
-          
-          <Card className="border border-slate-200/80 dark:border-slate-800 p-6 space-y-4">
-            <div className="space-y-2 text-sm">
-              <label className="text-sm font-semibold">Report Parameters Category</label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
-              >
-                <option value="revenue">Revenues Sheet & Income (Monthly)</option>
-                <option value="orders">Print Orders Dispatch List</option>
-                <option value="quotes">Audited Customer Quotes Specifications</option>
-                <option value="users">Registered Business pan/vat database</option>
-              </select>
+
+        {/* Left — Report Builder Panel */}
+        <div className="space-y-5">
+          <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Generate Export</h3>
+
+          <Card className="p-6 border border-slate-200/80 dark:border-slate-800 space-y-5">
+
+            {/* Report Type Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Report Category
+              </label>
+              <div className="space-y-2">
+                {reportTypes.map((rt) => {
+                  const Icon = rt.icon;
+                  const isSelected = selectedType === rt.value;
+                  return (
+                    <button
+                      key={rt.value}
+                      onClick={() => setSelectedType(rt.value)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all duration-200 ${
+                        isSelected
+                          ? "border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/30"
+                          : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                      }`}
+                    >
+                      <div
+                        className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          isSelected ? colorClasses[rt.color] : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                        }`}
+                      >
+                        <Icon size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-xs font-bold truncate ${isSelected ? "text-blue-700 dark:text-blue-300" : "text-slate-800 dark:text-slate-200"}`}>
+                          {rt.label}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{rt.sublabel}</p>
+                      </div>
+                      {isSelected && (
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0 ml-auto" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Selected preview */}
+            <div className={`p-3 rounded-xl border border-dashed ${
+              selectedTypeInfo
+                ? "border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/20"
+                : "border-slate-200 dark:border-slate-700"
+            }`}>
+              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                <SelectedIcon size={13} className="text-blue-500 shrink-0" />
+                <span>
+                  Will export as <strong>{selectedType === "revenue" || selectedType === "quotes" ? "PDF" : "CSV"}</strong>
+                </span>
+              </div>
             </div>
 
             <Button
               onClick={handleGenerate}
               loading={generating}
-              leftIcon={<Plus size={16} />}
+              leftIcon={<Plus size={15} />}
               className="w-full"
             >
               Compile Report Sheet
@@ -98,52 +183,60 @@ export default function AdminReports() {
           </Card>
         </div>
 
-        {/* Right List Column */}
-        <div className="lg:col-span-2 space-y-4">
-          <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">Generated Reports Catalog</h3>
-          
-          <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        {/* Right — Generated Reports List */}
+        <div className="lg:col-span-2 space-y-5">
+          <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Generated Catalog</h3>
+
+          <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden">
             {loading ? (
               <div className="p-12 text-center text-sm text-slate-500">Checking spreadsheets index...</div>
             ) : reports.length === 0 ? (
-              <div className="p-16 text-center text-slate-400 text-sm space-y-2">
-                <FileSpreadsheet size={40} className="mx-auto text-slate-300" />
-                <p>No exports compiled yet.</p>
-                <p className="text-xs">Select a parameters sheet on the left to export records.</p>
+              <div className="p-16 text-center space-y-3">
+                <div className="h-14 w-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
+                  <FileSpreadsheet size={24} className="text-slate-400" />
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">No reports compiled</p>
+                  <p className="text-xs text-slate-400 mt-1">Select a report category on the left to export records.</p>
+                </div>
               </div>
             ) : (
-              reports.map((rep) => (
-                <div key={rep.id} className="p-5 flex items-center justify-between gap-4 hover:bg-slate-55/30 dark:hover:bg-slate-900/30 transition-colors">
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                      <FileSpreadsheet size={20} />
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {reports.map((rep) => (
+                  <div
+                    key={rep.id}
+                    className="p-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <FileSpreadsheet size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{rep.title}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                          {rep.size} &bull; {rep.type} &bull; Generated {new Date(rep.createdAt || rep.date).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{rep.title}</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        {rep.size} &bull; {rep.type} &bull; Generated {new Date(rep.createdAt || rep.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <Badge variant="success">Completed</Badge>
-                    <button
-                      onClick={() => handleDownload(rep.title)}
-                      className="p-2 text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
-                      title="Download sheet"
-                    >
-                      <DownloadCloud size={18} />
-                    </button>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <Badge variant="success">Completed</Badge>
+                      <button
+                        onClick={() => handleDownload(rep.title)}
+                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-xl transition-colors"
+                        title="Download sheet"
+                      >
+                        <DownloadCloud size={17} />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </Card>
         </div>
 
       </div>
-
     </div>
   );
 }
