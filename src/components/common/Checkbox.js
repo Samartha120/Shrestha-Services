@@ -1,0 +1,4 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export default function Checkbox({ checked, label, onChange, }) {
+    return (_jsxs("label", { className: "\r\n      flex\r\n      items-center\r\n      gap-3\r\n      cursor-pointer\r\n      select-none\r\n      text-sm\r\n      text-slate-700\r\n      dark:text-slate-350\r\n      ", children: [_jsx("input", { type: "checkbox", checked: checked, onChange: (e) => onChange(e.target.checked), className: "\r\n        h-5\r\n        w-5\r\n        rounded-lg\r\n        border-slate-300\r\n        dark:border-slate-800\r\n        bg-white\r\n        dark:bg-slate-900/50\r\n        text-blue-600\r\n        focus:ring-blue-500\r\n        dark:focus:ring-offset-slate-900\r\n        transition-all\r\n        " }), _jsx("span", { className: "font-semibold", children: label })] }));
+}

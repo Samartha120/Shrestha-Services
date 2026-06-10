@@ -464,78 +464,78 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </main>
 
       {/* Professional Footer */}
-      <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 pt-16 pb-8">
+      <footer className="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 border-t border-slate-200 dark:border-slate-900 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
           {/* Column 1: Intro */}
           <div>
             <div className="mb-4">
-              <span className="text-lg font-bold text-white tracking-tight">
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                 Shrestha Services
               </span>
             </div>
-            <p className="text-sm text-slate-400 leading-relaxed mb-6">
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
               Biratnagar's leading digital printing, signage manufacturing, and corporate advertising wrap solutions agency. Bringing your designs to life on premium materials.
             </p>
             <div className="flex gap-4">
               {/* Mock Social Media icons */}
-              <a href="#" className="h-9 w-9 rounded-lg bg-slate-800 hover:bg-blue-600 flex items-center justify-center hover:text-white transition-colors"><Phone className="h-4 w-4" /></a>
-              <a href="#" className="h-9 w-9 rounded-lg bg-slate-800 hover:bg-blue-600 flex items-center justify-center hover:text-white transition-colors"><Mail className="h-4 w-4" /></a>
+              <a href="#" className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 dark:hover:bg-blue-600 flex items-center justify-center hover:text-white transition-colors"><Phone className="h-4 w-4" /></a>
+              <a href="#" className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 dark:hover:bg-blue-600 flex items-center justify-center hover:text-white transition-colors"><Mail className="h-4 w-4" /></a>
             </div>
           </div>
 
           {/* Column 2: Services */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm tracking-wider uppercase">Our Services</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4 text-sm tracking-wider uppercase">Our Services</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/services" className="hover:text-white transition-colors">Flex Banner Printing</Link></li>
-              <li><Link to="/services" className="hover:text-white transition-colors">Acrylic Sign Boards</Link></li>
-              <li><Link to="/services" className="hover:text-white transition-colors">Frosted & Glow Stickers</Link></li>
-              <li><Link to="/services" className="hover:text-white transition-colors">Vehicle Wrap Decals</Link></li>
-              <li><Link to="/services" className="hover:text-white transition-colors">Roll-up Pull Stands</Link></li>
+              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Flex Banner Printing</Link></li>
+              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Acrylic Sign Boards</Link></li>
+              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Frosted & Glow Stickers</Link></li>
+              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Vehicle Wrap Decals</Link></li>
+              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Roll-up Pull Stands</Link></li>
             </ul>
           </div>
 
           {/* Column 3: Corporate Info */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm tracking-wider uppercase">Quick Links</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4 text-sm tracking-wider uppercase">Quick Links</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/about" className="hover:text-white transition-colors">Our Machinery & Team</Link></li>
-              <li><Link to="/gallery" className="hover:text-white transition-colors">Work Showcase Portfolio</Link></li>
-              <li><Link to="/testimonials" className="hover:text-white transition-colors font-medium text-blue-400">Reviews & Ratings</Link></li>
-              <li><Link to="/faq" className="hover:text-white transition-colors">FAQ & Print Guidelines</Link></li>
-              <li><Link to="/blog" className="hover:text-white transition-colors">Branding Blog Hub</Link></li>
-              <li><Link to="/careers" className="hover:text-white transition-colors">We are Hiring (Careers)</Link></li>
+              <li><Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Our Machinery & Team</Link></li>
+              <li><Link to="/gallery" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Work Showcase Portfolio</Link></li>
+              <li><Link to="/testimonials" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-blue-600 dark:text-blue-400">Reviews & Ratings</Link></li>
+              <li><Link to="/faq" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">FAQ & Print Guidelines</Link></li>
+              <li><Link to="/blog" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Branding Blog Hub</Link></li>
+              <li><Link to="/careers" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">We are Hiring (Careers)</Link></li>
             </ul>
           </div>
 
           {/* Column 4: Address Info */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm tracking-wider uppercase">Find Us</h3>
+            <h3 className="text-slate-900 dark:text-white font-semibold mb-4 text-sm tracking-wider uppercase">Find Us</h3>
             <ul className="space-y-3.5 text-sm">
               <li className="flex gap-2.5">
                 <MapPin className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-slate-400">Main Road, Biratnagar, Nepal</span>
+                <span className="text-slate-600 dark:text-slate-400">Main Road, Biratnagar, Nepal</span>
               </li>
               <li className="flex gap-2.5">
                 <Phone className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-slate-400">+977-1-4412345, +977 9851012345</span>
+                <span className="text-slate-600 dark:text-slate-400">+977-1-4412345, +977 9851012345</span>
               </li>
               <li className="flex gap-2.5">
                 <Mail className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-slate-400">info@shresthaservices.com.np</span>
+                <span className="text-slate-600 dark:text-slate-400">info@shresthaservices.com.np</span>
               </li>
             </ul>
           </div>
 
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200 dark:border-slate-900 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 dark:text-slate-500">
           <p>&copy; {new Date().getFullYear()} Shrestha Services Pvt. Ltd. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="hover:text-slate-300">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-slate-300">Terms of Conditions</Link>
-            <Link to="/sitemap" className="hover:text-slate-300">Sitemap</Link>
+            <Link to="/privacy" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Terms of Conditions</Link>
+            <Link to="/sitemap" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Sitemap</Link>
           </div>
         </div>
       </footer>

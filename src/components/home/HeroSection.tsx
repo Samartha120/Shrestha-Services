@@ -56,7 +56,7 @@ export default function HeroSection() {
             </motion.h1>
 
             <motion.p variants={itemVariants} className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-              Kathmandu's leading printing & signage expert. From business cards to billboards,
+              Biratnagar's leading printing & signage expert. From business cards to billboards,
               we bring your ideas to life with premium quality and unmatched service.
             </motion.p>
 
