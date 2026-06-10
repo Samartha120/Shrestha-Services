@@ -34,28 +34,28 @@ const missionVisionValues = [
 
 const teamMembers = [
   {
-    name: "Raj Shrestha",
-    role: "Founder & CEO",
-    initials: "RS",
-    bio: "20+ years in printing industry",
+    name: "Sanjeev Shrestha",
+    role: "Managing Director",
+    initials: "SS",
+    bio: "Leading the company with vision and expertise in the printing industry",
   },
   {
-    name: "Priya Sharma",
+    name: "Jeetendra Pradhan",
     role: "Operations Manager",
-    initials: "PS",
-    bio: "Expert in process optimization",
+    initials: "JP",
+    bio: "Ensuring smooth operations and exceptional service delivery",
   },
   {
-    name: "Amit Karki",
-    role: "Design Lead",
-    initials: "AK",
-    bio: "Creative excellence specialist",
+    name: "Santosh Kumar",
+    role: "Digital Printing Specialist",
+    initials: "SK",
+    bio: "Expert in digital printing technologies and quality control",
   },
   {
-    name: "Sunita Thapa",
-    role: "Quality Assurance",
-    initials: "ST",
-    bio: "Premium standards guardian",
+    name: "Jeetendra Pradhan",
+    role: "Senior Executive",
+    initials: "JP",
+    bio: "Dedicated to customer satisfaction and project management",
   },
 ];
 

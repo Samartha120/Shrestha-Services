@@ -9,6 +9,7 @@ interface CardProps {
   hover?: boolean;
   glass?: boolean;
   animated?: boolean;
+  onClick?: () => void;
 }
 
 export default function Card({
@@ -17,6 +18,7 @@ export default function Card({
   hover = true,
   glass = false,
   animated = true,
+  onClick,
 }: CardProps) {
   const Component = animated
     ? motion.div
@@ -59,6 +61,7 @@ export default function Card({
           `,
         className
       )}
+      onClick={onClick}
     >
       {children}
     </Component>
