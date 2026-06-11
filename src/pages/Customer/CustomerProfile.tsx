@@ -4,7 +4,7 @@ import Card from "@/components/ui/Card";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
 import { Link } from "react-router-dom";
-import { User, Phone, MapPin, Landmark, FileText, CheckCircle2 } from "lucide-react";
+import { User, Phone, MapPin, Landmark, FileText, CircleCheck as CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function CustomerProfile() {
@@ -147,7 +147,7 @@ export default function CustomerProfile() {
                   value={email}
                   disabled
                   leftIcon={<Landmark size={16} className="text-slate-400" />}
-                  className="bg-slate-50 text-slate-500"
+                  className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400"
                 />
                 <Input
                   label="Company Name"

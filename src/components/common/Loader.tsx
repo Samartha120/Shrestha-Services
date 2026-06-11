@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader as Loader2 } from "lucide-react";
 
 interface Props {
   text?: string;
@@ -22,7 +22,7 @@ export default function Loader({
         className="animate-spin"
       />
 
-      <p className="mt-3 text-slate-500">
+      <p className="mt-3 text-slate-500 dark:text-slate-400">
         {text}
       </p>
     </div>

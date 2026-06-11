@@ -66,6 +66,7 @@ export default function Modal({
             -translate-y-1/2
             rounded-3xl
             bg-white
+            dark:bg-slate-900
             p-6
             shadow-2xl
             "

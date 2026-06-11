@@ -71,20 +71,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col transition-all duration-300 ${
+        className={`fixed inset-y-0 left-0 z-40 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300 ${
           isSidebarOpen ? "w-64" : "w-20"
         }`}
       >
         {/* Sidebar Header */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
           <Link to="/" className="flex items-center gap-3 overflow-hidden">
             <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
               <Printer className="h-5 w-5 text-white" />
             </div>
             {isSidebarOpen && (
               <div className="flex flex-col">
-                <span className="font-bold text-white text-base leading-none tracking-tight">Shrestha</span>
-                <span className="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Services</span>
+                <span className="font-bold text-slate-900 dark:text-white text-base leading-none tracking-tight">Shrestha</span>
+                <span className="text-[9px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold">Services</span>
               </div>
             )}
           </Link>
@@ -102,7 +102,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className={`flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all ${
                   isActive
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
-                    : "hover:bg-slate-800 hover:text-white"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                 }`}
                 title={item.name}
               >
@@ -114,10 +114,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         {/* Sidebar Footer profile details */}
-        <div className="p-4 border-t border-slate-800 flex flex-col gap-2">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2">
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-all`}
+            className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-300 transition-all`}
           >
             <LogOut className="h-5 w-5 shrink-0" />
             {isSidebarOpen && <span>Logout Panel</span>}

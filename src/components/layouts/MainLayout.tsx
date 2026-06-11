@@ -169,7 +169,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <Toaster position="top-right" richColors />
       
       {/* Top Banner Contact Details */}
-      <div className="hidden lg:block bg-slate-900 text-slate-300 text-xs py-2 px-6 border-b border-slate-800">
+      <div className="hidden lg:block bg-slate-800 dark:bg-slate-900 text-slate-300 text-xs py-2 px-6 border-b border-slate-700 dark:border-slate-800">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-blue-500" /> +977-1-4412345</span>

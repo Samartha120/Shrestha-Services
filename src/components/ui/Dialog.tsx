@@ -104,6 +104,7 @@ export default function Dialog({
             -translate-y-1/2
             rounded-3xl
             bg-white
+            dark:bg-slate-900
             p-6
             shadow-2xl
             "
@@ -134,6 +135,7 @@ export default function Dialog({
                     mt-1
                     text-sm
                     text-slate-500
+                    dark:text-slate-400
                     "
                   >
                     {description}
@@ -147,6 +149,7 @@ export default function Dialog({
                 rounded-lg
                 p-2
                 hover:bg-slate-100
+                dark:hover:bg-slate-800
                 "
               >
                 <X size={18} />
