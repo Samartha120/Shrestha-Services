@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { analyticsApi } from "@/services/analyticsApi";
 import Card from "@/components/ui/Card";
+import { useTheme } from "@/providers/ThemeProvider";
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,7 +13,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { TrendingUp, TrendingDown, Activity, BarChart3, Coins, Users } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, ChartBar as BarChart3, Coins, Users } from "lucide-react";
 
 // --- Custom themed tooltip for charts ---
 interface TooltipEntry { name: string; value: number; color: string; }
@@ -84,10 +85,17 @@ const KpiCard = ({ icon: Icon, label, value, trend, trendLabel, color }: KpiCard
 };
 
 export default function AdminAnalytics() {
+  const { isDark } = useTheme();
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [visitorData, setVisitorData] = useState<any[]>([]);
   const [quoteData, setQuoteData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const gridStroke = isDark ? "rgba(51,65,85,0.35)" : "rgba(226,232,240,0.6)";
+  const axisTickFill = isDark ? "#94a3b8" : "#64748b";
+  const barFill1 = isDark ? "url(#revenueGradDark)" : "url(#revenueGrad)";
+  const lineStroke = isDark ? "#a5b4fc" : "#6366f1";
+  const lineDotStroke = isDark ? "#1e293b" : "#ffffff";
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -184,26 +192,30 @@ export default function AdminAnalytics() {
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={revenueData} barSize={28}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148,163,184,0.15)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                 <XAxis
                   dataKey="name"
                   stroke="transparent"
-                  tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
+                  tick={{ fill: axisTickFill, fontSize: 11, fontWeight: 500 }}
                 />
                 <YAxis
                   stroke="transparent"
-                  tick={{ fill: "#94a3b8", fontSize: 11 }}
+                  tick={{ fill: axisTickFill, fontSize: 11 }}
                   width={60}
                 />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(148,163,184,0.08)" }} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: isDark ? "rgba(148,163,184,0.06)" : "rgba(148,163,184,0.08)" }} />
                 <Bar
                   dataKey="revenue"
-                  fill="url(#revenueGrad)"
+                  fill={barFill1}
                   radius={[6, 6, 0, 0]}
                 />
                 <defs>
                   <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.7} />
+                  </linearGradient>
+                  <linearGradient id="revenueGradDark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#818cf8" stopOpacity={0.95} />
                     <stop offset="100%" stopColor="#6366f1" stopOpacity={0.7} />
                   </linearGradient>
                 </defs>
@@ -221,25 +233,25 @@ export default function AdminAnalytics() {
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={visitorData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.15)" />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
                 <XAxis
                   dataKey="name"
                   stroke="transparent"
-                  tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
+                  tick={{ fill: axisTickFill, fontSize: 11, fontWeight: 500 }}
                 />
                 <YAxis
                   stroke="transparent"
-                  tick={{ fill: "#94a3b8", fontSize: 11 }}
+                  tick={{ fill: axisTickFill, fontSize: 11 }}
                   width={50}
                 />
-                <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(99,102,241,0.3)", strokeWidth: 1 }} />
+                <Tooltip content={<ChartTooltip />} cursor={{ stroke: isDark ? "rgba(165,180,252,0.3)" : "rgba(99,102,241,0.3)", strokeWidth: 1 }} />
                 <Line
                   type="monotone"
                   dataKey="visitors"
-                  stroke="#6366f1"
+                  stroke={lineStroke}
                   strokeWidth={2.5}
-                  dot={{ fill: "#6366f1", r: 4, strokeWidth: 2, stroke: "#fff" }}
-                  activeDot={{ r: 6, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }}
+                  dot={{ fill: lineStroke, r: 4, strokeWidth: 2, stroke: lineDotStroke }}
+                  activeDot={{ r: 6, stroke: lineStroke, strokeWidth: 2, fill: lineDotStroke }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -267,20 +279,20 @@ export default function AdminAnalytics() {
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={quoteData} barGap={4} barSize={22}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148,163,184,0.15)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                 <XAxis
                   dataKey="name"
                   stroke="transparent"
-                  tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
+                  tick={{ fill: axisTickFill, fontSize: 11, fontWeight: 500 }}
                 />
                 <YAxis
                   stroke="transparent"
-                  tick={{ fill: "#94a3b8", fontSize: 11 }}
+                  tick={{ fill: axisTickFill, fontSize: 11 }}
                   width={40}
                 />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(148,163,184,0.08)" }} />
-                <Bar dataKey="submitted" fill="#94a3b8" radius={[5, 5, 0, 0]} />
-                <Bar dataKey="approved" fill="#10b981" radius={[5, 5, 0, 0]} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: isDark ? "rgba(148,163,184,0.06)" : "rgba(148,163,184,0.08)" }} />
+                <Bar dataKey="submitted" fill={isDark ? "#64748b" : "#94a3b8"} radius={[5, 5, 0, 0]} />
+                <Bar dataKey="approved" fill={isDark ? "#34d399" : "#10b981"} radius={[5, 5, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

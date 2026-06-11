@@ -1,14 +1,116 @@
 @import "tailwindcss";
 
+/* ── Light Theme Design Tokens ── */
 :root {
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* Backgrounds */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-overlay: rgba(248, 250, 252, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-strong: rgba(255, 255, 255, 0.95);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* Borders */
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --border-subtle: #f1f5f9;
+
+  /* Accent - Royal Blue / Indigo (Stripe-like) */
+  --accent-primary: #4f46e5;
+  --accent-primary-hover: #4338ca;
+  --accent-secondary: #6366f1;
+  --accent-tertiary: #818cf8;
+  --accent-subtle: rgba(79, 70, 229, 0.08);
+  --accent-medium: rgba(79, 70, 229, 0.15);
+
+  /* Status Colors */
+  --success: #10b981;
+  --success-subtle: rgba(16, 185, 129, 0.1);
+  --warning: #f59e0b;
+  --warning-subtle: rgba(245, 158, 7, 0.1);
+  --error: #ef4444;
+  --error-subtle: rgba(239, 68, 68, 0.1);
+  --info: #3b82f6;
+  --info-subtle: rgba(59, 130, 246, 0.1);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+
+  /* Code */
+  --code-bg: #f1f5f9;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Dark Theme Design Tokens ── */
+:root.dark {
+  /* Backgrounds - Deep Slate (NOT pure black) */
+  --bg-primary: #0c0f1a;
+  --bg-secondary: #111827;
+  --bg-elevated: #1e293b;
+  --bg-surface: #162032;
+  --bg-overlay: rgba(12, 15, 26, 0.9);
+  --bg-glass: rgba(30, 41, 59, 0.75);
+  --bg-glass-strong: rgba(30, 41, 59, 0.92);
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --text-inverse: #0f172a;
+
+  /* Borders */
+  --border-primary: #1e293b;
+  --border-secondary: #334155;
+  --border-subtle: #1e293b;
+
+  /* Accent - Indigo + Cyan (GitHub/Vercel-like) */
+  --accent-primary: #818cf8;
+  --accent-primary-hover: #6366f1;
+  --accent-secondary: #22d3ee;
+  --accent-tertiary: #a5b4fc;
+  --accent-subtle: rgba(129, 140, 248, 0.1);
+  --accent-medium: rgba(129, 140, 248, 0.18);
+
+  /* Status Colors */
+  --success: #34d399;
+  --success-subtle: rgba(52, 211, 153, 0.12);
+  --warning: #fbbf24;
+  --warning-subtle: rgba(251, 191, 36, 0.12);
+  --error: #f87171;
+  --error-subtle: rgba(248, 113, 113, 0.12);
+  --info: #60a5fa;
+  --info-subtle: rgba(96, 165, 250, 0.12);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 25px rgba(129, 140, 248, 0.2);
+
+  /* Code */
+  --code-bg: #1e293b;
 }
 
 #root {
@@ -22,11 +124,22 @@
 body {
   margin: 0;
   font-family: var(--sans);
-  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-header, footer, nav, aside, input, select, textarea, button, .card-transition {
-  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 code {
@@ -35,6 +148,42 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   border-radius: 4px;
-  background: var(--code-bg, #f4f3ec);
+  background: var(--code-bg);
   display: inline-flex;
+}
+
+/* ── Premium Theme Dropdown Glassmorphism ── */
+.theme-dropdown-glass {
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+:root.dark .theme-dropdown-glass {
+  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Recharts Theme Awareness ── */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--text-muted);
+  font-size: 12px;
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--border-primary);
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--bg-glass-strong) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-lg);
+}
+
+.recharts-legend-item-text {
+  fill: var(--text-secondary);
+  font-size: 12px;
 }

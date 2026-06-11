@@ -1,28 +1,10 @@
-import { type ReactNode, useState, useEffect } from "react";
+import { type ReactNode, useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useNotificationStore } from "@/store/notificationStore";
-import {
-  LayoutDashboard,
-  BarChart3,
-  Users,
-  Grid,
-  FolderOpen,
-  Image,
-  MessageSquare,
-  FileText,
-  Mail,
-  Bell,
-  Settings,
-  LogOut,
-  Menu,
-  Printer,
-  ChevronDown,
-  Sun,
-  Moon,
-  Check
-} from "lucide-react";
+import { useTheme } from "@/providers/ThemeProvider";
+import { LayoutDashboard, ChartBar as BarChart3, Users, Grid2x2 as Grid, FolderOpen, Image, MessageSquare, FileText, Mail, Bell, Settings, LogOut, Menu, Printer, ChevronDown, Sun, Moon, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface AdminLayoutProps {
@@ -32,11 +14,13 @@ export interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, logout, checkAuth } = useAuthStore();
   const { notifications, fetchNotifications, markAsRead } = useNotificationStore();
-  const { settings, updateSettings, fetchSettings } = useSettingsStore();
+  const { fetchSettings } = useSettingsStore();
+  const { isDark, setTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -47,11 +31,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, [fetchNotifications, fetchSettings]);
 
   const handleSelectTheme = async (mode: "light" | "dark") => {
-    if (settings) {
-      await updateSettings({ ...settings, darkMode: mode === "dark" });
-      setIsThemeMenuOpen(false);
-    }
+    await setTheme(mode);
+    setIsThemeMenuOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+    if (isThemeMenuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isThemeMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -155,55 +147,74 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
-            <div className="relative">
+            <div className="relative" ref={themeMenuRef}>
               <button
                 onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors text-slate-755 dark:text-slate-300 flex items-center justify-center cursor-pointer"
+                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 transition-all text-slate-600 dark:text-slate-300 flex items-center justify-center cursor-pointer hover:border-slate-300 dark:hover:border-slate-600"
                 aria-label="Theme options"
               >
-                {settings?.darkMode ? <Moon className="h-5 w-5 text-indigo-400" /> : <Sun className="h-5 w-5 text-amber-500" />}
+                <Moon className={`h-[18px] w-[18px] transition-all ${isDark ? "text-indigo-400" : "text-slate-500"}`} />
               </button>
 
               <AnimatePresence>
                 {isThemeMenuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsThemeMenuOpen(false)} />
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="absolute right-0 mt-3 w-48 rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-2 shadow-xl backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 z-50 flex flex-col gap-1"
-                    >
-                      <div className="px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
-                        Theme Options
-                      </div>
-                      
-                      <button
-                        onClick={() => handleSelectTheme('light')}
-                        className={`flex items-center justify-between w-full px-3 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
-                          !settings?.darkMode
-                            ? "bg-blue-50/80 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
-                            : "text-slate-700 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-850"
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">☀️ Light Mode</span>
-                        {!settings?.darkMode && <Check size={14} className="stroke-[2.5]" />}
-                      </button>
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                    className="absolute right-0 mt-2.5 w-[200px] rounded-xl theme-dropdown-glass p-1.5 z-50 flex flex-col gap-0.5 origin-top-right"
+                  >
+                    <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-[0.12em] text-slate-400 dark:text-slate-500">
+                      Appearance
+                    </div>
 
-                      <button
-                        onClick={() => handleSelectTheme('dark')}
-                        className={`flex items-center justify-between w-full px-3 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
-                          settings?.darkMode
-                            ? "bg-blue-50/80 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400"
-                            : "text-slate-700 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-855"
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">🌙 Dark Mode</span>
-                        {settings?.darkMode && <Check size={14} className="stroke-[2.5]" />}
-                      </button>
-                    </motion.div>
-                  </>
+                    <button
+                      onClick={() => handleSelectTheme('light')}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all cursor-pointer ${
+                        !isDark
+                          ? "bg-indigo-50/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/60 dark:hover:bg-slate-800/50"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Sun className="h-4 w-4 text-amber-500" />
+                        Light
+                      </span>
+                      {!isDark && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <Check size={14} className="text-indigo-600 dark:text-indigo-400 stroke-[2.5]" />
+                        </motion.div>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => handleSelectTheme('dark')}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all cursor-pointer ${
+                        isDark
+                          ? "bg-indigo-50/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/60 dark:hover:bg-slate-800/50"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                        Dark
+                      </span>
+                      {isDark && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <Check size={14} className="text-indigo-600 dark:text-indigo-400 stroke-[2.5]" />
+                        </motion.div>
+                      )}
+                    </button>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>

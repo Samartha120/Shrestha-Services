@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { analyticsApi } from "@/services/analyticsApi";
 import { getMockDb } from "@/utils/mockDb";
+import { useTheme } from "@/providers/ThemeProvider";
 import {
   TrendingUp,
   DollarSign,
@@ -36,6 +37,7 @@ type Timeframe = "Daily" | "Weekly" | "Monthly" | "Yearly";
 type ActiveTab = "revenue" | "users" | "services" | "orders";
 
 export default function AdminDashboard() {
+  const { isDark } = useTheme();
   const [stats, setStats] = useState<any>(null);
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [serviceData, setServiceData] = useState<any[]>([]);
@@ -75,6 +77,11 @@ export default function AdminDashboard() {
   }, []);
 
   const COLORS = ["#3b82f6", "#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899"];
+  const gridStroke = isDark ? "rgba(51,65,85,0.4)" : "rgba(226,232,240,0.8)";
+  const axisTickFill = isDark ? "#94a3b8" : "#64748b";
+  const tooltipBg = isDark ? "rgba(30,41,59,0.92)" : "rgba(255,255,255,0.95)";
+  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
+  const tooltipText = isDark ? "#e2e8f0" : "#334155";
 
   // Dynamically filter or compute chart data based on timeframe state
   const getFilteredRevenueData = () => {
@@ -303,33 +310,33 @@ export default function AdminDashboard() {
               <AreaChart data={getFilteredRevenueData()}>
                 <defs>
                   <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor={isDark ? "#818cf8" : "#3b82f6"} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={isDark ? "#818cf8" : "#3b82f6"} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800/80" />
-                <XAxis dataKey="name" stroke="#94a3b8" fontStyle="semibold" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
-                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#revenueGrad)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill, fontWeight: 600 }} />
+                <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
+                <Area type="monotone" dataKey="revenue" stroke={isDark ? "#818cf8" : "#3b82f6"} strokeWidth={2.5} fillOpacity={1} fill="url(#revenueGrad)" />
               </AreaChart>
             ) : activeTab === "users" ? (
               <LineChart data={getUserGrowthData()}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800/80" />
-                <XAxis dataKey="name" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill }} />
+                <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
                 <Legend />
-                <Line type="monotone" name="User Growth" dataKey="userGrowth" stroke="#06b6d4" strokeWidth={2.5} />
-                <Line type="monotone" name="Active Users" dataKey="activeUsers" stroke="#6366f1" strokeWidth={2.5} />
-                <Line type="monotone" name="Returning Users" dataKey="returningUsers" stroke="#10b981" strokeWidth={2.5} />
+                <Line type="monotone" name="User Growth" dataKey="userGrowth" stroke={isDark ? "#22d3ee" : "#06b6d4"} strokeWidth={2.5} />
+                <Line type="monotone" name="Active Users" dataKey="activeUsers" stroke={isDark ? "#a5b4fc" : "#6366f1"} strokeWidth={2.5} />
+                <Line type="monotone" name="Returning Users" dataKey="returningUsers" stroke={isDark ? "#34d399" : "#10b981"} strokeWidth={2.5} />
               </LineChart>
             ) : activeTab === "services" ? (
               <BarChart data={serviceData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800/80" />
-                <XAxis dataKey="name" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill }} />
+                <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
                 <Bar dataKey="value" name="Popularity %" fill="#818cf8" radius={[4, 4, 0, 0]}>
                   {serviceData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -338,10 +345,10 @@ export default function AdminDashboard() {
               </BarChart>
             ) : (
               <BarChart data={getFilteredOrderData()}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800/80" />
-                <XAxis dataKey="name" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill }} />
+                <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
                 <Legend />
                 <Bar dataKey="orders" name="Order count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="revenuePerOrder" name="Avg revenue (NPR)" fill="#10b981" radius={[4, 4, 0, 0]} />
