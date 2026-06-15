@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMockDb } from "@/utils/mockDb";
+import { orderService } from "@/lib/supabase/orderService";
 import { useAuthStore } from "@/store/authStore";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -15,13 +15,16 @@ export default function CustomerOrders() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchOrders = () => {
+    const fetchOrders = async () => {
       setLoading(true);
       try {
-        const db = getMockDb();
-        const userOrders = db.orders.filter(
-          (o) => o.customerName.includes(user?.name || "") || user?.role === "admin"
-        );
+        if (!user) return;
+        let userOrders;
+        if (user.role === "admin" || user.role === "superadmin") {
+          userOrders = await orderService.getAll();
+        } else {
+          userOrders = await orderService.getByUserId(user.id);
+        }
         setOrders(userOrders);
       } catch (err) {
         console.error(err);
@@ -31,6 +34,7 @@ export default function CustomerOrders() {
     };
     if (user) fetchOrders();
   }, [user]);
+
 
   const getStatusStep = (status: string) => {
     switch (status.toLowerCase()) {

@@ -1,30 +1,19 @@
-import { getMockDb, updateMockDb, delay } from "@/utils/mockDb";
+import api from "./api";
 import type { UserProfile } from "@/types/user.types";
 
 export const usersApi = {
   getAll: async (): Promise<UserProfile[]> => {
-    await delay(500);
-    const db = getMockDb();
-    return db.users;
+    const res = await api.get("/admin/users");
+    return res.data.data;
   },
 
   updateRole: async (id: string, role: string): Promise<UserProfile> => {
-    await delay(600);
-    const db = getMockDb();
-    const idx = db.users.findIndex((u) => u.id === id);
-    if (idx === -1) throw new Error("User not found");
-
-    db.users[idx].role = role;
-    updateMockDb("ss_users", db.users);
-    return db.users[idx];
+    const res = await api.patch(`/admin/users/${id}/role`, { role });
+    return res.data.data;
   },
 
   delete: async (id: string): Promise<boolean> => {
-    await delay(500);
-    const db = getMockDb();
-    const filtered = db.users.filter((u) => u.id !== id);
-    if (filtered.length === db.users.length) return false;
-    updateMockDb("ss_users", filtered);
-    return true;
+    const res = await api.delete(`/admin/users/${id}`);
+    return res.data.status === "success";
   },
 };

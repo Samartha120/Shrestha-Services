@@ -1,0 +1,296 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Role {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  users     User[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("permissions")
+}
+
+model User {
+  id            String         @id @db.Uuid
+  name          String
+  email         String         @unique
+  roleId        String?        @map("role_id") @db.Uuid
+  avatar        String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  
+  role          Role?          @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  customer      Customer?
+  admin         Admin?
+  superAdmin    SuperAdmin?
+  testimonials  Testimonial[]
+  notifications Notification[]
+  activityLogs  ActivityLog[]
+  auditLogs     AuditLog[]
+  orders        Order[]
+  fileUploads   FileUpload[]
+
+  @@map("users")
+}
+
+model Customer {
+  id           String   @id @db.Uuid
+  phone        String?
+  address      String?
+  companyName  String?  @map("company_name")
+  panVatNumber String?  @map("pan_vat_number")
+  updatedAt    DateTime @default(now()) @map("updated_at")
+
+  user         User     @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("customers")
+}
+
+model Admin {
+  id         String   @id @db.Uuid
+  department String?
+  updatedAt  DateTime @default(now()) @map("updated_at")
+
+  user       User     @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("admins")
+}
+
+model SuperAdmin {
+  id        String   @id @db.Uuid
+  level     Int      @default(1)
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  user      User     @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("super_admins")
+}
+
+model Service {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  slug        String   @unique
+  description String
+  image       String?
+  category    String
+  basePrice   Decimal  @map("base_price") @db.Decimal
+  materials   String[] @default([])
+  features    String[] @default([])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("services")
+}
+
+model ProjectCategory {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  projects  Project[]
+
+  @@map("project_categories")
+}
+
+model Project {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  slug        String           @unique
+  image       String?
+  description String?
+  categoryId  String?          @map("category_id") @db.Uuid
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("projects")
+}
+
+model GalleryImage {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  image       String
+  category    String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("gallery_images")
+}
+
+model Testimonial {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerName String   @map("customer_name")
+  rating       Int
+  review       String
+  userId       String?  @map("user_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("testimonials")
+}
+
+model ContactInquiry {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contact_inquiries")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  userId    String?  @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  action    String
+  details   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  action    String
+  details   Json?
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
+
+model CompanySettings {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  logo        String?
+  email       String
+  phone       String
+  address     String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("company_settings")
+}
+
+model Quote {
+  id             String       @id
+  serviceId      String       @map("service_id")
+  customerName   String       @map("customer_name")
+  email          String
+  phone          String
+  width          Decimal?     @db.Decimal
+  height         Decimal?     @db.Decimal
+  notes          String?
+  status         String       @default("Pending")
+  estimatedPrice Decimal      @default(0) @map("estimated_price") @db.Decimal
+  material       String
+  quantity       Int          @default(1)
+  fileUrl        String?      @map("file_url")
+  fileType       String?      @map("file_type")
+  fileWeight     String?      @map("file_weight")
+  date           DateTime     @default(now())
+  orders         Order[]
+  fileUploads    FileUpload[]
+
+  @@map("quotes")
+}
+
+model OrderStatus {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  orders    Order[]
+
+  @@map("order_status")
+}
+
+model Order {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderNumber  String      @unique @map("order_number")
+  customerName String      @map("customer_name")
+  userId       String?     @map("user_id") @db.Uuid
+  statusId     String?     @map("status_id") @db.Uuid
+  totalAmount  Decimal     @map("total_amount") @db.Decimal
+  quoteId      String?     @map("quote_id")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status       OrderStatus? @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  quote        Quote?      @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId   String   @map("order_id") @db.Uuid
+  serviceId String   @map("service_id")
+  quantity  Int
+  price     Decimal  @db.Decimal
+  width     Decimal? @db.Decimal
+  height    Decimal? @db.Decimal
+  notes     String?
+  material  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model FileUpload {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fileName  String   @map("file_name")
+  fileUrl   String   @map("file_url")
+  fileType  String   @map("file_type")
+  fileSize  String   @map("file_size")
+  userId    String?  @map("user_id") @db.Uuid
+  quoteId   String?  @map("quote_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quote     Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+
+  @@map("file_uploads")
+}

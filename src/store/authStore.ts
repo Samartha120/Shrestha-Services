@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { User, LoginPayload } from "@/types/auth.types";
 import { authApi } from "@/services/authApi";
+import { supabase } from "@/lib/supabase/supabaseClient";
 
 interface AuthState {
   user: User | null;
@@ -27,27 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      // Mock authorization validation
-      let user: User;
-      let token = "mock-jwt-token";
-
-      if (payload.email === "admin@shrestha.com" && payload.password === "admin123") {
-        user = { id: "u1", name: "Prabin Shrestha (Admin)", email: payload.email, role: "admin" };
-      } else if (payload.email === "customer@shrestha.com" && payload.password === "customer123") {
-        user = { id: "u2", name: "Suresh Thapa (Client)", email: payload.email, role: "customer" };
-      } else {
-        // Mock register login fallback
-        const existingUsers = JSON.parse(localStorage.getItem("ss_users") || "[]");
-        const matched = existingUsers.find((u: any) => u.email === payload.email);
-        if (matched) {
-          user = { id: matched.id, name: matched.name, email: matched.email, role: matched.role };
-        } else {
-          throw new Error("Invalid email or password. Use admin@shrestha.com (admin123) or customer@shrestha.com (customer123).");
-        }
-      }
-
-      localStorage.setItem("accessToken", token);
-      localStorage.setItem("currentUser", JSON.stringify(user));
+      const { user, token } = await authApi.login(payload);
       set({ user, token, isAuthenticated: true, isLoading: false });
       return user;
     } catch (err: any) {
@@ -59,34 +40,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      const dbUsers = JSON.parse(localStorage.getItem("ss_users") || "[]");
-      const userExists = dbUsers.some((u: any) => u.email === payload.email);
-      if (userExists) throw new Error("Email is already registered");
-
-      const newUser = {
-        id: `u-${Date.now()}`,
-        name: payload.name,
-        email: payload.email,
-        role: "customer",
-        createdAt: new Date().toISOString(),
-      };
-      
-      dbUsers.push(newUser);
-      localStorage.setItem("ss_users", JSON.stringify(dbUsers));
-
-      // Automatically log the user in after registration
-      const mockToken = "mock-jwt-token";
-      localStorage.setItem("accessToken", mockToken);
-      localStorage.setItem("currentUser", JSON.stringify(newUser));
-
-      set({
-        user: { id: newUser.id, name: newUser.name, email: newUser.email, role: "customer" },
-        token: mockToken,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-
-      return newUser;
+      const user = await authApi.register(payload);
+      const token = localStorage.getItem("accessToken");
+      set({ user, token, isAuthenticated: !!token, isLoading: false });
+      return user;
     } catch (err: any) {
       set({ error: err.message || "Registration failed", isLoading: false });
       throw err;
@@ -118,8 +75,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("currentUser");
+      await authApi.logout();
       set({ user: null, token: null, isAuthenticated: false, isLoading: false });
     } catch (err) {
       set({ isLoading: false });
@@ -127,16 +83,45 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
-    const token = localStorage.getItem("accessToken");
+    // 1. Instantly load from localStorage if available to avoid flicker
+    const cachedToken = localStorage.getItem("accessToken");
     const cachedUser = localStorage.getItem("currentUser");
-    if (token && cachedUser) {
-      const user = JSON.parse(cachedUser);
-      set({ user, token, isAuthenticated: true });
-      return user;
+    if (cachedToken && cachedUser) {
+      try {
+        const parsedUser = JSON.parse(cachedUser);
+        set({ user: parsedUser, token: cachedToken, isAuthenticated: true });
+      } catch (e) {
+        // ignore
+      }
     }
-    set({ user: null, token: null, isAuthenticated: false });
-    return null;
+
+    // 2. Perform async check to see if the session is still active
+    set({ isLoading: true });
+    try {
+      const user = await authApi.me();
+      if (user) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token || cachedToken;
+        if (token) {
+          localStorage.setItem("accessToken", token);
+          localStorage.setItem("currentUser", JSON.stringify(user));
+        }
+        set({ user, token, isAuthenticated: true, isLoading: false });
+        return user;
+      } else {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("currentUser");
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+        return null;
+      }
+    } catch (err: any) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("currentUser");
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      return null;
+    }
   },
 
   clearError: () => set({ error: null }),
 }));
+

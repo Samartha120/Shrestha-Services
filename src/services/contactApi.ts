@@ -1,46 +1,19 @@
-import { getMockDb, updateMockDb, delay } from "@/utils/mockDb";
+import api from "./api";
 import type { Contact, ContactFormData } from "@/types/contact.types";
 
 export const contactApi = {
   submit: async (formData: ContactFormData): Promise<Contact> => {
-    await delay(700);
-    const db = getMockDb();
-    const newContact: Contact = {
-      id: `c-${Date.now()}`,
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      message: `${formData.subject ? `[${formData.subject}] ` : ""}${formData.message}`,
-      createdAt: new Date().toISOString(),
-    };
-    db.inquiries.push(newContact);
-    updateMockDb("ss_inquiries", db.inquiries);
-
-    // Create system notification for admin
-    const newNotification = {
-      id: `n-${Date.now()}`,
-      title: "New Customer Inquiry",
-      message: `Inquiry from ${formData.name}: "${formData.subject || "No Subject"}"`,
-      read: false
-    };
-    db.notifications.unshift(newNotification);
-    updateMockDb("ss_notifications", db.notifications);
-
-    return newContact;
+    const res = await api.post("/inquiries", formData);
+    return res.data.data;
   },
 
   getAll: async (): Promise<Contact[]> => {
-    await delay(500);
-    const db = getMockDb();
-    return db.inquiries;
+    const res = await api.get("/inquiries");
+    return res.data.data;
   },
 
   delete: async (id: string): Promise<boolean> => {
-    await delay(400);
-    const db = getMockDb();
-    const filtered = db.inquiries.filter((c) => c.id !== id);
-    if (filtered.length === db.inquiries.length) return false;
-    updateMockDb("ss_inquiries", filtered);
-    return true;
+    const res = await api.delete(`/inquiries/${id}`);
+    return res.data.status === "success";
   },
 };
