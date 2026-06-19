@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register, error: authError, clearError } = useAuthStore();
+  const { register, sendOtp, error: authError, clearError } = useAuthStore();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
@@ -33,13 +33,23 @@ export default function RegisterPage() {
   // Step 4: Terms
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setValidationError("");
     if (step === 1) {
       if (!name || !email || !password) {
         setValidationError("Please complete all fields in Step 1.");
         return;
       }
+      setLoading(true);
+      try {
+        await sendOtp(email);
+        navigate("/verify-otp", { state: { email, password, name } });
+      } catch (err) {
+        // Handled by store
+      } finally {
+        setLoading(false);
+      }
+      return;
     } else if (step === 2) {
       if (!companyName || !industryType) {
         setValidationError("Company Name and Industry Type are required.");

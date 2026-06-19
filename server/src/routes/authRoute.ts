@@ -8,6 +8,8 @@ import {
   registerSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  sendOtpSchema,
+  verifyOtpSchema,
 } from "../validators/auth.validator.js";
 
 const router = Router();
@@ -17,6 +19,18 @@ router.post(
   authLimiter,
   validateRequest(loginSchema),
   authController.login
+);
+
+router.post(
+  "/send-otp",
+  validateRequest(sendOtpSchema),
+  authController.sendOtp
+);
+
+router.post(
+  "/verify-otp",
+  validateRequest(verifyOtpSchema),
+  authController.verifyOtp
 );
 
 router.post(
@@ -36,6 +50,8 @@ router.post(
   validateRequest(resetPasswordSchema),
   authController.resetPassword
 );
+
+router.post("/google-callback", authController.googleCallback);
 
 router.post("/logout", authController.logout);
 

@@ -30,6 +30,7 @@ model User {
   email         String         @unique
   roleId        String?        @map("role_id") @db.Uuid
   avatar        String?
+  isVerified    Boolean        @default(false) @map("is_verified")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   

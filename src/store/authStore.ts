@@ -10,12 +10,17 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (payload: LoginPayload) => Promise<User>;
+  sendOtp: (email: string) => Promise<void>;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
   register: (payload: any) => Promise<any>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (password: string, token: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<User | null>;
   clearError: () => void;
+  setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -33,6 +38,28 @@ export const useAuthStore = create<AuthState>((set) => ({
       return user;
     } catch (err: any) {
       set({ error: err.message || "Login failed", isLoading: false });
+      throw err;
+    }
+  },
+
+  sendOtp: async (email) => {
+    set({ isLoading: true, error: null });
+    try {
+      await authApi.sendOtp(email);
+      set({ isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message || "Failed to send OTP", isLoading: false });
+      throw err;
+    }
+  },
+
+  verifyOtp: async (email, otp) => {
+    set({ isLoading: true, error: null });
+    try {
+      await authApi.verifyOtp(email, otp);
+      set({ isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message || "Invalid OTP", isLoading: false });
       throw err;
     }
   },
@@ -123,5 +150,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  setUser: (user) => set({ user }),
+  setToken: (token) => set({ token }),
+  setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
 }));
 

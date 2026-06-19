@@ -5,6 +5,7 @@ import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
 import { Printer, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase/supabaseClient";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -14,6 +15,21 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Google sign-in failed:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +164,7 @@ export default function LoginPage() {
         {/* Google Button */}
         <button
           type="button"
+          onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md"
         >
           <svg className="h-6 w-6" viewBox="0 0 48 48">

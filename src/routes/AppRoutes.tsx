@@ -32,6 +32,8 @@ import NotFoundPage from "@/pages/NotFound/NotFoundPage";
 // Authentication Pages
 import LoginPage from "@/pages/Auth/LoginPage";
 import RegisterPage from "@/pages/Auth/RegisterPage";
+import VerifyOtpPage from "@/pages/Auth/VerifyOtpPage";
+import AuthCallbackPage from "@/pages/Auth/AuthCallbackPage";
 import ForgotPasswordPage from "@/pages/Auth/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/Auth/ResetPasswordPage";
 
@@ -66,6 +68,8 @@ export default function AppRoutes() {
         {/* Customer Auth */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         

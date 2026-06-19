@@ -10,6 +10,24 @@ export const authApi = {
     return data;
   },
 
+  googleLogin: async (accessToken: string) => {
+    const res = await api.post("/auth/google-callback", { accessToken });
+    const data = res.data.data;
+    localStorage.setItem("accessToken", data.token);
+    localStorage.setItem("currentUser", JSON.stringify(data.user));
+    return data;
+  },
+
+  sendOtp: async (email: string) => {
+    await api.post("/auth/send-otp", { email });
+    return { success: true };
+  },
+
+  verifyOtp: async (email: string, otp: string) => {
+    await api.post("/auth/verify-otp", { email, otp });
+    return { success: true };
+  },
+
   register: async (payload: any) => {
     const res = await api.post("/auth/register", payload);
     const user = res.data.data.user;
