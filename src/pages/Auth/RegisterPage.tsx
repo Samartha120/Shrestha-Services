@@ -13,11 +13,13 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Step 1 Fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Step 2 Fields
   const [companyName, setCompanyName] = useState("");
@@ -33,11 +35,27 @@ export default function RegisterPage() {
   // Step 4: Terms
   const [agreeTerms, setAgreeTerms] = useState(false);
 
+  // Password strength calculation
+  const getPasswordStrength = (pwd: string) => {
+    let strength = 0;
+    if (pwd.length >= 6) strength += 25;
+    if (/[A-Z]/.test(pwd)) strength += 25;
+    if (/[0-9]/.test(pwd)) strength += 25;
+    if (/[^A-Za-z0-9]/.test(pwd)) strength += 25;
+    return strength;
+  };
+
+  const passwordStrength = getPasswordStrength(password);
+
   const handleNextStep = async () => {
     setValidationError("");
     if (step === 1) {
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !confirmPassword) {
         setValidationError("Please complete all fields in Step 1.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setValidationError("Passwords do not match.");
         return;
       }
       setLoading(true);
@@ -138,7 +156,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            {/* Enhanced Step Indicator with Arrows */}
+            {/* Step Indicator EXACTLY like image */}
             <div className="mb-10">
               <div className="flex items-center justify-between">
                 {steps.map((s, index) => (
@@ -264,6 +282,44 @@ export default function RegisterPage() {
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
                     </div>
+                    {/* Password strength indicator */}
+                    {password && (
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          initial={{ width: "0%" }}
+                          animate={{
+                            width: `${passwordStrength}%`,
+                            backgroundColor:
+                              passwordStrength < 50
+                                ? "#ef4444" // red
+                                : passwordStrength < 75
+                                ? "#f59e0b" // amber
+                                : "#10b981" // green
+                          }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-base font-semibold text-slate-800 dark:text-slate-200">Confirm Password</label>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -360,12 +416,12 @@ export default function RegisterPage() {
                 )}
 
                 {step < 4 ? (
-                  <Button type="button" onClick={handleNextStep} className="px-10 py-3 text-base flex items-center gap-2">
+                  <Button type="button" onClick={handleNextStep} className="px-10 py-3 text-base flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
                     Continue
                     <ChevronRight size={18} />
                   </Button>
                 ) : (
-                  <Button type="submit" loading={loading} className="px-10 py-3 text-base">
+                  <Button type="submit" loading={loading} className="px-10 py-3 text-base bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
                     Register Account
                   </Button>
                 )}
