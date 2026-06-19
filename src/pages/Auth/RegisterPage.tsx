@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
-import { Printer, Check } from "lucide-react";
+import { Printer, Check, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function RegisterPage() {
@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Step 1 Fields
   const [name, setName] = useState("");
@@ -102,69 +103,114 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-12">
-      <div className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-10 shadow-2xl"
+      >
         
         {step < 5 ? (
           <>
             {/* Header */}
-            <div className="flex flex-col items-center mb-8 text-center">
-              <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md mb-3">
-                <Printer className="h-5 w-5 text-white" />
-              </div>
-              <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Create Your Account</h2>
-              <p className="text-xs text-slate-550 mt-1 dark:text-slate-400">
+            <div className="flex flex-col items-center mb-10 text-center">
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200 }}
+                className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/30 mb-4"
+              >
+                <Printer className="h-7 w-7 text-white" />
+              </motion.div>
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Create Your Account</h2>
+              <p className="text-base text-slate-600 mt-2 dark:text-slate-400">
                 Register your business for digital printing & advertising services
               </p>
             </div>
 
-            {/* Step Indicator */}
-            <div className="mb-8 flex justify-between items-center relative">
-              {/* Animated Progress connector lines */}
-              <div className="absolute left-0 right-0 h-1 bg-slate-100 dark:bg-slate-850 top-1/2 -translate-y-1/2 -z-10 rounded-full">
-                <motion.div
-                  className="h-full bg-blue-600 rounded-full"
-                  initial={{ width: "0%" }}
-                  animate={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                />
-              </div>
-              
-              {steps.map((s) => (
-                <div key={s.number} className="flex flex-col items-center bg-white dark:bg-slate-900 px-3 z-10">
-                  <motion.div
-                    initial={false}
-                    animate={{
-                      backgroundColor: step > s.number ? "#2563eb" : step === s.number ? "#eff6ff" : "#f8fafc",
-                      borderColor: step >= s.number ? "#2563eb" : "#e2e8f0",
-                      scale: step === s.number ? 1.15 : 1.0,
-                    }}
-                    className={`h-9 w-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                      step > s.number
-                        ? "text-white bg-blue-600 border-blue-650"
-                        : step === s.number
-                        ? "text-blue-600 shadow-md shadow-blue-500/20 dark:bg-blue-955/40 dark:border-blue-500"
-                        : "text-slate-400 dark:bg-slate-850 dark:border-slate-700"
-                    }`}
-                  >
-                    {step > s.number ? (
+            {/* Enhanced Step Indicator with Arrows */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between">
+                {steps.map((s, index) => (
+                  <div key={s.number} className="flex items-center">
+                    <div className="flex flex-col items-center">
                       <motion.div
-                        initial={{ scale: 0, rotate: -30 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        initial={false}
+                        animate={{
+                          backgroundColor: step > s.number ? "#2563eb" : step === s.number ? "#eff6ff" : "#f8fafc",
+                          borderColor: step >= s.number ? "#2563eb" : "#e2e8f0",
+                          scale: step === s.number ? 1.2 : 1.0,
+                        }}
+                        className={`h-12 w-12 rounded-full flex items-center justify-center text-sm font-extrabold border-2 transition-all duration-300 ${
+                          step > s.number
+                            ? "text-white bg-blue-600 border-blue-600 shadow-lg shadow-blue-500/30"
+                            : step === s.number
+                            ? "text-blue-600 shadow-xl shadow-blue-500/30 dark:bg-blue-950/40 dark:border-blue-500"
+                            : "text-slate-400 dark:bg-slate-800 dark:border-slate-700"
+                        }`}
                       >
-                        <Check size={16} className="stroke-[3]" />
+                        {step > s.number ? (
+                          <motion.div
+                            initial={{ scale: 0, rotate: -30 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                          >
+                            <Check size={20} className="stroke-[3]" />
+                          </motion.div>
+                        ) : (
+                          <span>{s.number}</span>
+                        )}
                       </motion.div>
-                    ) : (
-                      <span>{s.number}</span>
+                      <span className={`text-xs font-bold mt-3 ${
+                        step >= s.number ? "text-blue-700 dark:text-blue-400" : "text-slate-500 dark:text-slate-500"
+                      }`}>
+                        {s.label}
+                      </span>
+                    </div>
+                    
+                    {index < steps.length - 1 && (
+                      <div className="flex items-center mx-2 sm:mx-4">
+                        {/* Arrow indicator */}
+                        <motion.div
+                          animate={{
+                            x: step > s.number ? [0, 5, 0] : 0,
+                            opacity: step > s.number ? 1 : 0.4
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            repeatType: "reverse"
+                          }}
+                        >
+                          <ChevronRight 
+                            className={`h-6 w-6 ${
+                              step > s.number 
+                                ? "text-blue-600 dark:text-blue-400" 
+                                : "text-slate-300 dark:text-slate-600"
+                            }`} 
+                          />
+                        </motion.div>
+                        {/* Progress line */}
+                        <div className="w-12 sm:w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden ml-2">
+                          <motion.div
+                            className="h-full bg-gradient-to-r from-blue-600 to-indigo-600"
+                            initial={{ width: "0%" }}
+                            animate={{ width: step > s.number ? "100%" : "0%" }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                          />
+                        </div>
+                        <ChevronRight 
+                          className={`h-6 w-6 ml-2 ${
+                            step > s.number 
+                              ? "text-blue-600 dark:text-blue-400" 
+                              : "text-slate-300 dark:text-slate-600"
+                          }`} 
+                        />
+                      </div>
                     )}
-                  </motion.div>
-                  <span className={`text-[10px] font-bold mt-1.5 hidden sm:block ${
-                    step >= s.number ? "text-blue-650 dark:text-blue-405" : "text-slate-450 dark:text-slate-500"
-                  }`}>
-                    {s.label}
-                  </span>
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Errors */}
@@ -175,9 +221,9 @@ export default function RegisterPage() {
             )}
 
             {/* Form Steps */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {step === 1 && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <Input
                     label="Full Name"
                     value={name}
@@ -191,13 +237,24 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
                   />
-                  <Input
-                    label="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Choose a strong password"
-                  />
+                  <div className="space-y-2">
+                    <label className="text-base font-semibold text-slate-800 dark:text-slate-200">Password</label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Choose a strong password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -259,7 +316,7 @@ export default function RegisterPage() {
 
               {step === 4 && (
                 <div className="space-y-6">
-                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-5 border border-slate-150 dark:border-slate-800/80 text-sm space-y-3 text-slate-800 dark:text-slate-200">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 text-sm space-y-3 text-slate-800 dark:text-slate-200">
                     <h4 className="font-bold border-b border-slate-200 dark:border-slate-800 pb-2 text-slate-900 dark:text-white">Review Your Details</h4>
                     <p><strong>Name:</strong> {name}</p>
                     <p><strong>Email:</strong> {email}</p>
@@ -273,9 +330,9 @@ export default function RegisterPage() {
                       type="checkbox"
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
-                      className="mt-1 rounded border-slate-350 dark:border-slate-800 text-blue-650 focus:ring-blue-500"
+                      className="mt-1 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-slate-655 dark:text-slate-350 font-semibold">
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">
                       I agree to the Terms of Service and Privacy Policy of Shrestha Services Pvt. Ltd.
                     </span>
                   </label>
@@ -283,9 +340,9 @@ export default function RegisterPage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800">
                 {step > 1 ? (
-                  <Button type="button" variant="outline" onClick={handlePrevStep}>
+                  <Button type="button" variant="outline" onClick={handlePrevStep} className="px-8 py-3 text-base">
                     Back
                   </Button>
                 ) : (
@@ -293,11 +350,12 @@ export default function RegisterPage() {
                 )}
 
                 {step < 4 ? (
-                  <Button type="button" onClick={handleNextStep}>
+                  <Button type="button" onClick={handleNextStep} className="px-10 py-3 text-base flex items-center gap-2">
                     Continue
+                    <ChevronRight size={18} />
                   </Button>
                 ) : (
-                  <Button type="submit" loading={loading}>
+                  <Button type="submit" loading={loading} className="px-10 py-3 text-base">
                     Register Account
                   </Button>
                 )}
@@ -319,7 +377,7 @@ export default function RegisterPage() {
               <Check size={40} className="stroke-[3]" />
             </motion.div>
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">Registration Complete!</h3>
-            <p className="text-sm text-slate-550 dark:text-slate-450 max-w-sm font-semibold">
+            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-sm font-semibold">
               Welcome to Shrestha Services. Your client dashboard is being customized for your printing requirements...
             </p>
             <div className="flex items-center gap-2 pt-4">
@@ -340,8 +398,7 @@ export default function RegisterPage() {
             Sign in
           </Link>
         </div>
-
-      </div>
+      </motion.div>
     </div>
   );
 }
