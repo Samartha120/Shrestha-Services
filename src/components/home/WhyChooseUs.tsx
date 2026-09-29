@@ -1,90 +1,82 @@
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { CheckCircle, Clock, Zap, Shield, Award, Users } from "lucide-react";
+import { Gauge, Layers, PenTool, Truck, Palette, ShieldCheck } from "lucide-react";
+import { Container, Eyebrow, Reveal } from "@/components/marketing/primitives";
 
-const features = [
+const capabilities = [
   {
-    icon: Zap,
-    title: "Fast Delivery",
-    description: "Quick turnaround time for all orders with same-day service available.",
+    icon: PenTool,
+    title: "Design that prints",
+    description:
+      "Files are checked for bleed, resolution and colour before anything reaches the press — no surprises on collection day.",
   },
   {
-    icon: Award,
-    title: "Premium Quality",
-    description: "We use only the best materials and latest printing technology.",
+    icon: Palette,
+    title: "Colour we stand behind",
+    description:
+      "Calibrated profiles and a printed proof on request, so the red on screen is the red on your board.",
   },
   {
-    icon: Shield,
-    title: "100% Satisfaction",
-    description: "Your satisfaction is our priority. We won't stop until you're happy.",
+    icon: Gauge,
+    title: "Honest turnaround",
+    description:
+      "Most jobs move in 48 hours. Rush work is possible — we'll tell you plainly if it isn't.",
   },
   {
-    icon: Users,
-    title: "Expert Team",
-    description: "Skilled designers and printers with years of industry experience.",
+    icon: Layers,
+    title: "Materials that last outdoors",
+    description:
+      "UV-stable inks and cast vinyls rated for Biratnagar heat, dust and monsoon.",
   },
   {
-    icon: Clock,
-    title: "24/7 Support",
-    description: "Round-the-clock customer support to answer your queries.",
+    icon: Truck,
+    title: "Fitted, not just handed over",
+    description:
+      "Sign boards and wraps are installed by our own team, squared and levelled on site.",
   },
   {
-    icon: CheckCircle,
-    title: "Competitive Pricing",
-    description: "Best prices in the market without compromising on quality.",
+    icon: ShieldCheck,
+    title: "One point of contact",
+    description:
+      "The person who quotes your job sees it through production to delivery.",
   },
 ];
 
 export default function WhyChooseUs() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-slate-50 dark:bg-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="inline-block px-4 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-semibold rounded-full mb-4">
-            Why Choose Us
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-            What Makes Us Different
-          </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            We don't just print - we create experiences that leave lasting impressions
-          </p>
-        </motion.div>
+    <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
+      <Container>
+        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
+          <Reveal>
+            <Eyebrow>Why work with us</Eyebrow>
+            <h2 className="mt-5 font-display text-4xl leading-tight text-ink sm:text-5xl text-balance">
+              A print shop should be judged on the wall, not the website.
+            </h2>
+            <p className="mt-6 max-w-sm text-ink-soft text-pretty">
+              We're a small, hands-on team. That means the details other shops
+              skip — proofing, finishing, a clean install — are the ones we care
+              about most.
+            </p>
+          </Reveal>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, idx) => {
-            const Icon = feature.icon;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                whileHover={{ y: -4 }}
-                className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl p-8"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-6">
-                  <Icon className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            );
-          })}
+          <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2">
+            {capabilities.map((cap, i) => {
+              const Icon = cap.icon;
+              return (
+                <Reveal key={cap.title} delay={(i % 2) * 0.08}>
+                  <div className="border-t border-line-strong pt-5">
+                    <Icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                    <h3 className="mt-4 font-display text-xl text-ink">
+                      {cap.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">
+                      {cap.description}
+                    </p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

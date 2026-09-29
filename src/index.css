@@ -2,117 +2,115 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ── Light Theme Design Tokens ── */
+/*
+  ─────────────────────────────────────────────────────────────
+  Shrestha Services — design system
+  Identity: ink & paper neutrals + a single press-vermilion accent.
+  Type: Fraunces (display serif) / Inter (UI + body).
+  Colors are exposed to Tailwind as semantic utilities via @theme inline,
+  backed by CSS variables that swap under `.dark`.
+  ─────────────────────────────────────────────────────────────
+*/
+
+@theme inline {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-inverse: var(--inverse);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-err: var(--err);
+}
+
+/* ── Light (paper) ── */
 :root {
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --paper: #fbfaf7;
+  --paper-dim: #f2efe8;
+  --surface: #ffffff;
+  --surface-2: #f7f5f0;
 
-  /* Backgrounds */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-elevated: #ffffff;
-  --bg-surface: #ffffff;
-  --bg-overlay: rgba(248, 250, 252, 0.9);
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-glass-strong: rgba(255, 255, 255, 0.95);
+  --ink: #1a1714;
+  --ink-soft: #4a443c;
+  --muted: #776f64;
+  --faint: #a79f92;
+  --inverse: #fbfaf7;
 
-  /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --text-faint: #94a3b8;
-  --text-inverse: #ffffff;
+  --line: #e6e1d6;
+  --line-strong: #d5cebf;
 
-  /* Borders */
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-  --border-subtle: #f1f5f9;
+  /* press vermilion */
+  --accent: #d8402a;
+  --accent-hover: #bf3320;
+  --accent-soft: rgba(216, 64, 42, 0.09);
+  --accent-ink: #bf3320;
 
-  /* Accent - Royal Blue / Indigo (Stripe-like) */
-  --accent-primary: #4f46e5;
-  --accent-primary-hover: #4338ca;
-  --accent-secondary: #6366f1;
-  --accent-tertiary: #818cf8;
-  --accent-subtle: rgba(79, 70, 229, 0.08);
-  --accent-medium: rgba(79, 70, 229, 0.15);
+  --ok: #2f7d54;
+  --warn: #b5730f;
+  --err: #c33629;
 
-  /* Status Colors */
-  --success: #10b981;
-  --success-subtle: rgba(16, 185, 129, 0.1);
-  --warning: #f59e0b;
-  --warning-subtle: rgba(245, 158, 7, 0.1);
-  --error: #ef4444;
-  --error-subtle: rgba(239, 68, 68, 0.1);
-  --info: #3b82f6;
-  --info-subtle: rgba(59, 130, 246, 0.1);
+  --shadow-sm: 0 1px 2px rgba(26, 23, 20, 0.05);
+  --shadow-md: 0 6px 20px -8px rgba(26, 23, 20, 0.14);
+  --shadow-lg: 0 24px 60px -20px rgba(26, 23, 20, 0.22);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+  --code-bg: #f2efe8;
 
-  /* Code */
-  --code-bg: #f1f5f9;
-
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Dark Theme Design Tokens ── */
-:root.dark {
-  /* Backgrounds - Deep Slate (NOT pure black) */
-  --bg-primary: #0c0f1a;
-  --bg-secondary: #111827;
-  --bg-elevated: #1e293b;
-  --bg-surface: #162032;
-  --bg-overlay: rgba(12, 15, 26, 0.9);
-  --bg-glass: rgba(30, 41, 59, 0.75);
-  --bg-glass-strong: rgba(30, 41, 59, 0.92);
+/* ── Dark (ink) ── */
+.dark {
+  --paper: #14120f;
+  --paper-dim: #1b1814;
+  --surface: #201d18;
+  --surface-2: #17150f;
 
-  /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-faint: #64748b;
-  --text-inverse: #0f172a;
+  --ink: #f4f0e8;
+  --ink-soft: #c9c2b5;
+  --muted: #948b7d;
+  --faint: #6d655a;
+  --inverse: #14120f;
 
-  /* Borders */
-  --border-primary: #1e293b;
-  --border-secondary: #334155;
-  --border-subtle: #1e293b;
+  --line: #2c2822;
+  --line-strong: #3a352d;
 
-  /* Accent - Indigo + Cyan (GitHub/Vercel-like) */
-  --accent-primary: #818cf8;
-  --accent-primary-hover: #6366f1;
-  --accent-secondary: #22d3ee;
-  --accent-tertiary: #a5b4fc;
-  --accent-subtle: rgba(129, 140, 248, 0.1);
-  --accent-medium: rgba(129, 140, 248, 0.18);
+  --accent: #f2603f;
+  --accent-hover: #f47a5c;
+  --accent-soft: rgba(242, 96, 63, 0.13);
+  --accent-ink: #f2603f;
 
-  /* Status Colors */
-  --success: #34d399;
-  --success-subtle: rgba(52, 211, 153, 0.12);
-  --warning: #fbbf24;
-  --warning-subtle: rgba(251, 191, 36, 0.12);
-  --error: #f87171;
-  --error-subtle: rgba(248, 113, 113, 0.12);
-  --info: #60a5fa;
-  --info-subtle: rgba(96, 165, 250, 0.12);
+  --ok: #4bb47c;
+  --warn: #e0a13c;
+  --err: #ef6a5a;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.35);
-  --shadow-glow: 0 0 25px rgba(129, 140, 248, 0.2);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 24px -10px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 30px 70px -25px rgba(0, 0, 0, 0.7);
 
-  /* Code */
-  --code-bg: #1e293b;
+  --code-bg: #201d18;
+  color-scheme: dark;
 }
 
 #root {
@@ -123,69 +121,136 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: var(--sans);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-sans);
+  background-color: var(--paper);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
 }
 
-*, *::before, *::after {
-  transition-property: background-color, border-color, color, box-shadow, fill, stroke;
-  transition-duration: 0.3s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+/* Only transition the theme swap on the root surfaces, not every node. */
+body {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Respect prefers-reduced-motion */
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ── Typography helpers ── */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+
+.display-xl {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* Thin hairline rule used across editorial sections */
+.rule {
+  height: 1px;
+  background: var(--line);
+}
+
+/* Accessible focus ring for interactive elements */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Marquee for logo/word strips */
+@keyframes ss-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ss-marquee {
+  animation: ss-marquee 38s linear infinite;
+}
+.ss-marquee:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0.01ms !important;
+  html {
+    scroll-behavior: auto;
+  }
+  .ss-marquee {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
 
 code {
-  font-family: var(--mono);
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 3px 7px;
   border-radius: 4px;
   background: var(--code-bg);
-  display: inline-flex;
 }
 
-/* ── Premium Theme Dropdown Glassmorphism ── */
+/* ── Premium Theme Dropdown Glassmorphism (kept for header menu) ── */
 .theme-dropdown-glass {
-  background: var(--bg-glass-strong);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--border-primary);
-  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-:root.dark .theme-dropdown-glass {
-  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-/* ── Recharts Theme Awareness ── */
-.recharts-cartesian-axis-tick-value {
-  fill: var(--text-muted);
-  font-size: 12px;
-}
-
-.recharts-cartesian-grid line {
-  stroke: var(--border-primary);
-}
-
-.recharts-tooltip-wrapper .recharts-default-tooltip {
-  background: var(--bg-glass-strong) !important;
-  border: 1px solid var(--border-primary) !important;
-  border-radius: 12px !important;
-  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--line);
   box-shadow: var(--shadow-lg);
 }
 
+/* ── Recharts theme awareness (admin dashboards) ── */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
+  font-size: 12px;
+}
+.recharts-cartesian-grid line {
+  stroke: var(--line);
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-lg);
+}
 .recharts-legend-item-text {
-  fill: var(--text-secondary);
+  fill: var(--ink-soft);
   font-size: 12px;
 }

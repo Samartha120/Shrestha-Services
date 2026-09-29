@@ -1,78 +1,68 @@
-import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
 import { statistics } from "@/data/statistics";
-import { CheckCircle, Users, TrendingUp, Award } from "lucide-react";
-
-const iconMap: Record<string, any> = {
-  "Projects Completed": CheckCircle,
-  "Happy Clients": Users,
-  "Years Experience": TrendingUp,
-  "Awards": Award,
-};
+import { Container } from "@/components/marketing/primitives";
 
 function AnimatedCounter({ end }: { end: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = useReducedMotion();
 
   useEffect(() => {
-    if (isInView) {
-      let currentCount = 0;
-      const step = end / 50;
-      const timer = setInterval(() => {
-        currentCount += step;
-        if (currentCount >= end) {
-          setCount(end);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(currentCount));
-        }
-      }, 30);
-      return () => clearInterval(timer);
+    if (!isInView) return;
+    if (reduce) {
+      setCount(end);
+      return;
     }
-  }, [isInView, end]);
+    let raf = 0;
+    const duration = 1400;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount(Math.round(end * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [isInView, end, reduce]);
 
   return (
-    <span ref={ref} className="text-4xl sm:text-5xl font-bold">
-      {count}+
+    <span ref={ref}>
+      {count}
+      <span className="text-accent">+</span>
     </span>
   );
 }
 
 export default function Statistics() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
   return (
-    <section ref={ref} className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 relative overflow-hidden">
-      {/* Decorative circles */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {statistics.map((stat, idx) => {
-            const Icon = iconMap[stat.label];
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: idx * 0.15 }}
-                className="text-center"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl mb-4">
-                  <Icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-white mb-2">
-                  <AnimatedCounter end={stat.value} />
-                </h3>
-                <p className="text-blue-100 font-medium text-lg">{stat.label}</p>
-              </motion.div>
-            );
-          })}
+    <section className="bg-ink py-20 text-inverse lg:py-24">
+      <Container>
+        <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-3 eyebrow text-faint">
+              <span className="h-px w-6 bg-accent" aria-hidden />
+              By the numbers
+            </span>
+            <p className="mt-4 max-w-md font-display text-2xl text-inverse/90">
+              A decade of work you can point at around the city.
+            </p>
+          </div>
         </div>
-      </div>
+
+        <dl className="grid grid-cols-2 gap-y-10 border-t border-white/10 pt-10 lg:grid-cols-4">
+          {statistics.map((stat) => (
+            <div key={stat.label} className="border-l border-white/10 pl-5 first:border-l-0 first:pl-0 lg:border-l lg:pl-8 lg:first:border-l-0">
+              <dd className="font-display text-5xl leading-none text-inverse lg:text-6xl">
+                <AnimatedCounter end={stat.value} />
+              </dd>
+              <dt className="mt-3 text-sm text-inverse/60">{stat.label}</dt>
+            </div>
+          ))}
+        </dl>
+      </Container>
     </section>
   );
 }

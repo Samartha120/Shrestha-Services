@@ -1,349 +1,217 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import Button from "@/components/common/Button";
-import Card from "@/components/ui/Card";
-import { Award, Users, Zap, Target, CircleCheck as CheckCircle2 } from "lucide-react";
+import {
+  PenTool,
+  Layers,
+  Truck,
+  Printer,
+  ShieldCheck,
+  Ruler,
+} from "lucide-react";
+import {
+  Container,
+  Eyebrow,
+  Reveal,
+  PrimaryCTA,
+  GhostCTA,
+} from "@/components/marketing/primitives";
 
-const stats = [
-  { value: "10+", label: "Years of Experience", icon: Award },
-  { value: "500+", label: "Projects Completed", icon: CheckCircle2 },
-  { value: "350+", label: "Happy Clients", icon: Users },
-  { value: "15", label: "Awards Won", icon: Award },
-];
-
-const missionVisionValues = [
+const beliefs = [
   {
-    icon: Target,
-    title: "Our Mission",
-    description:
-      "To deliver premium quality printing solutions that exceed customer expectations while maintaining the highest standards of craftsmanship and service excellence.",
+    title: "Make it right, not just fast",
+    body: "A sign is up for years. We proof carefully, colour-match, and check the finish before anything leaves the shop.",
   },
   {
-    icon: Zap,
-    title: "Our Vision",
-    description:
-      "To be the most trusted and innovative printing partner in Nepal, known for reliability, creativity, and unwavering commitment to customer success.",
+    title: "One shop, start to finish",
+    body: "Design, printing, cutting and installation happen under one roof — so nothing gets lost in a hand-off.",
   },
   {
-    icon: Award,
-    title: "Our Values",
-    description:
-      "Quality, integrity, innovation, and customer-centric approach guide every decision we make. We believe in building lasting relationships through trust and excellence.",
+    title: "Straight answers, fair prices",
+    body: "We quote in writing, explain the trade-offs, and don't upsell you into material you don't need.",
   },
 ];
 
-const teamMembers = [
+const capabilities = [
+  { icon: PenTool, label: "In-house design & artwork" },
+  { icon: Printer, label: "Large-format flex & digital print" },
+  { icon: Layers, label: "Acrylic, metal & LED sign boards" },
+  { icon: Ruler, label: "Vinyl decals & vehicle wraps" },
+  { icon: Truck, label: "Delivery & on-site installation" },
+  { icon: ShieldCheck, label: "Finishing, lamination & mounting" },
+];
+
+const team = [
   {
     name: "Sanjeev Shrestha",
     role: "Managing Director",
     initials: "SS",
-    bio: "Leading the company with vision and expertise in the printing industry",
+    bio: "Runs the shop and keeps every job moving from quote to install.",
   },
   {
     name: "Jeetendra Pradhan",
     role: "Operations Manager",
     initials: "JP",
-    bio: "Ensuring smooth operations and exceptional service delivery",
+    bio: "Coordinates production schedules and on-site work across town.",
   },
   {
     name: "Santosh Kumar",
-    role: "Digital Printing Specialist",
+    role: "Digital Print Specialist",
     initials: "SK",
-    bio: "Expert in digital printing technologies and quality control",
+    bio: "Handles the presses, colour calibration and quality checks.",
   },
-  {
-    name: "Jeetendra Pradhan",
-    role: "Senior Executive",
-    initials: "JP",
-    bio: "Dedicated to customer satisfaction and project management",
-  },
-];
-
-const timeline = [
-  {
-    year: "2014",
-    title: "The Beginning",
-    description: "Founded Shrestha Services with a vision to revolutionize printing in Nepal.",
-  },
-  {
-    year: "2017",
-    title: "Expansion",
-    description: "Added advanced digital printing technology and expanded team to 15+ members.",
-  },
-  {
-    year: "2020",
-    title: "Innovation",
-    description: "Launched eco-friendly printing solutions and won sustainability award.",
-  },
-  {
-    year: "2024",
-    title: "Excellence",
-    description: "Achieved 500+ projects milestone and became industry benchmark for quality.",
-  },
-];
-
-const equipmentCategories = [
-  { name: "Digital Printers", count: 12, icon: "🖨️" },
-  { name: "Offset Presses", count: 8, icon: "⚙️" },
-  { name: "Finishing Equipment", count: 15, icon: "✂️" },
-  { name: "Wide Format Printers", count: 6, icon: "📏" },
 ];
 
 export default function AboutPage() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-20 w-96 h-96 bg-blue-200 dark:bg-blue-900/20 rounded-full blur-3xl opacity-30" />
-      <div className="absolute bottom-40 left-20 w-96 h-96 bg-indigo-200 dark:bg-indigo-900/20 rounded-full blur-3xl opacity-20" />
-
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="text-center max-w-3xl mx-auto"
-        >
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-full mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-              Our Story
-            </span>
-          </motion.div>
-
-          <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-            Crafting Excellence, <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">One Print at a Time</span>
-          </motion.h1>
-
-          <motion.p variants={itemVariants} className="text-lg text-slate-600 dark:text-slate-300 mb-10">
-            From humble beginnings to industry leadership, Shrestha Services has been committed to delivering premium printing solutions with unmatched quality and reliability.
-          </motion.p>
-        </motion.div>
-      </section>
-
-      {/* Mission Vision Values */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid md:grid-cols-3 gap-8"
-        >
-          {missionVisionValues.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <motion.div key={idx} variants={itemVariants}>
-                <Card className="p-8 h-full">
-                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center mb-6">
-                    <Icon className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {item.description}
-                  </p>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      </section>
-
-      {/* Statistics Bar */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-8 sm:p-12 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 border-0 shadow-lg">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {stats.map((stat, idx) => {
-                const Icon = stat.icon;
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1, duration: 0.5 }}
-                    className="text-center text-white"
-                  >
-                    <Icon className="h-8 w-8 mx-auto mb-3 opacity-80" />
-                    <div className="text-4xl sm:text-5xl font-bold mb-2">{stat.value}</div>
-                    <div className="text-sm opacity-90">{stat.label}</div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </Card>
-        </motion.div>
-      </section>
-
-      {/* Team Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center mb-4">
-            Meet Our Team
-          </motion.h2>
-          <motion.p variants={itemVariants} className="text-lg text-slate-600 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">
-            Talented professionals dedicated to delivering excellence in every project
-          </motion.p>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map((member, idx) => (
-              <motion.div key={idx} variants={itemVariants}>
-                <Card className="p-6 h-full text-center">
-                  <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mx-auto mb-4 text-white font-bold text-2xl">
-                    {member.initials}
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                    {member.name}
-                  </h3>
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-3">
-                    {member.role}
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {member.bio}
-                  </p>
-                </Card>
-              </motion.div>
-            ))}
+    <div className="bg-paper text-ink">
+      {/* Hero */}
+      <section className="border-b border-line py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>Our story</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.02] text-balance">
+              A working print shop on Main Road, Biratnagar.
+            </h1>
+          </Reveal>
+          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-16">
+            <Reveal delay={0.1}>
+              <p className="text-lg leading-relaxed text-ink-soft text-pretty">
+                Shrestha Services started as a small signage counter and grew
+                into a full print house — the kind of place a shopkeeper, a
+                contractor or an event team can walk into and leave with the job
+                sorted.
+              </p>
+            </Reveal>
+            <Reveal delay={0.15}>
+              <p className="text-lg leading-relaxed text-ink-soft text-pretty">
+                Today we cover everything from a single name-plate to a
+                storefront full of boards, banners and wrapped vehicles. The
+                machines changed over the years; the habit of doing careful work
+                did not.
+              </p>
+            </Reveal>
           </div>
-        </motion.div>
+        </Container>
       </section>
 
-      {/* Timeline */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center mb-12">
-            Our Journey
-          </motion.h2>
-
-          <div className="space-y-8">
-            {timeline.map((item, idx) => (
-              <motion.div key={idx} variants={itemVariants}>
-                <div className="flex gap-6 sm:gap-8">
-                  <div className="flex flex-col items-center">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                      {idx + 1}
-                    </div>
-                    {idx < timeline.length - 1 && (
-                      <div className="w-1 h-20 bg-gradient-to-b from-blue-600 to-transparent mt-2" />
-                    )}
-                  </div>
-                  <Card className="p-6 sm:p-8 flex-1">
-                    <div className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-2">
-                      {item.year}
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      {item.description}
+      {/* Beliefs */}
+      <section className="py-20 lg:py-28">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+            <Reveal>
+              <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+                How we like to work.
+              </h2>
+            </Reveal>
+            <div>
+              {beliefs.map((b, i) => (
+                <Reveal key={b.title} delay={i * 0.08}>
+                  <div className="border-t border-line py-7">
+                    <h3 className="font-display text-xl text-ink">{b.title}</h3>
+                    <p className="mt-2 max-w-lg text-ink-soft text-pretty">
+                      {b.body}
                     </p>
-                  </Card>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Equipment Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center mb-4">
-            Our Equipment
-          </motion.h2>
-          <motion.p variants={itemVariants} className="text-lg text-slate-600 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">
-            State-of-the-art machinery ensuring premium quality on every project
-          </motion.p>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {equipmentCategories.map((category, idx) => (
-              <motion.div key={idx} variants={itemVariants}>
-                <Card className="p-8 text-center h-full">
-                  <div className="text-5xl mb-4">{category.icon}</div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                    {category.name}
-                  </h3>
-                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                    {category.count}+
-                  </p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-12 text-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-100 dark:border-blue-800/50">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-6">
-              Ready to bring your vision to life?
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8">
-              Let's work together to create something extraordinary. Get started with a free consultation today.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/quote">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-8">
-                  Get Free Quote
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button variant="outline" className="h-12 px-8">
-                  Contact Us
-                </Button>
-              </Link>
+                  </div>
+                </Reveal>
+              ))}
             </div>
-          </Card>
-        </motion.div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Capabilities */}
+      <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>In the shop</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h2 className="mt-5 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+              Everything under one roof.
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            {capabilities.map((c, i) => {
+              const Icon = c.icon;
+              return (
+                <Reveal key={c.label} delay={(i % 3) * 0.06}>
+                  <div className="flex items-start gap-4 border-t border-line pt-5">
+                    <Icon
+                      className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+                      strokeWidth={1.5}
+                    />
+                    <p className="font-medium text-ink">{c.label}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </Container>
+      </section>
+
+      {/* Team */}
+      <section className="py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>The people</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h2 className="mt-5 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+              A small team that sees the job through.
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {team.map((m, i) => (
+              <Reveal key={m.name} delay={(i % 3) * 0.08}>
+                <div className="border-t border-line pt-6">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full border border-line-strong font-mono text-sm text-ink-soft">
+                    {m.initials}
+                  </span>
+                  <h3 className="mt-5 font-display text-xl text-ink">
+                    {m.name}
+                  </h3>
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
+                    {m.role}
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-soft text-pretty">
+                    {m.bio}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+                Come by, or send us the details.
+              </h2>
+              <p className="mt-5 max-w-md text-inverse/70 text-pretty">
+                We're on Main Road, Biratnagar, Sunday to Friday. A written quote
+                usually comes back the same day.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-6">
+              <PrimaryCTA
+                to="/quote"
+                className="bg-inverse text-ink hover:bg-accent hover:text-inverse"
+              >
+                Get a quote
+              </PrimaryCTA>
+              <GhostCTA
+                to="/contact"
+                className="text-inverse/80 hover:text-inverse"
+              >
+                Contact us
+              </GhostCTA>
+            </div>
+          </div>
+        </Container>
       </section>
     </div>
   );

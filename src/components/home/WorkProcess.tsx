@@ -1,87 +1,73 @@
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { MessageSquare, PenTool, Printer, CheckCircle2 } from "lucide-react";
+import { MessageSquare, PenTool, Printer, Truck } from "lucide-react";
+import { Container, Eyebrow, Reveal } from "@/components/marketing/primitives";
 
 const steps = [
   {
     icon: MessageSquare,
-    title: "Consultation",
-    description: "Discuss your requirements and get expert advice.",
+    title: "Talk it through",
+    description:
+      "Tell us the job — sizes, where it's going, when you need it. We quote in writing.",
   },
   {
     icon: PenTool,
-    title: "Design & Proof",
-    description: "Create designs and get your approval before printing.",
+    title: "Design & proof",
+    description:
+      "We set artwork and send a proof. Nothing prints until you sign it off.",
   },
   {
     icon: Printer,
     title: "Production",
-    description: "High-quality printing using top-of-the-line equipment.",
+    description:
+      "Printed, laminated and finished in-house on calibrated machines.",
   },
   {
-    icon: CheckCircle2,
-    title: "Delivery",
-    description: "Safe and timely delivery to your doorstep.",
+    icon: Truck,
+    title: "Deliver & install",
+    description:
+      "Collected, delivered, or fitted on site by our own team — squared and clean.",
   },
 ];
 
 export default function WorkProcess() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-white dark:bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="inline-block px-4 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-semibold rounded-full mb-4">
-            Our Process
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-            How We Work
+    <section className="border-t border-line bg-paper py-20 lg:py-28">
+      <Container>
+        <Reveal className="max-w-2xl">
+          <Eyebrow>How a job runs</Eyebrow>
+          <h2 className="mt-5 font-display text-4xl leading-tight text-ink sm:text-5xl">
+            Four steps, and you always know where it stands.
           </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Simple, transparent, and efficient process from start to finish
-          </p>
-        </motion.div>
+        </Reveal>
 
-        <div className="relative">
-          {/* Connecting line */}
-          <div className="hidden lg:block absolute top-16 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
-            {steps.map((step, idx) => {
-              const Icon = step.icon;
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                  transition={{ duration: 0.6, delay: idx * 0.15 }}
-                  className="relative text-center"
-                >
-                  <div className="relative z-10 w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-xl">
-                    <span className="absolute -top-3 -right-3 w-10 h-10 bg-white dark:bg-slate-950 rounded-full flex items-center justify-center text-xl font-bold text-blue-600 dark:text-blue-400 border-4 border-blue-100 dark:border-blue-800">
-                      {idx + 1}
+        <div className="mt-14 grid gap-y-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
+          {steps.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <Reveal key={step.title} delay={i * 0.1}>
+                <div className="relative lg:pr-6">
+                  {/* connector */}
+                  <div className="flex items-center gap-3">
+                    <span className="font-display text-5xl leading-none text-line-strong">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
-                    <Icon className="w-14 h-14 text-white" />
+                    <span className="hidden h-px flex-1 bg-line lg:block" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                  <Icon
+                    className="mt-6 h-5 w-5 text-accent"
+                    strokeWidth={1.5}
+                  />
+                  <h3 className="mt-3 font-display text-xl text-ink">
                     {step.title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400">
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
                     {step.description}
                   </p>
-                </motion.div>
-              );
-            })}
-          </div>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

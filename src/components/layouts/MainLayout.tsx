@@ -3,23 +3,72 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Menu, X, User, LogOut, ChevronDown, Phone, Mail, MapPin, Sun, Moon, Check } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  X,
+  User,
+  LogOut,
+  ChevronDown,
+  Phone,
+  Mail,
+  MapPin,
+  Sun,
+  Moon,
+  Check,
+  ArrowRight,
+} from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Toaster } from "sonner";
 
 export interface MainLayoutProps {
   children?: ReactNode;
 }
 
+const navLinks = [
+  { name: "Services", path: "/services" },
+  { name: "Gallery", path: "/gallery" },
+  { name: "Projects", path: "/projects" },
+  { name: "Testimonials", path: "/testimonials" },
+  { name: "About", path: "/about" },
+  { name: "Contact", path: "/contact" },
+];
+
+const footerCols = [
+  {
+    heading: "Services",
+    links: [
+      { label: "Large-format flex", to: "/services" },
+      { label: "Acrylic sign boards", to: "/services" },
+      { label: "Vehicle wraps", to: "/services" },
+      { label: "Digital & offset print", to: "/services" },
+      { label: "Roll-up stands", to: "/services" },
+    ],
+  },
+  {
+    heading: "Company",
+    links: [
+      { label: "About the shop", to: "/about" },
+      { label: "Portfolio", to: "/gallery" },
+      { label: "Reviews", to: "/testimonials" },
+      { label: "FAQ", to: "/faq" },
+      { label: "Careers", to: "/careers" },
+    ],
+  },
+];
+/* __APPEND_1__ */
+
 export default function MainLayout({ children }: MainLayoutProps) {
   const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
   const { fetchSettings } = useSettingsStore();
   const { isDark, setTheme } = useTheme();
+  const reduce = useReducedMotion();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -27,548 +76,433 @@ export default function MainLayout({ children }: MainLayoutProps) {
     fetchSettings();
   }, [fetchSettings]);
 
-  const handleSelectTheme = async (mode: "light" | "dark") => {
-    await setTheme(mode);
-    setIsThemeMenuOpen(false);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node)) {
-        setIsThemeMenuOpen(false);
-      }
-    };
-    if (isThemeMenuOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isThemeMenuOpen]);
-
-  const renderNavDropdownContent = (name: string) => {
-    switch (name) {
-      case "services":
-        return (
-          <div className="grid grid-cols-2 gap-4 p-5 w-[420px]">
-            <div className="col-span-2 text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2 mb-1">
-              Popular Branding Services
-            </div>
-            <Link to="/services" className="flex flex-col gap-0.5 group/item">
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Large Format Printing</span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Flex banners & outdoor advertising</span>
-            </Link>
-            <Link to="/services" className="flex flex-col gap-0.5 group/item">
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Acrylic Sign Boards</span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Premium back-lit LED offices board</span>
-            </Link>
-            <Link to="/services" className="flex flex-col gap-0.5 group/item">
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Vehicle Wraps</span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Adhesive decals for client fleets</span>
-            </Link>
-            <Link to="/services" className="flex flex-col gap-0.5 group/item">
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover/item:text-blue-650 dark:group-hover/item:text-blue-400 transition-colors">Frosted Stickers</span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Office glass frosting & branding</span>
-            </Link>
-            <div className="col-span-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-              <Link to="/services" className="text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
-                Explore All Services &rarr;
-              </Link>
-            </div>
-          </div>
-        );
-      case "gallery":
-        return (
-          <div className="p-5 w-[280px] space-y-3">
-            <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
-              Media Showcases
-            </div>
-            <div className="flex flex-col gap-2.5">
-              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
-                <span>Signage Boards</span>
-                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">LED</span>
-              </Link>
-              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
-                <span>Large Format Banners</span>
-                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">Flex</span>
-              </Link>
-              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
-                <span>Vehicle Wraps</span>
-                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">Car</span>
-              </Link>
-              <Link to="/gallery" className="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-350 hover:text-blue-600 transition-colors">
-                <span>Digital Prints</span>
-                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 font-semibold">Paper</span>
-              </Link>
-            </div>
-          </div>
-        );
-      case "projects":
-        return (
-          <div className="p-5 w-[320px] space-y-4">
-            <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
-              Featured Case Studies
-            </div>
-            <div className="space-y-3">
-              <div className="rounded-xl overflow-hidden border border-slate-200/50 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-3">
-                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Featured Install</p>
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1 leading-snug">Biratnagar Corporate Office Branding wrap & 3D acrylic signage boards</p>
-              </div>
-              <Link to="/projects" className="block text-center text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
-                View Case Projects &rarr;
-              </Link>
-            </div>
-          </div>
-        );
-      case "testimonials":
-        return (
-          <div className="p-5 w-[300px] space-y-4">
-            <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
-              Client Trust Index
-            </div>
-            <div className="space-y-3">
-              <div className="flex flex-col gap-1">
-                <div className="flex text-amber-500 text-xs font-bold">★★★★★</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 italic">"Saved our annual launch with premium overnight flex banner installations!"</p>
-                <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider">— Tech Solutions Nepal</p>
-              </div>
-              <Link to="/testimonials" className="block text-center text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
-                Read Customer Reviews &rarr;
-              </Link>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   useEffect(() => {
     checkAuth();
   }, []);
 
   useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node))
+        setIsThemeMenuOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target as Node))
+        setIsProfileOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  useEffect(() => {
     setIsMobileMenuOpen(false);
-    setIsProfileDropdownOpen(false);
-    setHoveredNav(null);
+    setIsProfileOpen(false);
   }, [location.pathname]);
+
+  const handleSelectTheme = async (mode: "light" | "dark") => {
+    await setTheme(mode);
+    setIsThemeMenuOpen(false);
+  };
 
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Services", path: "/services" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Projects", path: "/projects" },
-    { name: "Testimonials", path: "/testimonials" },
-    { name: "About Us", path: "/about" },
-    { name: "Contact", path: "/contact" },
-  ];
+  const isActive = (path: string) => location.pathname === path;
+/* __APPEND_2__ */
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
-      <Toaster position="top-right" richColors />
-      
-      {/* Top Banner Contact Details */}
-      <div className="hidden lg:block bg-slate-800 dark:bg-slate-900 text-slate-300 text-xs py-2 px-6 border-b border-slate-700 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <div className="flex min-h-screen flex-col bg-paper text-ink">
+      <Toaster position="top-right" theme={isDark ? "dark" : "light"} />
+
+      {/* Utility bar */}
+      <div className="hidden bg-ink text-inverse/70 lg:block">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-2 text-xs">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-blue-500" /> +977-1-4412345</span>
-            <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-blue-500" /> info@shresthaservices.com.np</span>
-            <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-blue-500" /> Main Road, Biratnagar</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Phone className="h-3.5 w-3.5 text-accent" /> +977-21-441234
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Mail className="h-3.5 w-3.5 text-accent" /> info@shresthaservices.com.np
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-accent" /> Main Road, Biratnagar
+            </span>
           </div>
-          <div>
-            <span>Opening Hours: 9:30 AM - 7:00 PM (Sun-Fri)</span>
-          </div>
+          <span>Sun–Fri · 9:30 AM – 7:00 PM</span>
         </div>
       </div>
 
-      {/* Main Glassmorphic Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-900 bg-white/80 dark:bg-slate-950/85 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
-          
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div>
-              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 dark:from-white dark:via-blue-400 dark:to-indigo-300 bg-clip-text text-transparent">
-                Shrestha
-              </span>
-              <span className="block text-[9px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold -mt-1">
-                Services
-              </span>
-            </div>
+      {/* Header */}
+      <header
+        className={`sticky top-0 z-50 transition-colors duration-300 ${
+          scrolled
+            ? "border-b border-line bg-paper/85 backdrop-blur-md"
+            : "border-b border-transparent bg-transparent"
+        }`}
+      >
+        <div className="mx-auto flex h-18 max-w-6xl items-center justify-between gap-6 px-5 py-3 sm:px-8">
+          {/* Wordmark */}
+          <Link to="/" className="group flex flex-col leading-none">
+            <span className="font-display text-2xl font-semibold tracking-tight text-ink">
+              Shrestha
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
+              Services
+            </span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              const hasDropdown = ["services", "gallery", "projects", "testimonials"].includes(link.name.toLowerCase());
-              return (
-                <div
-                  key={link.path}
-                  className="relative py-6"
-                  onMouseEnter={() => hasDropdown && setHoveredNav(link.name.toLowerCase())}
-                  onMouseLeave={() => hasDropdown && setHoveredNav(null)}
-                >
-                  <Link
-                    to={link.path}
-                    className={`text-sm font-semibold transition-all hover:text-blue-600 dark:hover:text-blue-400 relative py-1 ${
-                      isActive
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-slate-650 dark:text-slate-200"
-                    }`}
-                  >
-                    {link.name}
-                    {isActive && (
-                      <motion.div
-                        layoutId="activePublicNav"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
-                      />
-                    )}
-                  </Link>
-
-                  {/* Dropdown Menu Previews */}
-                  <AnimatePresence>
-                    {hasDropdown && hoveredNav === link.name.toLowerCase() && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="absolute left-1/2 -translate-x-1/2 mt-4 rounded-2xl border border-slate-200/80 bg-white/95 dark:border-slate-800/95 dark:bg-slate-950/95 shadow-[0_20px_50px_rgba(8,112,184,0.12)] dark:shadow-none z-50 overflow-hidden backdrop-blur-xl"
-                      >
-                        {renderNavDropdownContent(link.name.toLowerCase())}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-8 lg:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`relative py-1 text-sm font-medium transition-colors ${
+                  isActive(link.path)
+                    ? "text-ink"
+                    : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                {link.name}
+                {isActive(link.path) && (
+                  <motion.span
+                    layoutId="nav-underline"
+                    className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-accent"
+                  />
+                )}
+              </Link>
+            ))}
           </nav>
 
-          {/* CTAs and Profile dropdown */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Right controls */}
+          <div className="hidden items-center gap-3 lg:flex">
             <div className="relative" ref={themeMenuRef}>
               <button
-                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all text-slate-600 dark:text-slate-300 flex items-center justify-center cursor-pointer hover:border-slate-300 dark:hover:border-slate-600"
-                aria-label="Theme options"
+                onClick={() => setIsThemeMenuOpen((v) => !v)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:border-line-strong hover:text-ink"
+                aria-label="Appearance"
               >
-                <Moon className={`h-[18px] w-[18px] transition-all ${isDark ? "text-indigo-400" : "text-slate-500"}`} />
+                {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </button>
-
               <AnimatePresence>
                 {isThemeMenuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                    transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
-                    className="absolute right-0 mt-2.5 w-[200px] rounded-xl theme-dropdown-glass p-1.5 z-50 flex flex-col gap-0.5 origin-top-right"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.16 }}
+                    className="theme-dropdown-glass absolute right-0 mt-2 flex w-44 flex-col gap-0.5 rounded-xl p-1.5"
                   >
-                    <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-[0.12em] text-slate-400 dark:text-slate-500">
+                    <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
                       Appearance
-                    </div>
-
-                    <button
-                      onClick={() => handleSelectTheme('light')}
-                      className={`flex items-center justify-between w-full px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all cursor-pointer ${
-                        !isDark
-                          ? "bg-indigo-50/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300"
-                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/60 dark:hover:bg-slate-800/50"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Sun className="h-4 w-4 text-amber-500" />
-                        Light
-                      </span>
-                      {!isDark && (
-                        <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ duration: 0.15 }}
+                    </p>
+                    {(["light", "dark"] as const).map((mode) => {
+                      const active = mode === "dark" ? isDark : !isDark;
+                      const Icon = mode === "light" ? Sun : Moon;
+                      return (
+                        <button
+                          key={mode}
+                          onClick={() => handleSelectTheme(mode)}
+                          className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm capitalize transition-colors ${
+                            active
+                              ? "bg-accent-soft text-accent"
+                              : "text-ink-soft hover:bg-paper-dim"
+                          }`}
                         >
-                          <Check size={14} className="text-indigo-600 dark:text-indigo-400 stroke-[2.5]" />
-                        </motion.div>
-                      )}
-                    </button>
-
-                    <button
-                      onClick={() => handleSelectTheme('dark')}
-                      className={`flex items-center justify-between w-full px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all cursor-pointer ${
-                        isDark
-                          ? "bg-indigo-50/80 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300"
-                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/60 dark:hover:bg-slate-800/50"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-                        Dark
-                      </span>
-                      {isDark && (
-                        <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          <Check size={14} className="text-indigo-600 dark:text-indigo-400 stroke-[2.5]" />
-                        </motion.div>
-                      )}
-                    </button>
+                          <span className="flex items-center gap-2.5">
+                            <Icon className="h-4 w-4" /> {mode}
+                          </span>
+                          {active && <Check className="h-3.5 w-3.5" strokeWidth={2.5} />}
+                        </button>
+                      );
+                    })}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-            <Link
-              to="/quote"
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5 rounded-xl shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95 transition-all"
-            >
-              Get Free Quote
-            </Link>
 
             {isAuthenticated && user ? (
-              <div className="relative">
+              <div className="relative" ref={profileRef}>
                 <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                  onClick={() => setIsProfileOpen((v) => !v)}
+                  className="flex items-center gap-2 rounded-full border border-line py-1 pl-1 pr-2.5 transition-colors hover:border-line-strong"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 flex items-center justify-center font-semibold text-sm">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-xs font-semibold text-inverse">
                     {user.name.charAt(0)}
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-slate-500" />
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-muted" />
                 </button>
-
                 <AnimatePresence>
-                  {isProfileDropdownOpen && (
+                  {isProfileOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.16 }}
+                      className="theme-dropdown-glass absolute right-0 mt-2 w-56 rounded-xl p-1.5"
                     >
-                      <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-800">
-                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Signed in as</p>
-                        <p className="text-sm font-bold truncate text-slate-800 dark:text-slate-200">{user.name}</p>
+                      <div className="border-b border-line px-3 py-2">
+                        <p className="text-xs text-muted">Signed in as</p>
+                        <p className="truncate text-sm font-semibold text-ink">
+                          {user.name}
+                        </p>
                       </div>
-                      
                       <Link
                         to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
-                        className="flex items-center gap-2.5 px-3 py-2 mt-1 text-sm font-medium rounded-xl text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                        className="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink-soft transition-colors hover:bg-paper-dim"
                       >
-                        <User className="h-4 w-4 text-slate-500" />
-                        {user.role === "admin" ? "Admin Panel" : "Customer Portal"}
+                        <User className="h-4 w-4" />
+                        {user.role === "admin" ? "Admin panel" : "My dashboard"}
                       </Link>
-
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 mt-1 text-sm font-medium rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-err transition-colors hover:bg-accent-soft"
                       >
-                        <LogOut className="h-4 w-4 text-red-500" />
-                        Log Out
+                        <LogOut className="h-4 w-4" /> Log out
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="text-sm font-semibold text-slate-700 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 px-4 py-2"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="border border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-900 text-sm font-semibold px-4 py-2 rounded-xl transition-all"
-                >
-                  Register
-                </Link>
-              </div>
+              <Link
+                to="/login"
+                className="text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+              >
+                Login
+              </Link>
             )}
+
+            <Link
+              to="/quote"
+              className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+            >
+              Get a quote
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+            </Link>
           </div>
 
-          {/* Mobile Menu Toggle Button */}
+          {/* Mobile toggle */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900"
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink lg:hidden"
+            aria-label="Menu"
+            aria-expanded={isMobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-
         </div>
       </header>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 lg:hidden"
           >
-            <div className="px-4 pt-2 pb-6 space-y-2.5">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`block px-3 py-2 text-base font-semibold rounded-xl transition-all ${
-                    location.pathname === link.path
-                      ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
-                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-900 space-y-2">
+            <div
+              className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <motion.nav
+              initial={reduce ? {} : { x: "100%" }}
+              animate={reduce ? {} : { x: 0 }}
+              exit={reduce ? {} : { x: "100%" }}
+              transition={{ type: "tween", duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute right-0 top-0 flex h-full w-[82%] max-w-sm flex-col bg-paper px-6 pb-8 pt-6"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-display text-xl font-semibold text-ink">
+                  Menu
+                </span>
                 <button
-                  onClick={() => handleSelectTheme(isDark ? "light" : "dark")}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink"
+                  aria-label="Close menu"
                 >
-                  {isDark ? <Sun className="h-5 w-5 text-amber-500" /> : <Moon className="h-5 w-5 text-indigo-500" />}
-                  <span className="font-semibold text-sm">
-                    {isDark ? "Light Mode" : "Dark Mode"}
-                  </span>
+                  <X className="h-5 w-5" />
                 </button>
-                <Link
-                  to="/quote"
-                  className="block w-full text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm shadow-md"
+              </div>
+
+              <div className="mt-8 flex flex-col">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`border-b border-line py-3.5 font-display text-2xl transition-colors ${
+                      isActive(link.path) ? "text-accent" : "text-ink hover:text-accent"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-auto flex flex-col gap-4 pt-8">
+                <button
+                  onClick={() => setTheme(isDark ? "light" : "dark")}
+                  className="flex items-center gap-2.5 text-sm font-medium text-ink-soft"
                 >
-                  Get Free Quote
-                </Link>
+                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  {isDark ? "Light mode" : "Dark mode"}
+                </button>
 
                 {isAuthenticated && user ? (
                   <>
                     <Link
                       to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
-                      className="block w-full text-center border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-xl font-semibold text-sm"
+                      className="flex items-center gap-2.5 text-sm font-medium text-ink"
                     >
-                      Dashboard
+                      <User className="h-4 w-4" />
+                      {user.role === "admin" ? "Admin panel" : "My dashboard"}
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-center text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all"
+                      className="flex items-center gap-2.5 text-sm font-medium text-err"
                     >
-                      Log Out
+                      <LogOut className="h-4 w-4" /> Log out
                     </button>
                   </>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2 pt-2">
-                    <Link
-                      to="/login"
-                      className="text-center text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 px-4 py-2.5 rounded-xl font-semibold text-sm border border-slate-200 dark:border-slate-800"
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="text-center bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2.5 rounded-xl font-semibold text-sm hover:opacity-90"
-                    >
-                      Register
-                    </Link>
-                  </div>
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-ink"
+                  >
+                    Login
+                  </Link>
                 )}
+
+                <Link
+                  to="/quote"
+                  className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-inverse"
+                >
+                  Get a quote
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
-            </div>
+            </motion.nav>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Primary Page Content Wrapper with Transitions */}
+      {/* Main */}
       <main className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="w-full"
+            initial={reduce ? {} : { opacity: 0, y: 8 }}
+            animate={reduce ? {} : { opacity: 1, y: 0 }}
+            exit={reduce ? {} : { opacity: 0 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
           >
             {children}
           </motion.div>
         </AnimatePresence>
       </main>
-
-      {/* Professional Footer */}
-      <footer className="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 border-t border-slate-200 dark:border-slate-900 pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          
-          {/* Column 1: Intro */}
-          <div>
-            <div className="mb-4">
-              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                Shrestha Services
-              </span>
+      {/* Footer */}
+      <footer className="border-t border-line bg-paper-dim">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
+          <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+            {/* Brand */}
+            <div>
+              <Link to="/" className="flex flex-col leading-none">
+                <span className="font-display text-2xl font-semibold tracking-tight text-ink">
+                  Shrestha
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
+                  Services
+                </span>
+              </Link>
+              <p className="mt-5 max-w-xs text-sm leading-relaxed text-ink-soft text-pretty">
+                A working print &amp; signage shop on Main Road, Biratnagar.
+                Flex, acrylic, vinyl and vehicle wraps — designed, printed and
+                installed in-house.
+              </p>
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-              Biratnagar's leading digital printing, signage manufacturing, and corporate advertising wrap solutions agency. Bringing your designs to life on premium materials.
-            </p>
-            <div className="flex gap-4">
-              {/* Mock Social Media icons */}
-              <a href="#" className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 dark:hover:bg-blue-600 flex items-center justify-center hover:text-white transition-colors"><Phone className="h-4 w-4" /></a>
-              <a href="#" className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 dark:hover:bg-blue-600 flex items-center justify-center hover:text-white transition-colors"><Mail className="h-4 w-4" /></a>
+
+            {footerCols.map((col) => (
+              <div key={col.heading}>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                  {col.heading}
+                </p>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.label}>
+                      <Link
+                        to={l.to}
+                        className="text-sm text-ink-soft transition-colors hover:text-accent"
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            {/* Find us */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                Find us
+              </p>
+              <ul className="mt-4 space-y-3 text-sm text-ink-soft">
+                <li className="flex items-start gap-2.5">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  Main Road, Biratnagar, Nepal
+                </li>
+                <li>
+                  <a
+                    href="tel:+97721441234"
+                    className="flex items-center gap-2.5 transition-colors hover:text-accent"
+                  >
+                    <Phone className="h-4 w-4 shrink-0 text-accent" />
+                    +977-21-441234
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:info@shresthaservices.com.np"
+                    className="flex items-center gap-2.5 transition-colors hover:text-accent"
+                  >
+                    <Mail className="h-4 w-4 shrink-0 text-accent" />
+                    info@shresthaservices.com.np
+                  </a>
+                </li>
+                <li className="pt-1 text-muted">Sun–Fri · 9:30 AM – 7:00 PM</li>
+              </ul>
             </div>
           </div>
 
-          {/* Column 2: Services */}
-          <div>
-            <h3 className="text-slate-900 dark:text-white font-semibold mb-4 text-sm tracking-wider uppercase">Our Services</h3>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Flex Banner Printing</Link></li>
-              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Acrylic Sign Boards</Link></li>
-              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Frosted & Glow Stickers</Link></li>
-              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Vehicle Wrap Decals</Link></li>
-              <li><Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Roll-up Pull Stands</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 3: Corporate Info */}
-          <div>
-            <h3 className="text-slate-900 dark:text-white font-semibold mb-4 text-sm tracking-wider uppercase">Quick Links</h3>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Our Machinery & Team</Link></li>
-              <li><Link to="/gallery" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Work Showcase Portfolio</Link></li>
-              <li><Link to="/testimonials" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-blue-600 dark:text-blue-400">Reviews & Ratings</Link></li>
-              <li><Link to="/faq" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">FAQ & Print Guidelines</Link></li>
-              <li><Link to="/blog" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Branding Blog Hub</Link></li>
-              <li><Link to="/careers" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">We are Hiring (Careers)</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 4: Address Info */}
-          <div>
-            <h3 className="text-slate-900 dark:text-white font-semibold mb-4 text-sm tracking-wider uppercase">Find Us</h3>
-            <ul className="space-y-3.5 text-sm">
-              <li className="flex gap-2.5">
-                <MapPin className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-slate-600 dark:text-slate-400">Main Road, Biratnagar, Nepal</span>
-              </li>
-              <li className="flex gap-2.5">
-                <Phone className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-slate-600 dark:text-slate-400">+977-1-4412345, +977 9851012345</span>
-              </li>
-              <li className="flex gap-2.5">
-                <Mail className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-slate-600 dark:text-slate-400">info@shresthaservices.com.np</span>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200 dark:border-slate-900 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 dark:text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Shrestha Services Pvt. Ltd. All rights reserved.</p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Terms of Conditions</Link>
-            <Link to="/sitemap" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Sitemap</Link>
+          {/* Bottom bar */}
+          <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} Shrestha Services. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <Link to="/privacy" className="transition-colors hover:text-ink">
+                Privacy
+              </Link>
+              <Link to="/terms" className="transition-colors hover:text-ink">
+                Terms
+              </Link>
+              <Link to="/faq" className="transition-colors hover:text-ink">
+                FAQ
+              </Link>
+            </div>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
+
+

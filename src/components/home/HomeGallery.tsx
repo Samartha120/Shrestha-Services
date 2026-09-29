@@ -1,71 +1,71 @@
-import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRef } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { galleryImages } from "@/data/gallery";
-import { ArrowRight } from "lucide-react";
+import { Container, Eyebrow, Reveal, GhostCTA } from "@/components/marketing/primitives";
+
+const categoryLabels: Record<string, string> = {
+  signage: "Signage",
+  "large-format": "Large format",
+  "vehicle-wraps": "Vehicle wraps",
+  "digital-prints": "Digital print",
+};
 
 export default function HomeGallery() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  const visibleImages = galleryImages.slice(0, 6);
+  const items = galleryImages.slice(0, 5);
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-slate-50 dark:bg-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6"
-        >
+    <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
+      <Container>
+        <Reveal className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span className="inline-block px-4 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-semibold rounded-full mb-4">
-              Our Work
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-              Featured Gallery
+            <Eyebrow>Recent work</Eyebrow>
+            <h2 className="mt-5 font-display text-4xl leading-tight text-ink sm:text-5xl">
+              Off the press, onto the street.
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
-              A glimpse of our recent projects and the quality we deliver
-            </p>
           </div>
-          <Link
-            to="/gallery"
-            className="group inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
-          >
-            View All
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </motion.div>
+          <GhostCTA to="/gallery">View the full portfolio</GhostCTA>
+        </Reveal>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visibleImages.map((image, idx) => (
-            <motion.div
-              key={image.id}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              className="group relative aspect-[4/3] overflow-hidden rounded-3xl bg-slate-200 dark:bg-slate-700"
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-5">
+          {items.map((item, i) => (
+            <Reveal
+              key={item.id}
+              delay={i * 0.06}
+              className={i === 0 ? "col-span-2 lg:col-span-2 lg:row-span-2" : ""}
             >
-              {/* Placeholder image */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-                <div className="text-center text-white/90">
-                  <p className="font-semibold text-lg">{image.title}</p>
-                  <p className="text-sm opacity-80">{image.category}</p>
+              <Link
+                to="/gallery"
+                className="group relative flex h-full min-h-[180px] flex-col justify-end overflow-hidden rounded-sm border border-line-strong bg-ink p-5 text-inverse"
+              >
+                {/* specimen texture, not a glowing blob */}
+                <span
+                  aria-hidden
+                  className="absolute inset-0 opacity-[0.12] transition-opacity duration-500 group-hover:opacity-20"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 9px)",
+                  }}
+                />
+                <span
+                  aria-hidden
+                  className="absolute right-4 top-4 font-mono text-[11px] text-inverse/50"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="relative">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
+                    {categoryLabels[item.category] ?? item.category}
+                  </p>
+                  <h3 className="mt-1 flex items-center gap-1 font-display text-xl text-inverse sm:text-2xl">
+                    {item.title}
+                    <ArrowUpRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                  </h3>
                 </div>
-              </div>
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                <h3 className="text-xl font-bold text-white mb-2">{image.title}</h3>
-                <p className="text-blue-300 font-medium">{image.category}</p>
-              </div>
-            </motion.div>
+              </Link>
+            </Reveal>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
