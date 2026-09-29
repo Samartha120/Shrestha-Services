@@ -1,6 +1,0 @@
-export const QUOTE_STATUS = {
-    PENDING: "PENDING",
-    REVIEWING: "REVIEWING",
-    APPROVED: "APPROVED",
-    REJECTED: "REJECTED",
-};

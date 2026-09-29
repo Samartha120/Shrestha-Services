@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Compiled TS output that must never sit next to .ts/.tsx sources
+# (Vite/rollup resolve .js before .tsx and it shadows the real source)
+/src/**/*.js
+/src/**/*.jsx
