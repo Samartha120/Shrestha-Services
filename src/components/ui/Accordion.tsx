@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 interface AccordionItem {
@@ -11,54 +11,27 @@ interface Props {
   items: AccordionItem[];
 }
 
-export default function Accordion({
-  items,
-}: Props) {
-  const [active, setActive] =
-    useState<number | null>(null);
+export default function Accordion({ items }: Props) {
+  const reduce = useReducedMotion();
+  const [active, setActive] = useState<number | null>(null);
 
   return (
-    <div className="space-y-4">
+    <div className="divide-y divide-line border-y border-line">
       {items.map((item, index) => {
-        const isOpen =
-          active === index;
+        const isOpen = active === index;
 
         return (
-          <div
-            key={index}
-            className="
-            rounded-2xl
-            border
-            border-slate-200
-            overflow-hidden
-            "
-          >
+          <div key={index}>
             <button
-              onClick={() =>
-                setActive(
-                  isOpen
-                    ? null
-                    : index
-                )
-              }
-              className="
-              flex
-              w-full
-              items-center
-              justify-between
-              p-5
-              "
+              onClick={() => setActive(isOpen ? null : index)}
+              className="flex w-full items-center justify-between py-5 text-left transition-colors hover:text-accent"
             >
-              <span className="font-medium">
-                {item.title}
-              </span>
+              <span className="font-medium text-ink">{item.title}</span>
 
               <motion.div
-                animate={{
-                  rotate: isOpen
-                    ? 180
-                    : 0,
-                }}
+                animate={{ rotate: isOpen ? 180 : 0 }}
+                transition={reduce ? { duration: 0 } : undefined}
+                className="text-muted"
               >
                 <ChevronDown />
               </motion.div>
@@ -67,22 +40,13 @@ export default function Accordion({
             <AnimatePresence>
               {isOpen && (
                 <motion.div
-                  initial={{
-                    height: 0,
-                    opacity: 0,
-                  }}
-                  animate={{
-                    height: "auto",
-                    opacity: 1,
-                  }}
-                  exit={{
-                    height: 0,
-                    opacity: 0,
-                  }}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
                 >
-                  <div className="p-5 pt-0">
-                    {item.content}
-                  </div>
+                  <div className="pb-5 text-ink-soft">{item.content}</div>
                 </motion.div>
               )}
             </AnimatePresence>

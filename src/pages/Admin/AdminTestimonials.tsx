@@ -63,8 +63,8 @@ export default function AdminTestimonials() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Customer Reviews</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="font-display text-2xl tracking-tight text-ink">Customer Reviews</h1>
+          <p className="text-sm text-muted mt-1">
             Review and publish client stories, event feedback, and star ratings.
           </p>
         </div>
@@ -76,38 +76,38 @@ export default function AdminTestimonials() {
 
       {/* Grid */}
       {isLoading ? (
-        <div className="p-12 text-center text-sm text-slate-500">Loading reviews...</div>
+        <div className="p-12 text-center text-sm text-muted">Loading reviews...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {testimonials.map((t) => (
-            <Card key={t.id} className="border border-slate-200/80 dark:border-slate-800 p-6 flex flex-col justify-between space-y-4">
-              
+            <Card key={t.id} className="border border-line p-6 flex flex-col justify-between space-y-4">
+
               <div className="space-y-3">
                 {/* Rating stars */}
-                <div className="flex gap-0.5 text-amber-500">
+                <div className="flex gap-0.5 text-accent">
                   {Array.from({ length: 5 }).map((_, idx) => (
                     <Star
                       key={idx}
                       size={14}
                       fill={idx < t.rating ? "currentColor" : "none"}
-                      className={idx < t.rating ? "text-amber-500" : "text-slate-300 dark:text-slate-700"}
+                      className={idx < t.rating ? "text-accent" : "text-faint"}
                     />
                   ))}
                 </div>
 
-                <p className="text-xs text-slate-600 dark:text-slate-350 leading-relaxed italic">
+                <p className="text-xs text-ink-soft leading-relaxed italic">
                   "{t.review}"
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
-                <span className="font-bold text-xs text-slate-900 dark:text-white truncate max-w-[150px]">
+              <div className="pt-4 border-t border-line flex justify-between items-center shrink-0">
+                <span className="font-bold text-xs text-ink truncate max-w-[150px]">
                   {t.customerName}
                 </span>
 
                 <button
                   onClick={() => handleDelete(t.id)}
-                  className="p-1.5 text-slate-450 hover:text-red-500 hover:bg-red-55/20 dark:hover:bg-red-950/20 rounded-lg transition-colors"
+                  className="p-1.5 text-muted hover:text-err hover:bg-surface-2 rounded-sm transition-colors"
                   title="Delete Review"
                 >
                   <Trash2 size={15} />
@@ -136,11 +136,11 @@ export default function AdminTestimonials() {
             />
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Rating Stars (1-5)</label>
+              <label className="text-sm font-medium text-ink">Rating Stars (1-5)</label>
               <select
                 value={rating}
                 onChange={(e) => setRating(Number(e.target.value))}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
+                className="w-full rounded-sm border border-line bg-surface px-4 py-3 focus:border-accent text-sm focus:outline-none text-ink"
               >
                 <option value={5}>5 Stars (Excellent)</option>
                 <option value={4}>4 Stars (Good)</option>
@@ -151,17 +151,17 @@ export default function AdminTestimonials() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Review Message</label>
+              <label className="text-sm font-medium text-ink">Review Message</label>
               <textarea
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
                 placeholder="Write the customer's comment details here..."
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
+                className="w-full rounded-sm border border-line bg-surface px-4 py-3 min-h-[100px] focus:border-accent text-sm focus:outline-none text-ink placeholder:text-muted"
                 required
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 border-t border-line">
               <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
                 Cancel
               </Button>

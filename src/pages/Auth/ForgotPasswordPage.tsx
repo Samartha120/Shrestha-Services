@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
-import Input from "@/components/common/Input";
-import Button from "@/components/common/Button";
-import { Mail, CheckCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
+import AuthShell, { authFieldClass, authLabelClass } from "@/components/auth/AuthShell";
 
 export default function ForgotPasswordPage() {
   const { forgotPassword, error, clearError } = useAuthStore();
+  const reduce = useReducedMotion();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -21,70 +22,111 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(email);
       setSuccess(true);
-    } catch (err) {
+    } catch {
       // handled
     } finally {
       setLoading(false);
     }
   };
 
+  const fade = (i: number) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0, y: 12 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.5, delay: 0.08 * i, ease: [0.22, 1, 0.36, 1] as const },
+        };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-12">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl">
-        
-        {success ? (
-          <div className="text-center space-y-4 py-6">
-            <CheckCircle className="h-16 w-16 text-emerald-500 mx-auto" />
-            <h2 className="text-2xl font-bold tracking-tight">Email Sent</h2>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              If an account with that email exists, we've sent instructions to reset your password.
+    <AuthShell
+      statement="Locked out? We'll help you back in."
+      note="Enter the email tied to your account and we'll send a secure link to reset your password."
+    >
+      {success ? (
+        <motion.div {...fade(0)}>
+          <CheckCircle className="h-12 w-12 text-ok" strokeWidth={1.5} />
+          <h2 className="mt-6 font-display text-4xl leading-tight text-ink">
+            Check your inbox.
+          </h2>
+          <p className="mt-3 text-ink-soft text-pretty">
+            If an account with that email exists, we've sent instructions to
+            reset your password.
+          </p>
+          <Link
+            to="/login"
+            className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft transition-colors hover:text-accent"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+            Back to sign in
+          </Link>
+        </motion.div>
+      ) : (
+        <>
+          <motion.div {...fade(0)}>
+            <span className="inline-flex items-center gap-3 eyebrow">
+              <span className="h-px w-6 bg-accent" aria-hidden />
+              Recovery
+            </span>
+            <h2 className="mt-5 font-display text-4xl leading-tight text-ink">
+              Reset password.
+            </h2>
+            <p className="mt-3 text-ink-soft text-pretty">
+              Enter your email address and we'll send you a recovery link.
             </p>
-            <div className="pt-6">
-              <Link to="/login" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                Back to Sign In
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex flex-col items-center mb-8 text-center">
-              <h2 className="text-2xl font-bold tracking-tight">Reset Password</h2>
-              <p className="text-sm text-slate-500 mt-2">
-                Enter your email address and we'll send you a recovery link
-              </p>
-            </div>
+          </motion.div>
 
+          <AnimatePresence>
             {error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 text-sm text-red-600 dark:text-red-400">
-                {error}
-              </div>
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-6 overflow-hidden"
+              >
+                <p className="border-l-2 border-err bg-accent-soft/40 px-4 py-3 text-sm font-medium text-err">
+                  {error}
+                </p>
+              </motion.div>
             )}
+          </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Input
-                label="Email Address"
+          <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
+            <motion.div {...fade(1)}>
+              <label className={authLabelClass}>Email address</label>
+              <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                leftIcon={<Mail size={18} className="text-slate-400" />}
+                autoComplete="email"
                 required
+                className={authFieldClass}
               />
+            </motion.div>
 
-              <Button type="submit" loading={loading} className="w-full">
-                Send Reset Link
-              </Button>
-            </form>
+            <motion.button
+              {...fade(2)}
+              type="submit"
+              disabled={loading}
+              className="group mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent disabled:opacity-60"
+            >
+              {loading ? "Sending…" : "Send reset link"}
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </motion.button>
+          </form>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center text-sm">
-              <Link to="/login" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                Back to Sign In
-              </Link>
-            </div>
-          </>
-        )}
-
-      </div>
-    </div>
+          <motion.p {...fade(3)} className="mt-8 text-sm text-ink-soft">
+            Remembered it?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-ink underline decoration-accent decoration-2 underline-offset-4 transition-colors hover:text-accent"
+            >
+              Back to sign in
+            </Link>
+          </motion.p>
+        </>
+      )}
+    </AuthShell>
   );
 }

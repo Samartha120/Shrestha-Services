@@ -76,12 +76,13 @@ export default function AdminDashboard() {
     loadData();
   }, []);
 
-  const COLORS = ["#3b82f6", "#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899"];
-  const gridStroke = isDark ? "rgba(51,65,85,0.4)" : "rgba(226,232,240,0.8)";
-  const axisTickFill = isDark ? "#94a3b8" : "#64748b";
-  const tooltipBg = isDark ? "rgba(30,41,59,0.92)" : "rgba(255,255,255,0.95)";
-  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
-  const tooltipText = isDark ? "#e2e8f0" : "#334155";
+  const COLORS = ["#d8402a", "#1a1714", "#776f64", "#2f7d54", "#b5730f", "#bf3320"];
+  const gridStroke = isDark ? "rgba(44,40,34,0.9)" : "rgba(230,225,214,0.9)";
+  const axisTickFill = isDark ? "#948b7d" : "#776f64";
+  const accentStroke = isDark ? "#f2603f" : "#d8402a";
+  const tooltipBg = isDark ? "#201d18" : "#ffffff";
+  const tooltipBorder = isDark ? "#2c2822" : "#e6e1d6";
+  const tooltipText = isDark ? "#f4f0e8" : "#1a1714";
 
   // Dynamically filter or compute chart data based on timeframe state
   const getFilteredRevenueData = () => {
@@ -178,7 +179,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="p-16 text-center text-sm font-semibold text-slate-500">
+      <div className="p-16 text-center text-sm font-semibold text-muted">
         Syncing admin intelligence center database...
       </div>
     );
@@ -186,26 +187,26 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      
+
       {/* Top Welcome Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Admin Command Center</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-semibold">
+          <h1 className="font-display text-3xl tracking-tight text-ink">Admin Command Center</h1>
+          <p className="text-sm text-muted mt-1.5">
             Real-time analytics, printer shop sales, corporate client growth, and system logistics.
           </p>
         </div>
 
         {/* Timeframe Filter Dropdown */}
-        <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-sm">
+        <div className="flex items-center gap-2 bg-surface border border-line rounded-full p-1.5">
           {(["Daily", "Weekly", "Monthly", "Yearly"] as Timeframe[]).map((tf) => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-mono rounded-full transition-all cursor-pointer ${
                 timeframe === tf
-                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                  : "text-slate-550 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200"
+                  ? "bg-ink text-inverse"
+                  : "text-muted hover:text-ink"
               }`}
             >
               {tf}
@@ -216,81 +217,81 @@ export default function AdminDashboard() {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 border border-slate-200/80 dark:border-slate-800 flex items-center gap-4 hover:shadow-lg transition-all duration-300">
-          <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+        <Card className="p-6 border border-line rounded-sm flex items-center gap-4 transition-all duration-300">
+          <div className="h-12 w-12 rounded-sm bg-accent-soft text-accent flex items-center justify-center shrink-0">
             <DollarSign size={24} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider">Gross Income</p>
-              <span className="flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
+              <p className="text-xs font-mono text-muted uppercase tracking-wide">Gross Income</p>
+              <span className="flex items-center gap-0.5 text-[10px] text-ok font-mono bg-accent-soft px-1.5 py-0.5 rounded-full">
                 <ArrowUpRight size={10} /> +12.3%
               </span>
             </div>
-            <p className="text-2xl font-extrabold mt-1 truncate text-slate-950 dark:text-white">NPR {stats?.totalRevenue}</p>
+            <p className="text-2xl font-display mt-1 truncate text-ink">NPR {stats?.totalRevenue}</p>
           </div>
         </Card>
 
-        <Card className="p-6 border border-slate-200/80 dark:border-slate-800 flex items-center gap-4 hover:shadow-lg transition-all duration-300">
-          <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+        <Card className="p-6 border border-line rounded-sm flex items-center gap-4 transition-all duration-300">
+          <div className="h-12 w-12 rounded-sm bg-accent-soft text-accent flex items-center justify-center shrink-0">
             <FileText size={24} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider">Quote Orders</p>
-              <span className="flex items-center gap-0.5 text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.5 rounded">
+              <p className="text-xs font-mono text-muted uppercase tracking-wide">Quote Orders</p>
+              <span className="flex items-center gap-0.5 text-[10px] text-accent font-mono bg-accent-soft px-1.5 py-0.5 rounded-full">
                 <ArrowUpRight size={10} /> +8.5%
               </span>
             </div>
-            <p className="text-2xl font-extrabold mt-1 truncate text-slate-950 dark:text-white">{stats?.totalQuotes}</p>
+            <p className="text-2xl font-display mt-1 truncate text-ink">{stats?.totalQuotes}</p>
           </div>
         </Card>
 
-        <Card className="p-6 border border-slate-200/80 dark:border-slate-800 flex items-center gap-4 hover:shadow-lg transition-all duration-300">
-          <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+        <Card className="p-6 border border-line rounded-sm flex items-center gap-4 transition-all duration-300">
+          <div className="h-12 w-12 rounded-sm bg-ink text-inverse flex items-center justify-center shrink-0">
             <Users size={24} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider">Active Clients</p>
-              <span className="flex items-center gap-0.5 text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded">
+              <p className="text-xs font-mono text-muted uppercase tracking-wide">Active Clients</p>
+              <span className="flex items-center gap-0.5 text-[10px] text-accent font-mono bg-accent-soft px-1.5 py-0.5 rounded-full">
                 <ArrowUpRight size={10} /> +24%
               </span>
             </div>
-            <p className="text-2xl font-extrabold mt-1 truncate text-slate-950 dark:text-white">{stats?.totalCustomers}</p>
+            <p className="text-2xl font-display mt-1 truncate text-ink">{stats?.totalCustomers}</p>
           </div>
         </Card>
 
-        <Card className="p-6 border border-slate-200/80 dark:border-slate-800 flex items-center gap-4 hover:shadow-lg transition-all duration-300">
-          <div className="h-12 w-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+        <Card className="p-6 border border-line rounded-sm flex items-center gap-4 transition-all duration-300">
+          <div className="h-12 w-12 rounded-sm bg-ink text-inverse flex items-center justify-center shrink-0">
             <Layers size={24} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider">Flex Machinery</p>
-              <span className="flex items-center gap-0.5 text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.5 rounded">
+              <p className="text-xs font-mono text-muted uppercase tracking-wide">Flex Machinery</p>
+              <span className="flex items-center gap-0.5 text-[10px] text-ok font-mono bg-accent-soft px-1.5 py-0.5 rounded-full">
                 94% Eff
               </span>
             </div>
-            <p className="text-2xl font-extrabold mt-1 truncate text-slate-950 dark:text-white">{stats?.totalServices} Lines</p>
+            <p className="text-2xl font-display mt-1 truncate text-ink">{stats?.totalServices} Lines</p>
           </div>
         </Card>
       </div>
 
       {/* Analytics Main Interactive View */}
-      <Card className="border border-slate-200 dark:border-slate-800 p-6 md:p-8 space-y-6 shadow-sm">
-        
+      <Card className="border border-line rounded-sm p-6 md:p-8 space-y-6">
+
         {/* Navigation Tabs */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-line pb-4">
           <div className="flex items-center gap-2">
             {(["revenue", "users", "services", "orders"] as ActiveTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer capitalize ${
+                className={`px-4 py-2 text-sm font-mono rounded-full transition-all cursor-pointer capitalize ${
                   activeTab === tab
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
-                    : "text-slate-550 dark:text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-850"
+                    ? "bg-accent text-accent-ink"
+                    : "text-muted hover:bg-paper-dim"
                 }`}
               >
                 {tab} Analytics
@@ -298,7 +299,7 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          <div className="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+          <div className="text-xs font-mono text-muted uppercase tracking-wide flex items-center gap-1.5">
             <Calendar size={14} /> Active Filter: {timeframe}
           </div>
         </div>
@@ -310,34 +311,34 @@ export default function AdminDashboard() {
               <AreaChart data={getFilteredRevenueData()}>
                 <defs>
                   <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={isDark ? "#818cf8" : "#3b82f6"} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={isDark ? "#818cf8" : "#3b82f6"} stopOpacity={0} />
+                    <stop offset="5%" stopColor={accentStroke} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={accentStroke} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                 <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill, fontWeight: 600 }} />
                 <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
-                <Area type="monotone" dataKey="revenue" stroke={isDark ? "#818cf8" : "#3b82f6"} strokeWidth={2.5} fillOpacity={1} fill="url(#revenueGrad)" />
+                <Tooltip contentStyle={{ borderRadius: "2px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText }} />
+                <Area type="monotone" dataKey="revenue" stroke={accentStroke} strokeWidth={2.5} fillOpacity={1} fill="url(#revenueGrad)" />
               </AreaChart>
             ) : activeTab === "users" ? (
               <LineChart data={getUserGrowthData()}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
                 <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill }} />
                 <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
+                <Tooltip contentStyle={{ borderRadius: "2px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText }} />
                 <Legend />
-                <Line type="monotone" name="User Growth" dataKey="userGrowth" stroke={isDark ? "#22d3ee" : "#06b6d4"} strokeWidth={2.5} />
-                <Line type="monotone" name="Active Users" dataKey="activeUsers" stroke={isDark ? "#a5b4fc" : "#6366f1"} strokeWidth={2.5} />
-                <Line type="monotone" name="Returning Users" dataKey="returningUsers" stroke={isDark ? "#34d399" : "#10b981"} strokeWidth={2.5} />
+                <Line type="monotone" name="User Growth" dataKey="userGrowth" stroke={accentStroke} strokeWidth={2.5} />
+                <Line type="monotone" name="Active Users" dataKey="activeUsers" stroke={tooltipText} strokeWidth={2.5} />
+                <Line type="monotone" name="Returning Users" dataKey="returningUsers" stroke={COLORS[3]} strokeWidth={2.5} />
               </LineChart>
             ) : activeTab === "services" ? (
               <BarChart data={serviceData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                 <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill }} />
                 <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
-                <Bar dataKey="value" name="Popularity %" fill="#818cf8" radius={[4, 4, 0, 0]}>
+                <Tooltip contentStyle={{ borderRadius: "2px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText }} />
+                <Bar dataKey="value" name="Popularity %" fill={accentStroke} radius={[2, 2, 0, 0]}>
                   {serviceData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
@@ -348,76 +349,76 @@ export default function AdminDashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                 <XAxis dataKey="name" stroke="transparent" tick={{ fill: axisTickFill }} />
                 <YAxis stroke="transparent" tick={{ fill: axisTickFill }} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText, backdropFilter: "blur(12px)" }} />
+                <Tooltip contentStyle={{ borderRadius: "2px", border: `1px solid ${tooltipBorder}`, backgroundColor: tooltipBg, color: tooltipText }} />
                 <Legend />
-                <Bar dataKey="orders" name="Order count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="revenuePerOrder" name="Avg revenue (NPR)" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="orders" name="Order count" fill={accentStroke} radius={[2, 2, 0, 0]} />
+                <Bar dataKey="revenuePerOrder" name="Avg revenue (NPR)" fill={COLORS[3]} radius={[2, 2, 0, 0]} />
               </BarChart>
             )}
           </ResponsiveContainer>
         </div>
 
         {/* Business Insights Panel */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-line">
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-              <ShoppingBag size={14} className="text-blue-500" /> Avg Order value
+            <div className="flex items-center gap-1.5 text-xs font-mono text-muted uppercase tracking-wide">
+              <ShoppingBag size={14} className="text-accent" /> Avg Order value
             </div>
-            <p className="text-lg font-bold text-slate-850 dark:text-white">NPR 16,340</p>
-            <p className="text-[11px] text-slate-400">Total volume divided by verified client orders</p>
+            <p className="text-lg font-display text-ink">NPR 16,340</p>
+            <p className="text-[11px] text-faint">Total volume divided by verified client orders</p>
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-              <Percent size={14} className="text-indigo-500" /> Conversion Rate
+            <div className="flex items-center gap-1.5 text-xs font-mono text-muted uppercase tracking-wide">
+              <Percent size={14} className="text-accent" /> Conversion Rate
             </div>
-            <p className="text-lg font-bold text-slate-850 dark:text-white">42.8%</p>
-            <p className="text-[11px] text-slate-400">Quote layout approvals vs total request queries</p>
+            <p className="text-lg font-display text-ink">42.8%</p>
+            <p className="text-[11px] text-faint">Quote layout approvals vs total request queries</p>
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-              <TrendingUp size={14} className="text-emerald-500" /> Growth Index
+            <div className="flex items-center gap-1.5 text-xs font-mono text-muted uppercase tracking-wide">
+              <TrendingUp size={14} className="text-ok" /> Growth Index
             </div>
-            <p className="text-lg font-bold text-slate-850 dark:text-white">+18.5% YoY</p>
-            <p className="text-[11px] text-slate-400">Monthly invoice compound growth index rate</p>
+            <p className="text-lg font-display text-ink">+18.5% YoY</p>
+            <p className="text-[11px] text-faint">Monthly invoice compound growth index rate</p>
           </div>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Pending Quotes Action Table */}
-        <Card className="lg:col-span-2 border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-slate-150 dark:border-slate-800 flex justify-between items-center">
-            <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <ShieldAlert className="h-4.5 w-4.5 text-amber-500" /> Pending Quotes Audit
+        <Card className="lg:col-span-2 border border-line rounded-sm overflow-hidden">
+          <div className="p-6 border-b border-line flex justify-between items-center">
+            <h3 className="font-display text-sm text-ink uppercase tracking-wide flex items-center gap-2">
+              <ShieldAlert className="h-4.5 w-4.5 text-warn" /> Pending Quotes Audit
             </h3>
-            <Link to="/admin/quotes" className="text-xs font-bold text-blue-605 dark:text-blue-450 hover:underline">
+            <Link to="/admin/quotes" className="text-xs font-mono text-accent hover:underline">
               View All Quotes
             </Link>
           </div>
-          
+
           <div className="overflow-x-auto text-xs">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800">
-                  <th className="p-4 font-bold text-slate-650 dark:text-slate-400 uppercase tracking-wider text-[10px]">ID</th>
-                  <th className="p-4 font-bold text-slate-650 dark:text-slate-400 uppercase tracking-wider text-[10px]">Customer</th>
-                  <th className="p-4 font-bold text-slate-650 dark:text-slate-400 uppercase tracking-wider text-[10px]">Material Specs</th>
-                  <th className="p-4 font-bold text-slate-650 dark:text-slate-400 uppercase tracking-wider text-[10px]">Price Estimate</th>
-                  <th className="p-4 font-bold text-slate-650 dark:text-slate-400 uppercase tracking-wider text-[10px]">Action</th>
+                <tr className="bg-paper-dim border-b border-line">
+                  <th className="p-4 font-mono text-muted uppercase tracking-wide text-[10px]">ID</th>
+                  <th className="p-4 font-mono text-muted uppercase tracking-wide text-[10px]">Customer</th>
+                  <th className="p-4 font-mono text-muted uppercase tracking-wide text-[10px]">Material Specs</th>
+                  <th className="p-4 font-mono text-muted uppercase tracking-wide text-[10px]">Price Estimate</th>
+                  <th className="p-4 font-mono text-muted uppercase tracking-wide text-[10px]">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-850">
+              <tbody className="divide-y divide-line">
                 {pendingQuotes.slice(0, 4).map((q) => (
-                  <tr key={q.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                    <td className="p-4 font-bold text-slate-900 dark:text-slate-50">{q.id}</td>
-                    <td className="p-4 text-slate-750 dark:text-slate-350 font-medium">{q.customerName}</td>
-                    <td className="p-4 text-slate-700 dark:text-slate-400 truncate max-w-[150px] font-semibold">{q.material}</td>
-                    <td className="p-4 font-bold text-slate-950 dark:text-slate-50">NPR {q.estimatedPrice}</td>
+                  <tr key={q.id} className="hover:bg-paper-dim transition-colors">
+                    <td className="p-4 font-mono text-ink">{q.id}</td>
+                    <td className="p-4 text-ink-soft font-medium">{q.customerName}</td>
+                    <td className="p-4 text-muted truncate max-w-[150px]">{q.material}</td>
+                    <td className="p-4 font-mono text-ink">NPR {q.estimatedPrice}</td>
                     <td className="p-4">
-                      <Link to="/admin/quotes" className="text-xs font-bold text-blue-600 dark:text-blue-450 hover:underline">
+                      <Link to="/admin/quotes" className="text-xs font-mono text-accent hover:underline">
                         Audit &rarr;
                       </Link>
                     </td>
@@ -425,7 +426,7 @@ export default function AdminDashboard() {
                 ))}
                 {pendingQuotes.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400 font-semibold">
+                    <td colSpan={5} className="p-8 text-center text-muted">
                       All quotes are audited and processed!
                     </td>
                   </tr>
@@ -436,17 +437,17 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Activity Logs Timeline */}
-        <Card className="p-6 border border-slate-200/80 dark:border-slate-800 space-y-5 shadow-sm">
-          <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider border-b border-slate-100 dark:border-slate-850 pb-2">System Activity Log</h3>
+        <Card className="p-6 border border-line rounded-sm space-y-5">
+          <h3 className="font-display text-sm text-ink uppercase tracking-wide border-b border-line pb-2">System Activity Log</h3>
           <div className="space-y-4">
             {activities.map((act) => (
               <div key={act.id} className="flex gap-3 relative pb-1">
-                <div className="h-2 w-2 rounded-full bg-blue-600 shrink-0 mt-1.5 shadow shadow-blue-500" />
+                <div className="h-2 w-2 rounded-full bg-accent shrink-0 mt-1.5" />
                 <div className="space-y-0.5 min-w-0">
-                  <p className="text-xs font-semibold truncate text-slate-750 dark:text-slate-300">
-                    <span className="font-bold text-slate-900 dark:text-white">{act.user}</span>: {act.action}
+                  <p className="text-xs truncate text-ink-soft">
+                    <span className="font-medium text-ink">{act.user}</span>: {act.action}
                   </p>
-                  <span className="flex items-center gap-1 text-[10px] text-slate-450 dark:text-slate-500 font-medium">
+                  <span className="flex items-center gap-1 text-[10px] text-faint font-mono">
                     <Clock size={10} /> {act.time}
                   </span>
                 </div>

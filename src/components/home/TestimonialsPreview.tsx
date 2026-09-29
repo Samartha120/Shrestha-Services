@@ -1,65 +1,68 @@
-import { testimonials } from "@/data/testimonials";
 import { Container, Eyebrow, Reveal, GhostCTA } from "@/components/marketing/primitives";
 
-export default function TestimonialsPreview() {
-  const [featured, ...rest] = testimonials;
+/*
+ * Trust band. No fabricated reviews or ratings — the honest version is a plain
+ * statement of how the shop works and what a customer can hold us to.
+ */
+const commitments = [
+  {
+    t: "A written quote, not a guess",
+    d: "You get dimensions, material and price in writing before anything goes on the press — usually the same day.",
+  },
+  {
+    t: "Proof before we print",
+    d: "Artwork is checked and colour-matched, and you sign off on a proof, so the first print is the right one.",
+  },
+  {
+    t: "Seen through to the wall",
+    d: "Cutting, lamination, mounting and on-site install are handled by the same team that printed the job.",
+  },
+];
 
+export default function TestimonialsPreview() {
   return (
     <section className="border-t border-line bg-paper py-20 lg:py-28">
       <Container>
-        <Reveal>
-          <Eyebrow>In their words</Eyebrow>
-        </Reveal>
-
-        <div className="mt-10 grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-20">
-          {/* Featured quote */}
-          <Reveal>
-            <figure>
-              <blockquote className="font-display text-3xl leading-snug text-ink sm:text-4xl text-balance">
-                <span className="text-accent">“</span>
-                {featured.review}
-                <span className="text-accent">”</span>
-              </blockquote>
-              <figcaption className="mt-8 flex items-center gap-4">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-line-strong font-mono text-sm text-ink-soft">
-                  {featured.avatar}
-                </span>
-                <span>
-                  <span className="block font-semibold text-ink">
-                    {featured.customerName}
-                  </span>
-                  <span className="block text-sm text-muted">
-                    {featured.company}
-                  </span>
-                </span>
-              </figcaption>
-            </figure>
-          </Reveal>
-
-          {/* Supporting quotes */}
-          <div className="flex flex-col justify-between">
-            <ul className="space-y-6">
-              {rest.map((t, i) => (
-                <Reveal as="li" key={t.id} delay={i * 0.08}>
-                  <div className="border-t border-line pt-6">
-                    <p className="text-ink-soft text-pretty">“{t.review}”</p>
-                    <p className="mt-3 text-sm font-semibold text-ink">
-                      {t.customerName}
-                      <span className="font-normal text-muted">
-                        {" "}
-                        · {t.company}
-                      </span>
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </ul>
-            <Reveal delay={0.2}>
-              <GhostCTA to="/testimonials" className="mt-8">
-                Read more reviews
+        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+          <div>
+            <Reveal>
+              <Eyebrow>Why the work holds up</Eyebrow>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h2 className="mt-5 font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+                What you can hold us to.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mt-4 max-w-sm text-ink-soft text-pretty">
+                A sign is up for years. We'd rather get it right than get it out
+                the door fast.
+              </p>
+            </Reveal>
+            <Reveal delay={0.15}>
+              <GhostCTA to="/about" className="mt-7">
+                How we work
               </GhostCTA>
             </Reveal>
           </div>
+
+          <ul>
+            {commitments.map((c, i) => (
+              <Reveal as="li" key={c.t} delay={i * 0.08}>
+                <div className="grid grid-cols-[3rem_1fr] gap-4 border-t border-line py-7 first:border-t-0 first:pt-0 sm:py-8">
+                  <span className="font-mono text-sm text-accent">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h3 className="font-display text-xl text-ink">{c.t}</h3>
+                    <p className="mt-2 max-w-lg text-ink-soft text-pretty">
+                      {c.d}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </ul>
         </div>
       </Container>
     </section>

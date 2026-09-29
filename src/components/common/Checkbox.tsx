@@ -1,53 +1,29 @@
 interface Props {
   checked: boolean;
   label: string;
-  onChange: (
-    checked: boolean
-  ) => void;
+  onChange: (checked: boolean) => void;
 }
 
-export default function Checkbox({
-  checked,
-  label,
-  onChange,
-}: Props) {
+export default function Checkbox({ checked, label, onChange }: Props) {
   return (
-    <label
-      className="
-      flex
-      items-center
-      gap-3
-      cursor-pointer
-      select-none
-      text-sm
-      text-slate-700
-      dark:text-slate-350
-      "
-    >
+    <label className="flex cursor-pointer select-none items-center gap-3 text-sm text-ink-soft">
       <input
         type="checkbox"
         checked={checked}
-        onChange={(e) =>
-          onChange(
-            e.target.checked
-          )
-        }
+        onChange={(e) => onChange(e.target.checked)}
         className="
-        h-5
-        w-5
-        rounded-lg
-        border-slate-300
-        dark:border-slate-800
-        bg-white
-        dark:bg-slate-900/50
-        text-blue-600
-        focus:ring-blue-500
-        dark:focus:ring-offset-slate-900
-        transition-all
+        h-4
+        w-4
+        rounded-sm
+        border-line-strong
+        bg-transparent
+        text-accent
+        transition-colors
+        focus:ring-accent
         "
       />
 
-      <span className="font-semibold">{label}</span>
+      <span className="font-medium">{label}</span>
     </label>
   );
 }

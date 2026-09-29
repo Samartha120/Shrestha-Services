@@ -13,22 +13,11 @@ const sizeMap = {
   xl: "h-24 w-24",
 };
 
-export default function Avatar({
-  src,
-  alt,
-  size = "md",
-}: AvatarProps) {
+export default function Avatar({ src, alt, size = "md" }: AvatarProps) {
   if (!src) {
     return (
       <div
-        className={`
-        ${sizeMap[size]}
-        flex
-        items-center
-        justify-center
-        rounded-full
-        bg-slate-200
-        `}
+        className={`${sizeMap[size]} flex items-center justify-center rounded-full bg-surface-2 text-muted`}
       >
         <User size={22} />
       </div>
@@ -39,11 +28,7 @@ export default function Avatar({
     <img
       src={src}
       alt={alt}
-      className={`
-      ${sizeMap[size]}
-      rounded-full
-      object-cover
-      `}
+      className={`${sizeMap[size]} rounded-full object-cover`}
     />
   );
 }

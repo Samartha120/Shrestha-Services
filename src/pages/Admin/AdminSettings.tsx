@@ -59,27 +59,27 @@ export default function AdminSettings() {
   };
 
   if (isLoading) {
-    return <div className="p-12 text-center text-sm text-slate-500">Retrieving system settings...</div>;
+    return <div className="p-12 text-center text-sm text-muted">Retrieving system settings...</div>;
   }
 
   return (
     <div className="space-y-8">
-      
+
       {/* Title */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">System Settings</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="font-display text-2xl tracking-tight text-ink">System Settings</h1>
+        <p className="text-sm text-muted mt-1">
           Configure shop coordinates, Nepalese tax VAT ratios, and support emails.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Left column */}
         <div className="space-y-6">
-          <Card className="p-6 border border-slate-200/80 dark:border-slate-800 space-y-4">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-              <Sliders className="h-4.5 w-4.5 text-blue-500" /> Print Variables
+          <Card className="p-6 border border-line space-y-4">
+            <h3 className="font-bold text-sm text-ink uppercase tracking-wide flex items-center gap-2">
+              <Sliders className="h-4.5 w-4.5 text-accent" /> Print Variables
             </h3>
             
             <div className="space-y-4 text-sm">
@@ -104,7 +104,7 @@ export default function AdminSettings() {
 
         {/* Right Form Editor Column */}
         <div className="lg:col-span-2">
-          <Card className="p-6 border border-slate-200/80 dark:border-slate-800">
+          <Card className="p-6 border border-line">
             <form onSubmit={handleSubmit} className="space-y-6">
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -113,7 +113,7 @@ export default function AdminSettings() {
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Shrestha Services"
-                  leftIcon={<Landmark size={16} className="text-slate-400" />}
+                  leftIcon={<Landmark size={16} className="text-muted" />}
                   required
                 />
                 <Input
@@ -121,7 +121,7 @@ export default function AdminSettings() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="info@shrestha.com"
-                  leftIcon={<Mail size={16} className="text-slate-400" />}
+                  leftIcon={<Mail size={16} className="text-muted" />}
                   required
                 />
                 <div className="md:col-span-2">
@@ -130,7 +130,7 @@ export default function AdminSettings() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+977-1-4412345"
-                    leftIcon={<Phone size={16} className="text-slate-400" />}
+                    leftIcon={<Phone size={16} className="text-muted" />}
                     required
                   />
                 </div>
@@ -140,24 +140,24 @@ export default function AdminSettings() {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Main Road, Biratnagar"
-                    leftIcon={<MapPin size={16} className="text-slate-400" />}
+                    leftIcon={<MapPin size={16} className="text-muted" />}
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2 text-sm pt-4 border-t border-slate-100 dark:border-slate-800">
-                <label className="text-sm font-semibold">Corporate Agency Summary</label>
+              <div className="space-y-2 text-sm pt-4 border-t border-line">
+                <label className="text-sm font-semibold text-ink">Corporate Agency Summary</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Company overview highlights, machinery models..."
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
+                  className="w-full rounded-sm border border-line bg-surface px-4 py-3 min-h-[100px] focus:border-accent text-sm focus:outline-none text-ink placeholder:text-muted"
                   required
                 />
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-end pt-4 border-t border-line">
                 <Button type="submit" loading={saving}>
                   Save System Variables
                 </Button>

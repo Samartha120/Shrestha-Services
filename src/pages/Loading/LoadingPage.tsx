@@ -1,8 +1,19 @@
+import { useReducedMotion } from "framer-motion";
+
 export default function LoadingPage() {
+  const reduce = useReducedMotion();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 gap-4">
-      <div className="h-10 w-10 rounded-full border-[3px] border-slate-200 dark:border-slate-700 border-t-blue-600 dark:border-t-indigo-400 animate-spin" />
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Loading...</p>
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 bg-paper px-4">
+      <span
+        className={`h-9 w-9 rounded-full border-2 border-line border-t-accent ${
+          reduce ? "" : "animate-spin"
+        }`}
+        aria-hidden
+      />
+      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted">
+        Loading
+      </p>
     </div>
   );
 }

@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, MessageSquare, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import Accordion from "@/components/ui/Accordion";
-import Button from "@/components/common/Button";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Search, Plus } from "lucide-react";
 import { faqData } from "@/data/faq";
+import {
+  Container,
+  Eyebrow,
+  Reveal,
+  PrimaryCTA,
+  GhostCTA,
+} from "@/components/marketing/primitives";
+
+const categories = ["all", "General", "Services", "Shipping", "Design"];
+
+const fieldClass =
+  "w-full border-b border-line bg-transparent py-3 pl-8 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none";
 
 export default function FAQPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-
-  const categories = ["all", "General", "Services", "Shipping", "Design"];
+  const [openId, setOpenId] = useState<string | null>(null);
+  const reduce = useReducedMotion();
 
   const filteredFaqs = faqData.filter((item) => {
     const matchesSearch =
@@ -19,150 +28,170 @@ export default function FAQPage() {
     return matchesSearch;
   });
 
-  const accordionItems = filteredFaqs.map((item) => ({
-    title: item.question,
-    content: item.answer,
-  }));
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
-
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pt-20 pb-16">
-        <div className="absolute top-20 right-20 w-64 h-64 bg-blue-200 dark:bg-blue-900/30 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-20 left-20 w-72 h-72 bg-indigo-200 dark:bg-indigo-900/20 rounded-full blur-3xl opacity-40" />
-
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-              Frequently Asked{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Questions
-              </span>
+    <div className="bg-paper text-ink">
+      {/* Hero */}
+      <section className="border-b border-line py-20 lg:py-24">
+        <Container>
+          <Reveal>
+            <Eyebrow>Questions & answers</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.02] text-balance">
+              The things people ask us most.
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-300 mb-12">
-              Find answers to common questions about our printing services, processes, and policies.
-            </p>
-
-            {/* Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative max-w-2xl mx-auto"
-            >
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search questions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 transition-all duration-300"
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Content Section */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Category Filter */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap gap-3 mb-16 justify-center"
-          >
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                  selectedCategory === cat
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700"
-                }`}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* FAQs */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-4"
-          >
-            {accordionItems.length > 0 ? (
-              <>
-                <Accordion items={accordionItems} />
-              </>
-            ) : (
-              <motion.div variants={itemVariants} className="text-center py-12">
-                <p className="text-slate-600 dark:text-slate-400 text-lg">
-                  No questions match your search. Please try different keywords.
-                </p>
-              </motion.div>
-            )}
-          </motion.div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mt-20 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/30 rounded-3xl p-12 text-center"
-          >
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center">
-                <MessageSquare className="w-8 h-8 text-blue-600" />
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="mt-8 max-w-xl">
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+                  strokeWidth={1.5}
+                />
+                <input
+                  type="text"
+                  placeholder="Search questions…"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={fieldClass}
+                />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-              Didn't Find Your Answer?
-            </h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto">
-              Can't find what you're looking for? Reach out to our support team and we'll be happy to help.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact">
-                <Button variant="primary" size="lg">
-                  Contact Us
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
-              <Link to="/quote">
-                <Button variant="outline" size="lg">
-                  Get a Quote
-                </Button>
-              </Link>
+          </Reveal>
+        </Container>
+      </section>
+
+      {/* Content */}
+      <section className="py-16 lg:py-24">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[0.32fr_0.68fr] lg:gap-16">
+            {/* Filters */}
+            <Reveal>
+              <div className="lg:sticky lg:top-28">
+                <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
+                  Categories
+                </p>
+                <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-3 lg:flex-col lg:gap-3">
+                  {categories.map((cat) => {
+                    const active = selectedCategory === cat;
+                    return (
+                      <li key={cat}>
+                        <button
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`text-sm transition-colors ${
+                            active
+                              ? "font-medium text-accent"
+                              : "text-ink-soft hover:text-ink"
+                          }`}
+                        >
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </Reveal>
+
+            {/* Accordion list */}
+            <div>
+              {filteredFaqs.length > 0 ? (
+                <ul className="border-t border-line">
+                  {filteredFaqs.map((item, i) => {
+                    const isOpen = openId === item.id;
+                    return (
+                      <Reveal as="li" key={item.id} delay={(i % 4) * 0.05}>
+                        <div className="border-b border-line">
+                          <button
+                            onClick={() =>
+                              setOpenId(isOpen ? null : item.id)
+                            }
+                            className="group flex w-full items-start gap-6 py-6 text-left"
+                            aria-expanded={isOpen}
+                          >
+                            <span className="mt-1 font-mono text-sm text-muted">
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <span className="flex-1 font-display text-xl text-ink">
+                              {item.question}
+                            </span>
+                            <Plus
+                              className={`mt-1 h-5 w-5 shrink-0 text-accent transition-transform duration-300 ${
+                                isOpen ? "rotate-45" : ""
+                              }`}
+                              strokeWidth={1.5}
+                            />
+                          </button>
+                          <AnimatePresence initial={false}>
+                            {isOpen && (
+                              <motion.div
+                                initial={
+                                  reduce ? false : { height: 0, opacity: 0 }
+                                }
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={
+                                  reduce
+                                    ? undefined
+                                    : { height: 0, opacity: 0 }
+                                }
+                                transition={{
+                                  duration: 0.4,
+                                  ease: [0.22, 1, 0.36, 1],
+                                }}
+                                className="overflow-hidden"
+                              >
+                                <p className="max-w-2xl pb-6 pl-[3.25rem] text-ink-soft text-pretty">
+                                  {item.answer}
+                                </p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </Reveal>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div className="border-t border-line py-16 text-center">
+                  <p className="text-ink-soft text-pretty">
+                    No questions match your search. Try different keywords.
+                  </p>
+                </div>
+              )}
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+                Still not sure? Just ask.
+              </h2>
+              <p className="mt-5 max-w-md text-inverse/70 text-pretty">
+                If your question isn't here, send us the details and we'll answer
+                it properly — no obligation.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-6">
+              <PrimaryCTA
+                to="/contact"
+                className="bg-inverse text-ink hover:bg-accent hover:text-inverse"
+              >
+                Contact us
+              </PrimaryCTA>
+              <GhostCTA
+                to="/quote"
+                className="text-inverse/80 hover:text-inverse"
+              >
+                Get a quote
+              </GhostCTA>
+            </div>
+          </div>
+        </Container>
       </section>
     </div>
   );

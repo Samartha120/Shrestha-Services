@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   MapPin,
   Clock,
@@ -9,11 +9,16 @@ import {
   Zap,
   Award,
   Briefcase,
-  FileText,
+  Plus,
+  X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import Card from "@/components/ui/Card";
-import Button from "@/components/common/Button";
+import {
+  Container,
+  Eyebrow,
+  Reveal,
+  PrimaryCTA,
+  GhostCTA,
+} from "@/components/marketing/primitives";
 
 const positions = [
   {
@@ -143,344 +148,315 @@ interface Position {
 }
 
 export default function CareersPage() {
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
+    null
+  );
   const [showApplicationForm, setShowApplicationForm] = useState(false);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
+  const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pt-20 pb-16">
-        <div className="absolute top-20 right-20 w-64 h-64 bg-blue-200 dark:bg-blue-900/30 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-20 left-20 w-72 h-72 bg-indigo-200 dark:bg-indigo-900/20 rounded-full blur-3xl opacity-40" />
-
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-              Join Our{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Team
-              </span>
+    <div className="bg-paper text-ink">
+      {/* Hero */}
+      <section className="border-b border-line py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>Careers</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.02] text-balance">
+              Come make good work with us.
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-300">
-              Be part of a growing company that's transforming the printing industry with innovation
-              and excellence.
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft text-pretty">
+              We're a working print and signage shop in Biratnagar. When we have
+              room on the team, we look for people who care about the details and
+              want to see a job through.
             </p>
-          </motion.div>
-        </div>
+          </Reveal>
+        </Container>
       </section>
 
-      {/* Culture Section */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-6">
-              Our Culture
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              We believe in creating an environment where talented individuals can do their best work,
-              grow professionally, and make a real impact.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"
-          >
-            {benefits.map((benefit, idx) => {
-              const Icon = benefit.icon;
-              return (
-                <motion.div key={idx} variants={itemVariants}>
-                  <Card className="p-8 h-full">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+      {/* Culture / benefits */}
+      <section className="py-20 lg:py-28">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+            <Reveal>
+              <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+                What it's like here.
+              </h2>
+              <p className="mt-5 max-w-md text-ink-soft text-pretty">
+                A supportive place where people can do their best work, keep
+                learning, and take pride in what leaves the shop.
+              </p>
+            </Reveal>
+            <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+              {benefits.map((benefit, i) => {
+                const Icon = benefit.icon;
+                return (
+                  <Reveal key={benefit.title} delay={(i % 2) * 0.06}>
+                    <div className="flex items-start gap-4 border-t border-line pt-5">
+                      <Icon
+                        className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+                        strokeWidth={1.5}
+                      />
+                      <div>
+                        <h3 className="font-display text-lg text-ink">
+                          {benefit.title}
+                        </h3>
+                        <p className="mt-1 text-sm leading-relaxed text-ink-soft text-pretty">
+                          {benefit.description}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      {benefit.description}
-                    </p>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+        </Container>
       </section>
+{/* CAREERS_PLACEHOLDER */}
 
-      {/* Open Positions */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-800/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-6">
-              Open Positions
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300">
-              Explore current job opportunities at Shrestha Services.
-            </p>
-          </motion.div>
+      {/* Open positions */}
+      <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <div className="flex items-end justify-between gap-6 border-b border-line pb-6">
+              <div>
+                <Eyebrow>Open roles</Eyebrow>
+                <h2 className="mt-5 font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+                  Positions we're hiring for.
+                </h2>
+              </div>
+              <span className="hidden shrink-0 font-mono text-[11px] uppercase tracking-[0.22em] text-muted sm:block">
+                {String(positions.length).padStart(2, "0")} open
+              </span>
+            </div>
+          </Reveal>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="space-y-4"
-          >
-            {positions.map((position) => (
-              <motion.div key={position.id} variants={itemVariants}>
-                <div
-                  className="p-8 cursor-pointer transition-all rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)]"
-                  onClick={() =>
-                    setSelectedPosition(
-                      selectedPosition?.id === position.id ? null : position
-                    )
-                  }
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-grow">
-                      <div className="flex flex-wrap items-center gap-3 mb-4">
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <ul>
+            {positions.map((position, i) => {
+              const isOpen = selectedPosition?.id === position.id;
+              return (
+                <Reveal as="li" key={position.id} delay={(i % 3) * 0.06}>
+                  <div className="border-b border-line">
+                    <button
+                      onClick={() =>
+                        setSelectedPosition(isOpen ? null : position)
+                      }
+                      className="group flex w-full items-start gap-6 py-8 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="mt-1.5 font-mono text-sm text-muted">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div className="flex-1">
+                        <h3 className="font-display text-2xl leading-tight text-ink">
                           {position.title}
                         </h3>
-                        <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
-                          {position.type}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-4 mb-4 text-slate-600 dark:text-slate-400">
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="w-4 h-4" />
-                          <span className="text-sm">{position.department}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" />
-                          <span className="text-sm">{position.location}</span>
-                        </div>
-                        <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                          {position.salary}
+                        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+                          <span className="flex items-center gap-1.5">
+                            <Briefcase className="h-3.5 w-3.5" strokeWidth={1.5} />
+                            {position.department}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5" strokeWidth={1.5} />
+                            {position.location}
+                          </span>
+                          <span className="text-accent">{position.type}</span>
+                          <span>{position.salary}</span>
                         </div>
                       </div>
-                      <p className="text-slate-600 dark:text-slate-400">
-                        {position.description}
-                      </p>
+                      <Plus
+                        className={`mt-1.5 h-5 w-5 shrink-0 text-accent transition-transform duration-300 ${
+                          isOpen ? "rotate-45" : ""
+                        }`}
+                        strokeWidth={1.5}
+                      />
+                    </button>
 
-                      {selectedPosition?.id === position.id && (
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
                         <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700"
+                          initial={reduce ? false : { height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={reduce ? undefined : { height: 0, opacity: 0 }}
+                          transition={{
+                            duration: 0.4,
+                            ease: [0.22, 1, 0.36, 1],
+                          }}
+                          className="overflow-hidden"
                         >
-                          <h4 className="font-semibold text-slate-900 dark:text-white mb-3">
-                            Requirements:
-                          </h4>
-                          <ul className="space-y-2">
-                            {position.requirements.map((req, idx) => (
-                              <li
-                                key={idx}
-                                className="flex items-start gap-2 text-slate-600 dark:text-slate-400"
-                              >
-                                <span className="text-blue-600 dark:text-blue-400 mt-1">
-                                  •
-                                </span>
-                                {req}
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="mt-6 flex gap-3">
-                            <Button
-                              variant="primary"
-                              size="md"
+                          <div className="max-w-2xl pb-8 pl-[3.25rem]">
+                            <p className="text-ink-soft text-pretty">
+                              {position.description}
+                            </p>
+                            <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                              What we're looking for
+                            </p>
+                            <ul className="mt-4">
+                              {position.requirements.map((req) => (
+                                <li
+                                  key={req}
+                                  className="flex items-start gap-3 border-t border-line py-3 text-sm text-ink-soft"
+                                >
+                                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
+                                  {req}
+                                </li>
+                              ))}
+                            </ul>
+                            <button
                               onClick={() => setShowApplicationForm(true)}
+                              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
                             >
-                              Apply Now
-                              <ArrowRight className="w-4 h-4 ml-2" />
-                            </Button>
+                              Apply for this role
+                              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                            </button>
                           </div>
                         </motion.div>
                       )}
-                    </div>
-                    <ArrowRight
-                      className={`w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4 ${
-                        selectedPosition?.id === position.id
-                          ? "rotate-90"
-                          : ""
-                      }`}
-                    />
+                    </AnimatePresence>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+                </Reveal>
+              );
+            })}
+          </ul>
+        </Container>
+      </section>
+{/* CAREERS_PLACEHOLDER_2 */}
+
+      {/* Open application CTA */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+                Don't see your role?
+              </h2>
+              <p className="mt-5 max-w-md text-inverse/70 text-pretty">
+                Send us a note about what you do and we'll keep it on file for
+                when something opens up.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-6">
+              <PrimaryCTA
+                to="/contact"
+                className="bg-inverse text-ink hover:bg-accent hover:text-inverse"
+              >
+                Send a note
+              </PrimaryCTA>
+              <GhostCTA
+                to="/quote"
+                className="text-inverse/80 hover:text-inverse"
+              >
+                Get a quote
+              </GhostCTA>
+            </div>
+          </div>
+        </Container>
       </section>
 
-      {/* Application Form Modal */}
-      {showApplicationForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      {/* Application form modal */}
+      <AnimatePresence>
+        {showApplicationForm && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduce ? undefined : { opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4"
+            onClick={() => setShowApplicationForm(false)}
           >
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  Apply Now
-                </h2>
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? undefined : { opacity: 0, y: 16 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-sm border border-line bg-paper p-8 text-ink"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <Eyebrow>Application</Eyebrow>
+                  <h2 className="mt-4 font-display text-2xl text-ink">
+                    {selectedPosition
+                      ? selectedPosition.title
+                      : "Apply to join"}
+                  </h2>
+                </div>
                 <button
                   onClick={() => setShowApplicationForm(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  className="text-muted transition-colors hover:text-accent"
+                  aria-label="Close"
                 >
-                  ✕
+                  <X className="h-5 w-5" strokeWidth={1.5} />
                 </button>
               </div>
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      placeholder="John"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      placeholder="Doe"
-                    />
-                  </div>
+
+              <form className="mt-8 flex flex-col gap-6">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {["First name", "Last name"].map((label) => (
+                    <div key={label}>
+                      <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                        {label}
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
+                      />
+                    </div>
+                  ))}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
+                  <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
                     Email
                   </label>
                   <input
                     type="email"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="john@example.com"
+                    className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                    Phone Number
+                  <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                    Phone
                   </label>
                   <input
                     type="tel"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="+977 98..."
+                    className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                    Message
+                  <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                    A little about you
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="Tell us about yourself..."
+                    className="mt-2 w-full resize-none border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
                   />
                 </div>
-                <div className="flex gap-3">
-                  <Button variant="primary" size="lg" className="flex-grow">
-                    Submit Application
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
+                <div className="mt-2 flex items-center gap-4">
+                  <button
+                    type="submit"
+                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+                  >
+                    Submit application
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setShowApplicationForm(false)}
+                    className="text-sm font-semibold text-ink-soft transition-colors hover:text-accent"
                   >
                     Cancel
-                  </Button>
+                  </button>
                 </div>
               </form>
-            </div>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
-
-      {/* Resume Section */}
-      <section className="py-20">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/30 rounded-3xl p-12"
-          >
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center">
-                <FileText className="w-8 h-8 text-blue-600" />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-              Don't See Your Dream Role?
-            </h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-8">
-              Send us your resume and we'll keep it on file for future opportunities that match your
-              skills and interests.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact">
-                <Button variant="primary" size="lg">
-                  Send Resume
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
-              <a
-                href="mailto:careers@shresthaservices.com"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                careers@shresthaservices.com
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+

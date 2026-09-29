@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export interface BreadcrumbItem {
   label: string;
@@ -11,37 +11,35 @@ interface Props {
   items: BreadcrumbItem[];
 }
 
-export default function Breadcrumb({
-  items,
-}: Props) {
+export default function Breadcrumb({ items }: Props) {
+  const reduce = useReducedMotion();
+
   return (
     <nav aria-label="breadcrumb">
-      <ol className="flex items-center gap-2 text-sm text-slate-500">
+      <ol className="flex items-center gap-2 text-sm text-muted">
         {items.map((item, index) => {
           const last = index === items.length - 1;
 
           return (
             <motion.li
               key={item.label}
-              initial={{ opacity: 0 }}
+              initial={reduce ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex items-center gap-2"
             >
               {last ? (
-                <span className="font-medium text-slate-900">
-                  {item.label}
-                </span>
+                <span className="font-medium text-ink">{item.label}</span>
               ) : (
                 <Link
                   to={item.href || "#"}
-                  className="hover:text-blue-600"
+                  className="transition-colors hover:text-accent"
                 >
                   {item.label}
                 </Link>
               )}
 
               {!last && (
-                <ChevronRight size={14} />
+                <ChevronRight size={14} className="text-faint" />
               )}
             </motion.li>
           );

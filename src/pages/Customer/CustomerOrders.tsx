@@ -67,38 +67,38 @@ export default function CustomerOrders() {
 
       {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-          <Link to="/dashboard" className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Dashboard</Link>
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted">
+          <Link to="/dashboard" className="hover:underline hover:text-ink transition-colors">Dashboard</Link>
           <span>/</span>
-          <span className="text-slate-900 dark:text-slate-100">Orders</span>
+          <span className="text-ink">Orders</span>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Your Printing Orders</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="font-display text-2xl tracking-tight text-ink">Your Printing Orders</h1>
+        <p className="text-sm text-muted">
           Monitor manufacturing status, design verifications, and delivery updates.
         </p>
       </div>
 
       {/* Orders Table */}
-      <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+      <Card className="border border-line rounded-sm overflow-hidden">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <div className="h-7 w-7 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-            <p className="text-sm text-slate-500">Retrieving active orders...</p>
+            <div className="h-7 w-7 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+            <p className="text-sm text-muted">Retrieving active orders...</p>
           </div>
         ) : orders.length === 0 ? (
           <div className="p-16 text-center space-y-4">
-            <div className="h-16 w-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
-              <Package size={28} className="text-slate-400" />
+            <div className="h-16 w-16 rounded-sm bg-accent-soft flex items-center justify-center mx-auto">
+              <Package size={28} className="text-accent" />
             </div>
             <div>
-              <p className="font-semibold text-slate-700 dark:text-slate-300">No printing orders yet</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+              <p className="font-semibold text-ink">No printing orders yet</p>
+              <p className="text-xs text-muted mt-1 max-w-xs mx-auto">
                 Once your quote requests are approved and paid, they will appear here as orders.
               </p>
             </div>
             <Link
               to="/quote"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline mt-2"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline mt-2"
             >
               Request a quote <ArrowRight size={12} />
             </Link>
@@ -107,27 +107,27 @@ export default function CustomerOrders() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200/60 dark:border-slate-800">
-                  <th className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Order #</th>
-                  <th className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Customer</th>
-                  <th className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</th>
-                  <th className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                <tr className="bg-paper-dim border-b border-line">
+                  <th className="p-4 text-xs font-mono text-muted uppercase tracking-wide">Order #</th>
+                  <th className="p-4 text-xs font-mono text-muted uppercase tracking-wide">Customer</th>
+                  <th className="p-4 text-xs font-mono text-muted uppercase tracking-wide">Total</th>
+                  <th className="p-4 text-xs font-mono text-muted uppercase tracking-wide">Status</th>
+                  <th className="p-4 text-xs font-mono text-muted uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
+              <tbody className="divide-y divide-line">
                 {orders.map((o) => (
-                  <tr key={o.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                    <td className="p-4 font-bold text-slate-900 dark:text-slate-100 font-mono text-xs">{o.orderNumber}</td>
-                    <td className="p-4 font-medium text-slate-700 dark:text-slate-300">{o.customerName}</td>
-                    <td className="p-4 font-semibold text-slate-900 dark:text-white">NPR {o.totalAmount?.toLocaleString()}</td>
+                  <tr key={o.id} className="hover:bg-paper-dim transition-colors">
+                    <td className="p-4 font-bold text-ink font-mono text-xs">{o.orderNumber}</td>
+                    <td className="p-4 font-medium text-ink-soft">{o.customerName}</td>
+                    <td className="p-4 font-semibold text-ink">NPR {o.totalAmount?.toLocaleString()}</td>
                     <td className="p-4">
                       <Badge variant={getOrderStatusVariant(o.status)}>{o.status}</Badge>
                     </td>
                     <td className="p-4">
                       <button
                         onClick={() => setSelectedOrder(o)}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:underline"
                       >
                         Track Progress <ArrowRight size={11} />
                       </button>
@@ -150,13 +150,13 @@ export default function CustomerOrders() {
           <div className="space-y-6 pt-4 text-sm">
 
             {/* Summary strip */}
-            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between bg-paper-dim p-4 rounded-sm border border-line">
               <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Order Value</p>
-                <p className="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">NPR {selectedOrder.totalAmount?.toLocaleString()}</p>
+                <p className="text-[10px] font-mono text-muted uppercase tracking-wide">Order Value</p>
+                <p className="text-xl font-extrabold text-ink mt-0.5">NPR {selectedOrder.totalAmount?.toLocaleString()}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Current Status</p>
+                <p className="text-[10px] font-mono text-muted uppercase tracking-wide">Current Status</p>
                 <Badge variant={getOrderStatusVariant(selectedOrder.status)} className="mt-1">
                   {selectedOrder.status}
                 </Badge>
@@ -165,11 +165,11 @@ export default function CustomerOrders() {
 
             {/* Tracking Steps */}
             <div className="space-y-3">
-              <p className="font-bold text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider">Production Line Progress</p>
+              <p className="font-mono text-xs text-muted uppercase tracking-wide">Production Line Progress</p>
 
               <div className="relative pl-7 space-y-5">
                 {/* Vertical line */}
-                <div className="absolute left-[10px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-slate-700/60 rounded-full" />
+                <div className="absolute left-[10px] top-2 bottom-2 w-0.5 bg-line-strong rounded-full" />
 
                 {steps.map((st, idx) => {
                   const currentStep = getStatusStep(selectedOrder.status);
@@ -183,39 +183,39 @@ export default function CustomerOrders() {
                       <div
                         className={`absolute -left-[23px] h-5 w-5 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-300 ${
                           isCompleted
-                            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950"
+                            ? "border-ok bg-accent-soft"
                             : isActive
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-950 shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
-                            : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950"
+                            ? "border-accent bg-accent-soft"
+                            : "border-line bg-surface"
                         }`}
                       >
                         {isCompleted ? (
-                          <CheckCircle2 size={11} className="text-emerald-500" />
+                          <CheckCircle2 size={11} className="text-ok" />
                         ) : isActive ? (
-                          <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                          <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
                         ) : (
-                          <div className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                          <div className="h-1.5 w-1.5 rounded-full bg-faint" />
                         )}
                       </div>
 
                       {/* Content */}
                       <div className="flex items-center gap-3 pb-1">
                         <div
-                          className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                          className={`h-8 w-8 rounded-sm flex items-center justify-center shrink-0 transition-colors ${
                             isCompleted
-                              ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-500"
+                              ? "bg-accent-soft text-ok"
                               : isActive
-                              ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600"
-                              : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                              ? "bg-accent-soft text-accent"
+                              : "bg-paper-dim text-muted"
                           }`}
                         >
                           <Icon size={15} />
                         </div>
                         <div>
-                          <p className={`font-bold text-xs ${isActive ? "text-slate-900 dark:text-white" : isCompleted ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>
+                          <p className={`font-bold text-xs ${isActive ? "text-ink" : isCompleted ? "text-ink-soft" : "text-muted"}`}>
                             {st.label}
                           </p>
-                          <p className={`text-[10px] mt-0.5 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"}`}>
+                          <p className={`text-[10px] mt-0.5 ${isActive ? "text-accent" : "text-muted"}`}>
                             {st.sublabel}
                           </p>
                         </div>
@@ -226,7 +226,7 @@ export default function CustomerOrders() {
               </div>
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end pt-2 border-t border-line">
               <Button variant="outline" onClick={() => setSelectedOrder(null)}>
                 Close Tracker
               </Button>

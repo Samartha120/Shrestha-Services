@@ -74,8 +74,8 @@ export default function AdminGallery() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Print Work Gallery</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="font-display text-2xl tracking-tight text-ink">Print Work Gallery</h1>
+          <p className="text-sm text-muted mt-1">
             Maintain and upload high resolution photos of flex prints and acrylic letters.
           </p>
         </div>
@@ -86,15 +86,15 @@ export default function AdminGallery() {
       </div>
 
       {/* Categories Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-line pb-3">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setFilter(cat)}
-            className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-all ${
+            className={`px-3.5 py-2 text-xs font-mono rounded-full transition-all ${
               filter === cat
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
-                : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900"
+                ? "bg-ink text-inverse"
+                : "text-muted hover:bg-paper-dim"
             }`}
           >
             {cat === "all" ? "All Print Categories" : cat}
@@ -104,28 +104,28 @@ export default function AdminGallery() {
 
       {/* Grid of gallery assets */}
       {isLoading ? (
-        <div className="p-12 text-center text-sm text-slate-500">Retrieving gallery files...</div>
+        <div className="p-12 text-center text-sm text-muted">Retrieving gallery files...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
-            <Card key={item.id} className="border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col justify-between group">
-              <div className="relative h-48 bg-slate-100 dark:bg-slate-900 overflow-hidden shrink-0">
+            <Card key={item.id} className="border border-line rounded-sm overflow-hidden flex flex-col justify-between group">
+              <div className="relative h-48 bg-surface-2 overflow-hidden shrink-0">
                 <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] font-bold text-white tracking-wide flex items-center gap-1.5">
+                <div className="absolute top-3 left-3 bg-ink/70 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-mono text-inverse tracking-wide flex items-center gap-1.5">
                   <Tag size={10} /> {item.category}
                 </div>
               </div>
 
               <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                 <div className="space-y-1">
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{item.title}</h4>
-                  <p className="text-xs text-slate-500 leading-normal">{item.description}</p>
+                  <h4 className="font-display text-sm text-ink leading-tight">{item.title}</h4>
+                  <p className="text-xs text-muted leading-normal">{item.description}</p>
                 </div>
-                
-                <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800 shrink-0">
+
+                <div className="flex justify-end pt-3 border-t border-line shrink-0">
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
+                    className="p-1.5 text-faint hover:text-err hover:bg-accent-soft rounded-sm transition-colors"
                     title="Remove Photo"
                   >
                     <Trash2 size={16} />
@@ -154,11 +154,11 @@ export default function AdminGallery() {
             />
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Work Category</label>
+              <label className="text-sm font-medium text-ink">Work Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
+                className="w-full rounded-sm border border-line bg-surface px-4 py-3 focus:border-accent text-sm focus:outline-none text-ink"
               >
                 <option value="Signage & Boards">Signage & Boards</option>
                 <option value="Flex & Banner Printing">Flex & Banner Printing</option>
@@ -168,17 +168,17 @@ export default function AdminGallery() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Brief Description</label>
+              <label className="text-sm font-medium text-ink">Brief Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What materials, inks, dimensions, or layout settings were used?"
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
+                className="w-full rounded-sm border border-line bg-surface px-4 py-3 min-h-[100px] focus:border-accent text-sm focus:outline-none text-ink placeholder:text-muted"
                 required
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 border-t border-line">
               <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
                 Cancel
               </Button>

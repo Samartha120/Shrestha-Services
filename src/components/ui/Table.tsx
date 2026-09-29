@@ -32,22 +32,22 @@ export default function Table<T extends Record<string, any>>({
 
   if (!data.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center text-slate-500 dark:text-slate-400">
+      <div className="rounded-sm border border-dashed border-line p-8 text-center text-muted">
         {emptyMessage}
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+    <div className="overflow-hidden rounded-sm border border-line">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-          <thead className="bg-slate-50 dark:bg-slate-900/50">
+        <table className="min-w-full divide-y divide-line">
+          <thead className="bg-surface-2">
             <tr>
               {columns.map((column) => (
                 <th
                   key={String(column.key)}
-                  className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300"
+                  className="px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted"
                 >
                   {column.header}
                 </th>
@@ -55,16 +55,16 @@ export default function Table<T extends Record<string, any>>({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+          <tbody className="divide-y divide-line bg-surface">
             {data.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
-                className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                className="transition-colors hover:bg-paper-dim"
               >
                 {columns.map((column) => (
                   <td
                     key={String(column.key)}
-                    className="px-6 py-4 text-sm"
+                    className="px-6 py-4 text-sm text-ink-soft"
                   >
                     {column.render
                       ? column.render(row[column.key], row)

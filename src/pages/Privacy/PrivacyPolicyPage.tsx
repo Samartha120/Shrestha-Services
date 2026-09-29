@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Container, Eyebrow, Reveal, GhostCTA } from "@/components/marketing/primitives";
 
 const sections = [
   {
@@ -131,181 +130,151 @@ We will respond to all privacy inquiries within 30 days. If you believe we have 
   },
 ];
 
+function SectionBody({ content }: { content: string }) {
+  return (
+    <div className="mt-5 space-y-4 text-ink-soft leading-relaxed">
+      {content.split("\n\n").map((paragraph, idx) => {
+        if (paragraph.includes("\n-") || paragraph.startsWith("-")) {
+          const lines = paragraph.split("\n");
+          const intro = lines.find((l) => !l.startsWith("-") && l.trim());
+          return (
+            <div key={idx} className="space-y-2">
+              {intro && <p>{intro}</p>}
+              <ul className="space-y-2">
+                {lines
+                  .filter((l) => l.startsWith("-"))
+                  .map((line, lineIdx) => (
+                    <li key={lineIdx} className="flex gap-3">
+                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden />
+                      <span>{line.replace(/^-\s?/, "")}</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          );
+        }
+        return <p key={idx}>{paragraph}</p>;
+      })}
+    </div>
+  );
+}
+
 export default function PrivacyPolicyPage() {
+  const reduce = useReducedMotion();
   const [activeSection, setActiveSection] = useState("1");
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.2,
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
       },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
-  };
+      { rootMargin: "-20% 0px -70% 0px" }
+    );
+    sections.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
+    <div className="bg-paper text-ink">
       {/* Header */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
-        </div>
-      </div>
-
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-16">
-        <div className="absolute top-20 right-20 w-64 h-64 bg-blue-200 dark:bg-blue-900/30 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-20 left-20 w-72 h-72 bg-indigo-200 dark:bg-indigo-900/20 rounded-full blur-3xl opacity-40" />
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="border-b border-line py-16 sm:py-20">
+        <Container>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={reduce ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-3xl"
           >
-            <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+            <Eyebrow>Legal</Eyebrow>
+            <h1 className="mt-6 font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.03] text-balance">
               Privacy Policy
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-300 mb-4">
-              Your privacy is important to us. This policy explains how we collect, use, and protect
-              your information.
+            <p className="mt-5 max-w-prose text-lg text-ink-soft text-pretty">
+              Your privacy is important to us. This policy explains how we
+              collect, use, and protect your information.
             </p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-6 font-mono text-xs uppercase tracking-[0.14em] text-muted">
               Last updated: June 2024
             </p>
           </motion.div>
-        </div>
+        </Container>
       </section>
 
-      {/* Main Content */}
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-4 gap-8">
-            {/* Sidebar Navigation */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="lg:col-span-1"
-            >
-              <div className="sticky top-8 bg-slate-50 dark:bg-slate-800 rounded-2xl p-6">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
-                  Table of Contents
-                </h3>
-                <nav className="space-y-2">
-                  {sections.map((section) => (
-                    <motion.button
+      {/* Document */}
+      <section className="py-14 sm:py-20">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[0.32fr_0.68fr] lg:gap-16">
+            {/* Sticky TOC */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-24">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">
+                  Contents
+                </p>
+                <nav className="mt-5 space-y-1">
+                  {sections.map((section, i) => (
+                    <a
                       key={section.id}
-                      variants={itemVariants}
-                      onClick={() => setActiveSection(section.id)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium ${
+                      href={`#${section.id}`}
+                      className={`group flex items-baseline gap-3 py-1.5 text-sm transition-colors ${
                         activeSection === section.id
-                          ? "bg-blue-600 text-white"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                          ? "text-accent"
+                          : "text-ink-soft hover:text-ink"
                       }`}
                     >
-                      {section.title}
-                    </motion.button>
+                      <span className="font-mono text-xs text-muted">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span>{section.title}</span>
+                    </a>
                   ))}
                 </nav>
               </div>
-            </motion.div>
+            </aside>
 
-            {/* Content Area */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-3"
-            >
-              {sections.map((section) => (
-                <motion.div
+            {/* Sections */}
+            <div className="max-w-prose">
+              {sections.map((section, i) => (
+                <Reveal
                   key={section.id}
-                  initial={{ opacity: 0 }}
-                  animate={{
-                    opacity: activeSection === section.id ? 1 : 0,
-                    display: activeSection === section.id ? "block" : "none",
-                  }}
-                  transition={{ duration: 0.3 }}
+                  className="scroll-mt-24 border-t border-line py-10 first:border-t-0 first:pt-0"
                 >
-                  <div className="prose dark:prose-invert max-w-none">
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                  <section id={section.id}>
+                    <span className="font-mono text-xs text-accent">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h2 className="mt-2 font-display text-2xl leading-tight sm:text-3xl">
                       {section.title}
                     </h2>
-                    <div className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-4">
-                      {section.content.split("\n\n").map((paragraph, idx) => (
-                        <div key={idx}>
-                          {paragraph.includes("-") ? (
-                            <div>
-                              {paragraph.split("\n").map((line, lineIdx) => {
-                                if (line.startsWith("-")) {
-                                  return (
-                                    <div
-                                      key={lineIdx}
-                                      className="flex gap-3 ml-4 mb-2"
-                                    >
-                                      <span className="text-blue-600 dark:text-blue-400 font-bold">
-                                        •
-                                      </span>
-                                      <span>{line.replace("- ", "")}</span>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              })}
-                            </div>
-                          ) : (
-                            <p>{paragraph}</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
+                    <SectionBody content={section.content} />
+                  </section>
+                </Reveal>
               ))}
-            </motion.div>
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Contact CTA */}
-      <section className="py-16 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-              Questions About Our Privacy Policy?
+      {/* Contact */}
+      <section className="border-t border-line bg-paper-dim py-16">
+        <Container>
+          <div className="max-w-prose">
+            <h2 className="font-display text-2xl leading-tight sm:text-3xl">
+              Questions about our privacy policy?
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-8">
-              If you have any questions or concerns about how we handle your data, please get in touch
-              with our privacy team.
+            <p className="mt-4 text-ink-soft text-pretty">
+              If you have any questions or concerns about how we handle your
+              data, please get in touch with our privacy team.
             </p>
-            <a
-              href="mailto:privacy@shresthaservices.com"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors"
-            >
-              Contact Privacy Team
-            </a>
-          </motion.div>
-        </div>
+            <div className="mt-6">
+              <GhostCTA to="/contact">Contact privacy team</GhostCTA>
+            </div>
+          </div>
+        </Container>
       </section>
     </div>
   );

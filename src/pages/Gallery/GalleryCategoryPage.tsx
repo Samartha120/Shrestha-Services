@@ -1,21 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { useGalleryStore } from "@/store/galleryStore";
 import type { GalleryItem } from "@/types/gallery.types";
+import {
+  Container,
+  Eyebrow,
+  Reveal,
+  PrimaryCTA,
+} from "@/components/marketing/primitives";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function GalleryCategoryPage() {
   const { category } = useParams<{ category: string }>();
   const { galleryItems, isLoading, fetchItemsByCategory } = useGalleryStore();
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const heroRef = useRef(null);
-  const heroInView = useInView(heroRef, { once: true });
-  const gridRef = useRef(null);
-  const gridInView = useInView(gridRef, { once: true, margin: "-100px" });
+  const reduce = useReducedMotion();
 
-  // Decode category from URL
   const decodedCategory = category ? decodeURIComponent(category) : "";
 
   useEffect(() => {
@@ -24,10 +28,11 @@ export default function GalleryCategoryPage() {
     }
   }, [decodedCategory, fetchItemsByCategory]);
 
-  // Set current image index when selected image changes
   useEffect(() => {
     if (selectedImage) {
-      const index = galleryItems.findIndex((item) => item.id === selectedImage.id);
+      const index = galleryItems.findIndex(
+        (item) => item.id === selectedImage.id
+      );
       setCurrentImageIndex(index >= 0 ? index : 0);
     }
   }, [selectedImage, galleryItems]);
@@ -40,163 +45,127 @@ export default function GalleryCategoryPage() {
 
   const handleNextImage = () => {
     const newIndex =
-      currentImageIndex < galleryItems.length - 1
-        ? currentImageIndex + 1
-        : 0;
+      currentImageIndex < galleryItems.length - 1 ? currentImageIndex + 1 : 0;
     setSelectedImage(galleryItems[newIndex]);
   };
 
-  // Masonry grid layout with different aspect ratios
-  const getAspectRatioClass = (index: number) => {
-    const patterns = [
-      "aspect-[4/3]",
-      "aspect-square",
-      "aspect-[3/4]",
-      "aspect-[16/9]",
-    ];
-    return patterns[index % patterns.length];
+  const tileClass = (i: number) => {
+    const mod = i % 6;
+    if (mod === 0) return "lg:col-span-2 aspect-[16/10]";
+    if (mod === 3) return "aspect-[3/4]";
+    return "aspect-[4/3]";
   };
 
   return (
-    <div className="bg-slate-900 dark:bg-black min-h-screen">
-      {/* Back Navigation */}
-      <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+    <div className="bg-paper text-ink">
+      {/* Back */}
+      <div className="sticky top-0 z-40 border-b border-line bg-paper/90 py-4 backdrop-blur-md">
+        <Container>
           <Link
             to="/gallery"
-            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-ink-soft transition-colors hover:text-accent"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Gallery
+            <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
+            Back to gallery
           </Link>
-        </div>
+        </Container>
       </div>
 
-      {/* Hero Section */}
-      <motion.section
-        ref={heroRef}
-        initial={{ opacity: 0 }}
-        animate={heroInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.8 }}
-        className="relative py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 via-slate-800 to-black"
-      >
-        <div className="max-w-6xl mx-auto text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6"
-          >
-            {decodedCategory}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-slate-300 max-w-3xl mx-auto mb-2"
-          >
-            Exploring our premium {decodedCategory.toLowerCase()} solutions
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={heroInView ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="inline-block h-1 bg-gradient-to-r from-blue-500 to-cyan-400 w-20 origin-left"
-          />
-        </div>
-      </motion.section>
+      {/* Hero */}
+      <section className="border-b border-line py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>Portfolio</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.02] text-ink text-balance">
+              {decodedCategory}
+            </h1>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft text-pretty">
+              A closer look at our {decodedCategory.toLowerCase()} work —
+              designed, produced and installed from our shop in Biratnagar.
+            </p>
+          </Reveal>
+        </Container>
+      </section>
 
-      {/* Loading State */}
+      {/* Loading */}
       {isLoading && (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
-          </div>
-        </div>
+        <section className="py-16 lg:py-24">
+          <Container>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className={`animate-pulse rounded-sm border border-line bg-surface-2 ${tileClass(
+                    i
+                  )}`}
+                />
+              ))}
+            </div>
+          </Container>
+        </section>
       )}
 
-      {/* Gallery Grid */}
+      {/* Grid */}
       {!isLoading && (
-        <motion.section
-          ref={gridRef}
-          className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
-        >
-          <div className="max-w-6xl mx-auto">
+        <section className="py-16 lg:py-24">
+          <Container>
             {galleryItems.length > 0 ? (
               <>
-                {/* Item Count */}
-                <div className="mb-8">
-                  <p className="text-slate-400 text-sm font-semibold">
-                    Showing {galleryItems.length}{" "}
-                    {galleryItems.length === 1 ? "item" : "items"}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
+                <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
+                  {galleryItems.length}{" "}
+                  {galleryItems.length === 1 ? "item" : "items"}
+                </p>
+                <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {galleryItems.map((item, idx) => (
-                    <motion.div
+                    <Reveal
                       key={item.id}
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                      transition={{
-                        duration: 0.6,
-                        delay: Math.min(idx * 0.08, 0.4),
-                      }}
-                      className={`group cursor-pointer overflow-hidden rounded-2xl bg-slate-800 ${getAspectRatioClass(
-                        idx
-                      )}`}
-                      onClick={() => setSelectedImage(item)}
+                      delay={(idx % 3) * 0.06}
+                      className={tileClass(idx)}
                     >
-                      {/* Image Container */}
-                      <div className="relative w-full h-full bg-gradient-to-br from-slate-700 to-slate-900">
-                        {/* Image */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900 flex items-center justify-center overflow-hidden">
-                          <img
-                            src={item.image}
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        {/* Hover Overlay */}
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          whileHover={{ opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6"
-                        >
-                          <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-blue-300 font-semibold text-sm mb-3">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedImage(item)}
+                        className="group relative block h-full w-full overflow-hidden rounded-sm border border-line bg-paper-dim text-left"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                        />
+                        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-ink/80 via-ink/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-inverse/80">
                             {item.category}
                           </p>
-                          {item.description && (
-                            <p className="text-slate-200 text-sm line-clamp-2">
-                              {item.description}
-                            </p>
-                          )}
-                        </motion.div>
-
-                        {/* Shine Effect */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white to-transparent" />
-                      </div>
-                    </motion.div>
+                          <h3 className="mt-1.5 font-display text-xl text-inverse">
+                            {item.title}
+                          </h3>
+                        </div>
+                      </button>
+                    </Reveal>
                   ))}
                 </div>
               </>
             ) : (
-              <div className="text-center py-20">
-                <p className="text-slate-400 text-lg">
-                  No items found in the {decodedCategory} category
+              <div className="border-t border-line py-20 text-center">
+                <p className="font-display text-2xl text-ink">
+                  Nothing here yet.
+                </p>
+                <p className="mx-auto mt-3 max-w-md text-ink-soft text-pretty">
+                  We don't have work listed under "{decodedCategory}" at the
+                  moment.
                 </p>
               </div>
             )}
-          </div>
-        </motion.section>
+          </Container>
+        </section>
       )}
 
-      {/* Lightbox Modal */}
+      {/* Lightbox */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -204,71 +173,63 @@ export default function GalleryCategoryPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-ink/95 p-4"
             onClick={() => setSelectedImage(null)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={reduce ? false : { opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full max-w-4xl flex flex-col"
+              exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.3, ease: EASE }}
+              className="relative flex w-full max-w-4xl flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={() => setSelectedImage(null)}
-                className="absolute -top-12 right-0 z-10 p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+                aria-label="Close"
+                className="absolute -top-12 right-0 z-10 rounded-full p-2 text-inverse transition-colors hover:text-accent"
               >
-                <X className="w-8 h-8" />
+                <X className="h-7 w-7" />
               </button>
-
-              {/* Image Container */}
-              <div className="relative w-full bg-black rounded-xl overflow-hidden mb-6">
-                <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-slate-800 to-black">
+              <div className="relative mb-6 w-full overflow-hidden rounded-sm bg-black">
+                <div className="flex aspect-video items-center justify-center">
                   <img
                     src={selectedImage.image}
                     alt={selectedImage.title}
-                    className="w-full h-full object-contain"
+                    className="h-full w-full object-contain"
                   />
                 </div>
-
-                {/* Navigation Buttons */}
                 {galleryItems.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+                      aria-label="Previous"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-inverse backdrop-blur-sm transition-colors hover:bg-white/20"
                     >
-                      <ChevronLeft className="w-6 h-6" />
+                      <ChevronLeft className="h-6 w-6" />
                     </button>
                     <button
                       onClick={handleNextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+                      aria-label="Next"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-inverse backdrop-blur-sm transition-colors hover:bg-white/20"
                     >
-                      <ChevronRight className="w-6 h-6" />
+                      <ChevronRight className="h-6 w-6" />
                     </button>
+                    <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-4 py-2 font-mono text-sm text-inverse backdrop-blur-sm">
+                      {currentImageIndex + 1} / {galleryItems.length}
+                    </div>
                   </>
                 )}
-
-                {/* Image Counter */}
-                {galleryItems.length > 1 && (
-                  <div className="absolute bottom-4 right-4 bg-black/60 px-4 py-2 rounded-full text-white text-sm font-semibold backdrop-blur-sm">
-                    {currentImageIndex + 1} / {galleryItems.length}
-                  </div>
-                )}
               </div>
-
-              {/* Image Details */}
-              <div className="text-white">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-                  {selectedImage.title}
-                </h2>
-                <p className="text-blue-400 font-semibold mb-3">
+              <div className="text-inverse">
+                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
                   {selectedImage.category}
                 </p>
+                <h2 className="mt-2 font-display text-2xl sm:text-3xl">
+                  {selectedImage.title}
+                </h2>
                 {selectedImage.description && (
-                  <p className="text-slate-300 leading-relaxed">
+                  <p className="mt-3 leading-relaxed text-inverse/70 text-pretty">
                     {selectedImage.description}
                   </p>
                 )}
@@ -278,32 +239,27 @@ export default function GalleryCategoryPage() {
         )}
       </AnimatePresence>
 
-      {/* CTA Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true, margin: "-100px" }}
-        className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-slate-900 border-t border-slate-700"
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-            Interested in {decodedCategory}?
-          </h2>
-          <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-            Get a custom quote for your project. Our team specializes in{" "}
-            {decodedCategory.toLowerCase()} solutions.
-          </p>
-          <motion.a
-            href="/contact"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-blue-500/50 transition-all"
-          >
-            Request a Quote
-          </motion.a>
-        </div>
-      </motion.section>
+      {/* CTA band */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+                Interested in {decodedCategory.toLowerCase()}?
+              </h2>
+              <p className="mt-5 max-w-md text-inverse/70 text-pretty">
+                Tell us the details and we'll put together a written quote.
+              </p>
+            </div>
+            <PrimaryCTA
+              to="/quote"
+              className="shrink-0 bg-inverse text-ink hover:bg-accent hover:text-inverse"
+            >
+              Request a quote
+            </PrimaryCTA>
+          </div>
+        </Container>
+      </section>
     </div>
   );
 }

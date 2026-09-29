@@ -8,9 +8,7 @@ interface Props {
   value?: string;
   error?: string;
   options: Option[];
-  onChange: (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => void;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export default function Select({
@@ -23,7 +21,9 @@ export default function Select({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
+        <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+          {label}
+        </label>
       )}
 
       <select
@@ -31,45 +31,29 @@ export default function Select({
         onChange={onChange}
         className="
         w-full
-        rounded-xl
-        border
-        border-slate-300
-        dark:border-slate-800
-        bg-white
-        dark:bg-slate-900/50
-        text-slate-950
-        dark:text-slate-50
-        p-3
-        transition-all
-        duration-300
+        appearance-none
+        border-b
+        border-line
+        bg-transparent
+        py-2.5
+        text-ink
+        transition-colors
+        focus:border-accent
         focus:outline-none
-        focus:ring-2
-        focus:ring-blue-500
-        focus:border-blue-500
-        hover:border-slate-400
-        dark:hover:border-slate-700
         "
       >
-        {options.map(
-          (option) => (
-            <option
-              key={option.value}
-              value={
-                option.value
-              }
-              className="bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-50"
-            >
-              {option.label}
-            </option>
-          )
-        )}
+        {options.map((option) => (
+          <option
+            key={option.value}
+            value={option.value}
+            className="bg-surface text-ink"
+          >
+            {option.label}
+          </option>
+        ))}
       </select>
 
-      {error && (
-        <p className="text-sm font-medium text-red-500 dark:text-red-400">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm font-medium text-err">{error}</p>}
     </div>
   );
 }

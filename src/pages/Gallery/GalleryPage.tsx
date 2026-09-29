@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Award, Users, Zap, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { X, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 import { useGalleryStore } from "@/store/galleryStore";
 import { useTestimonialStore } from "@/store/testimonialStore";
 import type { GalleryItem } from "@/types/gallery.types";
-import Card from "@/components/ui/Card";
-import Button from "@/components/common/Button";
-import Badge from "@/components/ui/Badge";
+import {
+  Container,
+  Eyebrow,
+  Reveal,
+  PrimaryCTA,
+} from "@/components/marketing/primitives";
 
 const CATEGORIES = [
   "All",
@@ -16,11 +19,22 @@ const CATEGORIES = [
   "Branding & Advertising Solutions",
 ];
 
-const stats = [
-  { value: "500+", label: "Projects Completed", icon: Award },
-  { value: "350+", label: "Happy Clients", icon: Users },
-  { value: "15+", label: "Years of Experience", icon: Zap },
+const capabilities = [
+  {
+    title: "Materials that last",
+    body: "We work in vinyl, acrylic, metal and large-format media chosen to hold up outdoors and in.",
+  },
+  {
+    title: "Finished and installed",
+    body: "Cutting, lamination, mounting and on-site fitting are handled in-house, start to finish.",
+  },
+  {
+    title: "Careful, checked work",
+    body: "Every job is proofed and colour-matched before it leaves the shop on Main Road, Biratnagar.",
+  },
 ];
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function GalleryPage() {
   const { galleryItems, isLoading, fetchGalleryItems } = useGalleryStore();
@@ -28,478 +42,298 @@ export default function GalleryPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const heroRef = useRef(null);
-  const heroInView = useInView(heroRef, { once: true });
-  const featuredRef = useRef(null);
-  const featuredInView = useInView(featuredRef, { once: true, margin: "-100px" });
-  const gridRef = useRef(null);
-  const gridInView = useInView(gridRef, { once: true, margin: "-100px" });
-  const projectRef = useRef(null);
-  const projectInView = useInView(projectRef, { once: true, margin: "-100px" });
-  const testimonialRef = useRef(null);
-  const testimonialInView = useInView(testimonialRef, { once: true, margin: "-100px" });
-  const statsRef = useRef(null);
-  const statsInView = useInView(statsRef, { once: true, margin: "-100px" });
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     fetchGalleryItems();
     fetchTestimonials();
-    // Clear localStorage to get fresh data
     localStorage.removeItem("ss_gallery");
   }, [fetchGalleryItems, fetchTestimonials]);
 
-  // Filter items based on selected category
   const filteredItems =
     activeCategory === "All"
       ? galleryItems
       : galleryItems.filter(
-          (item) =>
-            item.category.toLowerCase() === activeCategory.toLowerCase()
+          (item) => item.category.toLowerCase() === activeCategory.toLowerCase()
         );
 
-  // Featured items (first 3)
   const featuredItems = filteredItems.slice(0, 3);
 
-  // Set current image index when selected image changes
   useEffect(() => {
     if (selectedImage) {
-      const index = filteredItems.findIndex((item) => item.id === selectedImage.id);
+      const index = filteredItems.findIndex(
+        (item) => item.id === selectedImage.id
+      );
       setCurrentImageIndex(index >= 0 ? index : 0);
     }
   }, [selectedImage, filteredItems]);
 
   const handlePrevImage = () => {
-    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : filteredItems.length - 1;
+    const newIndex =
+      currentImageIndex > 0 ? currentImageIndex - 1 : filteredItems.length - 1;
     setSelectedImage(filteredItems[newIndex]);
   };
 
   const handleNextImage = () => {
-    const newIndex = currentImageIndex < filteredItems.length - 1 ? currentImageIndex + 1 : 0;
+    const newIndex =
+      currentImageIndex < filteredItems.length - 1 ? currentImageIndex + 1 : 0;
     setSelectedImage(filteredItems[newIndex]);
   };
 
-  // Masonry grid layout with different aspect ratios
-  const getAspectRatioClass = (index: number) => {
-    const patterns = ["aspect-[4/3]", "aspect-square", "aspect-[3/4]", "aspect-[16/9]"];
-    return patterns[index % patterns.length];
+  // Editorial rhythm: vary span + aspect so the grid never reads as an even 3-col grid.
+  const tileClass = (i: number) => {
+    const mod = i % 6;
+    if (mod === 0) return "lg:col-span-2 aspect-[16/10]";
+    if (mod === 3) return "aspect-[3/4]";
+    return "aspect-[4/3]";
   };
 
-  // Skeleton card
-  const SkeletonCard = ({ index }: { index: number }) => (
-    <div className={`rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse ${getAspectRatioClass(index)}`} />
-  );
-
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
-      {/* Hero Section */}
-      <motion.section
-        ref={heroRef}
-        initial={{ opacity: 0 }}
-        animate={heroInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.8 }}
-        className="relative py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
-      >
-        <div className="max-w-6xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-full mb-6"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-            </span>
-            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Portfolio</span>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6"
-          >
-            Our Print Portfolio
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg lg:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-2"
-          >
-            Showcasing our finest printing solutions and premium branding work
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={heroInView ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="inline-block h-1 bg-gradient-to-r from-blue-600 to-cyan-500 w-20 origin-left"
-          />
-        </div>
-      </motion.section>
+    <div className="bg-paper text-ink">
+      {/* Hero */}
+      <section className="border-b border-line py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>Portfolio</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.02] text-ink text-balance">
+              Work that has gone up around Biratnagar.
+            </h1>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft text-pretty">
+              Boards, banners, decals and branding — a selection of the signage
+              and print we have designed, produced and installed.
+            </p>
+          </Reveal>
+        </Container>
+      </section>
 
-      {/* Category Filter */}
-      <section className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-wrap gap-3 justify-center">
+      {/* Category filter */}
+      <section className="sticky top-0 z-40 border-b border-line bg-paper/90 py-4 backdrop-blur-md">
+        <Container>
+          <div className="flex flex-wrap gap-2.5">
             {CATEGORIES.map((category) => (
-              <motion.button
+              <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-6 py-2.5 rounded-full font-semibold transition-all text-sm sm:text-base ${
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                   activeCategory === category
-                    ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/50"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+                    ? "border-ink bg-ink text-inverse"
+                    : "border-line text-ink-soft hover:border-line-strong hover:text-ink"
                 }`}
               >
                 {category}
-              </motion.button>
+              </button>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
-
-      {/* Featured Gallery Showcase */}
-      {!isLoading && filteredItems.length > 0 && featuredItems.length > 0 && (
-        <motion.section
-          ref={featuredRef}
-          initial={{ opacity: 0, y: 40 }}
-          animate={featuredInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.8 }}
-          className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
-        >
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={featuredInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                Featured Projects
-              </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                Our most popular and impressive print work
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredItems.map((item, idx) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={featuredInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                  transition={{ duration: 0.6, delay: 0.2 + idx * 0.1 }}
+      {/* Featured — asymmetric feature + two stacked */}
+      {!isLoading && featuredItems.length > 0 && (
+        <section className="py-16 lg:py-24">
+          <Container>
+            <Reveal>
+              <Eyebrow>Selected</Eyebrow>
+            </Reveal>
+            <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+              <Reveal>
+                <button
+                  type="button"
+                  onClick={() => setSelectedImage(featuredItems[0])}
+                  className="group block w-full overflow-hidden rounded-sm border border-line bg-surface-2 text-left"
                 >
-                  <Card className="h-full overflow-hidden group cursor-pointer" onClick={() => setSelectedImage(item)}>
-                    <div className="aspect-[4/3] overflow-hidden bg-slate-200 dark:bg-slate-800">
-                      <motion.img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    </div>
-                    <div className="p-6">
-                      <Badge className="mb-3">{item.category}</Badge>
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                        {item.title}
+                  <div className="aspect-[4/3] overflow-hidden lg:aspect-[16/11]">
+                    <img
+                      src={featuredItems[0].image}
+                      alt={featuredItems[0].title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                    />
+                  </div>
+                  <div className="flex items-start justify-between gap-3 p-6">
+                    <div>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+                        {featuredItems[0].category}
+                      </p>
+                      <h3 className="mt-2 font-display text-2xl text-ink transition-colors group-hover:text-accent">
+                        {featuredItems[0].title}
                       </h3>
-                      {item.description && (
-                        <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
-                          {item.description}
-                        </p>
-                      )}
                     </div>
-                  </Card>
-                </motion.div>
-              ))}
+                    <ArrowUpRight className="mt-1 h-5 w-5 shrink-0 -translate-x-1 text-accent opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                  </div>
+                </button>
+              </Reveal>
+              <div className="grid gap-6">
+                {featuredItems.slice(1, 3).map((item, i) => (
+                  <Reveal key={item.id} delay={(i + 1) * 0.08}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImage(item)}
+                      className="group flex w-full gap-5 overflow-hidden rounded-sm border border-line bg-surface-2 p-4 text-left"
+                    >
+                      <div className="aspect-square w-28 shrink-0 overflow-hidden rounded-sm sm:w-36">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                        />
+                      </div>
+                      <div className="flex min-w-0 flex-col justify-center">
+                        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+                          {item.category}
+                        </p>
+                        <h3 className="mt-2 font-display text-xl text-ink transition-colors group-hover:text-accent">
+                          {item.title}
+                        </h3>
+                      </div>
+                    </button>
+                  </Reveal>
+                ))}
+              </div>
             </div>
-          </div>
-        </motion.section>
-      )}
-
-      {/* Loading State */}
-      {isLoading && (
-        <section className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <SkeletonCard key={i} index={i} />
-              ))}
-            </div>
-          </div>
+          </Container>
         </section>
       )}
 
-      {/* Gallery Grid */}
+      {/* Loading skeleton */}
+      {isLoading && (
+        <section className="py-16 lg:py-24">
+          <Container>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className={`animate-pulse rounded-sm border border-line bg-surface-2 ${tileClass(
+                    i
+                  )}`}
+                />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+      {/* Full gallery grid */}
       {!isLoading && (
-        <motion.section
-          ref={gridRef}
-          initial={{ opacity: 0, y: 40 }}
-          animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.8 }}
-          className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-slate-100 dark:bg-slate-900/50"
-        >
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                Full Gallery
+        <section className="border-t border-line bg-surface-2 py-16 lg:py-24">
+          <Container>
+            <Reveal>
+              <h2 className="max-w-2xl font-display text-3xl leading-tight text-ink text-balance sm:text-4xl">
+                The full gallery.
               </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                Browse all our print and branding work
-              </p>
-            </motion.div>
+            </Reveal>
 
             {filteredItems.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
+              <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredItems.map((item, idx) => (
-                  <motion.div
+                  <Reveal
                     key={item.id}
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                    transition={{
-                      duration: 0.6,
-                      delay: 0.2 + Math.min(idx * 0.08, 0.4),
-                    }}
-                    className={`group cursor-pointer overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-shadow ${getAspectRatioClass(
-                      idx
-                    )}`}
-                    onClick={() => setSelectedImage(item)}
+                    delay={(idx % 3) * 0.06}
+                    className={tileClass(idx)}
                   >
-                    {/* Image Container */}
-                    <div className="relative w-full h-full bg-gradient-to-br from-slate-700 to-slate-900">
-                      <motion.img
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImage(item)}
+                      className="group relative block h-full w-full overflow-hidden rounded-sm border border-line bg-paper-dim text-left"
+                    >
+                      <img
                         src={item.image}
                         alt={item.title}
-                        className="w-full h-full object-cover"
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.5 }}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
                       />
-
-                      {/* Hover Overlay */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        whileHover={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6"
-                      >
-                        <Badge className="mb-3">{item.category}</Badge>
-                        <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-ink/80 via-ink/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-inverse/80">
+                          {item.category}
+                        </p>
+                        <h3 className="mt-1.5 font-display text-xl text-inverse">
                           {item.title}
                         </h3>
-                        {item.description && (
-                          <p className="text-slate-200 text-sm line-clamp-2">
-                            {item.description}
-                          </p>
-                        )}
-                      </motion.div>
-
-                      {/* Shine Effect */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white to-transparent" />
-                    </div>
-                  </motion.div>
+                      </div>
+                    </button>
+                  </Reveal>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-200 dark:bg-slate-800 rounded-full mb-6">
-                  <Zap className="w-10 h-10 text-slate-400 dark:text-slate-500" />
-                </div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                  No items found
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-lg mb-6 max-w-md mx-auto">
-                  We don&apos;t have any gallery items in the &quot;{activeCategory}&quot; category yet.
+              <div className="mt-12 border-t border-line py-20 text-center">
+                <p className="font-display text-2xl text-ink">
+                  Nothing here yet.
                 </p>
-                <Button onClick={() => setActiveCategory("All")}>
-                  View All Projects
-                </Button>
+                <p className="mx-auto mt-3 max-w-md text-ink-soft text-pretty">
+                  We don't have work listed under "{activeCategory}" at the
+                  moment.
+                </p>
+                <div className="mt-8 flex justify-center">
+                  <button
+                    onClick={() => setActiveCategory("All")}
+                    className="rounded-full bg-ink px-6 py-3 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+                  >
+                    View all work
+                  </button>
+                </div>
               </div>
             )}
-          </div>
-        </motion.section>
+          </Container>
+        </section>
       )}
 
-      {/* Project Preview Section */}
-      <motion.section
-        ref={projectRef}
-        initial={{ opacity: 0, y: 40 }}
-        animate={projectInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 0.8 }}
-        className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 to-slate-950"
-      >
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={projectInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Why Choose Our Work?
-            </h2>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-              We bring premium quality, attention to detail, and innovative solutions to every project.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={projectInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-cyan-600 aspect-video flex items-center justify-center"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80"
-                alt="Our Process"
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={projectInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col justify-center"
-            >
-              <div className="space-y-6">
-                {[
-                  {
-                    title: "Premium Quality Materials",
-                    desc: "We use only the highest-grade vinyl, acrylic, and printing media for long-lasting results.",
-                  },
-                  {
-                    title: "Professional Installation",
-                    desc: "Our expert team ensures perfect setup and finishing for every project, big or small.",
-                  },
-                  {
-                    title: "Fast Turnaround",
-                    desc: "Quick production times without compromising quality, with rush options available.",
-                  },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-blue-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-white mb-1">{item.title}</h4>
-                      <p className="text-slate-300">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Customer Success Showcase (Testimonials) */}
-      {!isLoading && testimonials.length > 0 && (
-        <motion.section
-          ref={testimonialRef}
-          initial={{ opacity: 0, y: 40 }}
-          animate={testimonialInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.8 }}
-          className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
-        >
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={testimonialInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                Customer Success Stories
+      {/* Capabilities — qualitative, no invented facts */}
+      <section className="py-20 lg:py-28">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+            <Reveal>
+              <h2 className="font-display text-3xl leading-tight text-ink text-balance sm:text-4xl">
+                How the work gets made.
               </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                What our clients have to say about our work
-              </p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, idx) => (
-                <motion.div
-                  key={testimonial.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={testimonialInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                  transition={{ duration: 0.6, delay: 0.2 + idx * 0.1 }}
-                >
-                  <Card className="h-full">
-                    <div className="flex items-center gap-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <span
-                          key={i}
-                          className={i < testimonial.rating ? "text-yellow-400" : "text-slate-300 dark:text-slate-600"}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-slate-700 dark:text-slate-300 italic mb-6 leading-relaxed">
-                      &quot;{testimonial.review}&quot;
+            </Reveal>
+            <div>
+              {capabilities.map((c, i) => (
+                <Reveal key={c.title} delay={i * 0.08}>
+                  <div className="border-t border-line py-7">
+                    <h3 className="font-display text-xl text-ink">{c.title}</h3>
+                    <p className="mt-2 max-w-lg text-ink-soft text-pretty">
+                      {c.body}
                     </p>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg">
-                        {testimonial.customerName.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">
-                          {testimonial.customerName}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
+                  </div>
+                </Reveal>
               ))}
             </div>
           </div>
-        </motion.section>
+        </Container>
+      </section>
+      {/* Testimonials — from the store */}
+      {!isLoading && testimonials.length > 0 && (
+        <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
+          <Container>
+            <Reveal>
+              <Eyebrow>In their words</Eyebrow>
+            </Reveal>
+            <div className="mt-12 grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+              {testimonials.map((testimonial, i) => (
+                <Reveal key={testimonial.id} delay={(i % 3) * 0.08}>
+                  <figure className="border-t border-line pt-6">
+                    <blockquote className="font-display text-lg leading-relaxed text-ink text-pretty">
+                      &ldquo;{testimonial.review}&rdquo;
+                    </blockquote>
+                    <figcaption className="mt-5 flex items-center gap-3">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full border border-line-strong font-mono text-sm text-ink-soft">
+                        {testimonial.customerName.charAt(0)}
+                      </span>
+                      <span className="font-medium text-ink">
+                        {testimonial.customerName}
+                      </span>
+                    </figcaption>
+                  </figure>
+                </Reveal>
+              ))}
+            </div>
+          </Container>
+        </section>
       )}
 
-      {/* Statistics Section */}
-      <motion.section
-        ref={statsRef}
-        initial={{ opacity: 0, y: 40 }}
-        animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 0.8 }}
-        className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-cyan-600"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {stats.map((stat, idx) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                  transition={{ duration: 0.6, delay: 0.2 + idx * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-full mb-4">
-                    <Icon className="w-10 h-10 text-white" />
-                  </div>
-                  <p className="text-5xl sm:text-6xl font-bold text-white mb-2">
-                    {stat.value}
-                  </p>
-                  <p className="text-xl text-blue-50">{stat.label}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Lightbox Modal */}
+      {/* Lightbox */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -507,69 +341,63 @@ export default function GalleryPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-ink/95 p-4"
             onClick={() => setSelectedImage(null)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={reduce ? false : { opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full max-w-4xl flex flex-col"
+              exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.3, ease: EASE }}
+              className="relative flex w-full max-w-4xl flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={() => setSelectedImage(null)}
-                className="absolute -top-12 right-0 z-10 p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+                aria-label="Close"
+                className="absolute -top-12 right-0 z-10 rounded-full p-2 text-inverse transition-colors hover:text-accent"
               >
-                <X className="w-8 h-8" />
+                <X className="h-7 w-7" />
               </button>
-
-              {/* Image Container */}
-              <div className="relative w-full bg-black rounded-xl overflow-hidden mb-6">
-                <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-slate-800 to-black">
+              <div className="relative mb-6 w-full overflow-hidden rounded-sm bg-black">
+                <div className="flex aspect-video items-center justify-center">
                   <img
                     src={selectedImage.image}
                     alt={selectedImage.title}
-                    className="w-full h-full object-contain"
+                    className="h-full w-full object-contain"
                   />
                 </div>
-
-                {/* Navigation Buttons */}
                 {filteredItems.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+                      aria-label="Previous"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-inverse backdrop-blur-sm transition-colors hover:bg-white/20"
                     >
-                      <ChevronLeft className="w-6 h-6" />
+                      <ChevronLeft className="h-6 w-6" />
                     </button>
                     <button
                       onClick={handleNextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+                      aria-label="Next"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-inverse backdrop-blur-sm transition-colors hover:bg-white/20"
                     >
-                      <ChevronRight className="w-6 h-6" />
+                      <ChevronRight className="h-6 w-6" />
                     </button>
+                    <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-4 py-2 font-mono text-sm text-inverse backdrop-blur-sm">
+                      {currentImageIndex + 1} / {filteredItems.length}
+                    </div>
                   </>
                 )}
-
-                {/* Image Counter */}
-                {filteredItems.length > 1 && (
-                  <div className="absolute bottom-4 right-4 bg-black/60 px-4 py-2 rounded-full text-white text-sm font-semibold backdrop-blur-sm">
-                    {currentImageIndex + 1} / {filteredItems.length}
-                  </div>
-                )}
               </div>
-
-              {/* Image Details */}
-              <div className="text-white">
-                <Badge className="mb-3">{selectedImage.category}</Badge>
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+              <div className="text-inverse">
+                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+                  {selectedImage.category}
+                </p>
+                <h2 className="mt-2 font-display text-2xl sm:text-3xl">
                   {selectedImage.title}
                 </h2>
                 {selectedImage.description && (
-                  <p className="text-slate-300 leading-relaxed">
+                  <p className="mt-3 leading-relaxed text-inverse/70 text-pretty">
                     {selectedImage.description}
                   </p>
                 )}
@@ -579,45 +407,22 @@ export default function GalleryPage() {
         )}
       </AnimatePresence>
 
-      {/* CTA Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true, margin: "-100px" }}
-        className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-slate-100 dark:from-slate-900 to-white dark:to-slate-950 border-t border-slate-200 dark:border-slate-800"
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6"
-          >
-            Ready to Elevate Your Brand?
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto"
-          >
-            Get a custom quote for your printing and branding needs. Our team is ready to bring your vision to life.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            viewport={{ once: true }}
-          >
-            <Button size="lg" className="gap-2">
-              Get Your Quote Today <ArrowRight size={20} />
-            </Button>
-          </motion.div>
-        </div>
-      </motion.section>
+      {/* CTA band */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+              Have a project like these in mind?
+            </h2>
+            <PrimaryCTA
+              to="/quote"
+              className="shrink-0 bg-inverse text-ink hover:bg-accent hover:text-inverse"
+            >
+              Start a quote
+            </PrimaryCTA>
+          </div>
+        </Container>
+      </section>
     </div>
   );
 }

@@ -1,313 +1,220 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Star } from "lucide-react";
 import { useTestimonialStore } from "@/store/testimonialStore";
-import Button from "@/components/common/Button";
-import Card from "@/components/ui/Card";
-import { Star, Quote, ArrowRight, MessageSquare } from "lucide-react";
+import {
+  Container,
+  Eyebrow,
+  Reveal,
+  PrimaryCTA,
+  GhostCTA,
+} from "@/components/marketing/primitives";
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-1" aria-label={`${rating} out of 5`}>
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={
+            i < rating
+              ? "h-4 w-4 fill-accent text-accent"
+              : "h-4 w-4 text-line-strong"
+          }
+          strokeWidth={1.5}
+        />
+      ))}
+    </div>
+  );
+}
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export default function TestimonialsPage() {
   const { testimonials, fetchTestimonials, isLoading } = useTestimonialStore();
-  const [selectedTestimonial, setSelectedTestimonial] = useState(0);
+  const [selected, setSelected] = useState(0);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     fetchTestimonials();
   }, [fetchTestimonials]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
-
-  const renderStars = (rating: number) => (
-    <div className="flex gap-1">
-      {[...Array(5)].map((_, i) => (
-        <Star
-          key={i}
-          size={20}
-          className={`${
-            i < rating
-              ? "fill-amber-400 text-amber-400"
-              : "text-slate-300 dark:text-slate-600"
-          }`}
-        />
-      ))}
-    </div>
-  );
-
-  const calculateAverageRating = () => {
-    if (testimonials.length === 0) return 0;
-    const sum = testimonials.reduce((acc, t) => acc + t.rating, 0);
-    return (sum / testimonials.length).toFixed(1);
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
+  const featured = testimonials[selected];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-20 w-96 h-96 bg-blue-200 dark:bg-blue-900/20 rounded-full blur-3xl opacity-30" />
-      <div className="absolute bottom-40 left-20 w-96 h-96 bg-indigo-200 dark:bg-indigo-900/20 rounded-full blur-3xl opacity-20" />
-
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="text-center max-w-3xl mx-auto"
-        >
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-full mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-              Trusted by 350+ Clients
-            </span>
-          </motion.div>
-
-          <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-            What Our Clients <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Are Saying</span>
-          </motion.h1>
-
-          <motion.p variants={itemVariants} className="text-lg text-slate-600 dark:text-slate-300">
-            Real stories from real customers about their experience with Shrestha Services.
-          </motion.p>
-        </motion.div>
+    <div className="bg-paper text-ink">
+      {/* Hero */}
+      <section className="border-b border-line py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <Eyebrow>In their words</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.02] text-balance">
+              What people say about the work.
+            </h1>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft text-pretty">
+              A sign or a print job lasts a long time — so the best measure of
+              our work is what people tell us once it's up. Here's what a few of
+              them had to say.
+            </p>
+          </Reveal>
+        </Container>
       </section>
 
-      {/* Average Rating */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-8 sm:p-12 text-center">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="flex gap-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={32}
-                    className="fill-amber-400 text-amber-400"
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="text-6xl font-bold text-slate-900 dark:text-white mb-2">
-              {calculateAverageRating()}
-            </div>
-            <div className="text-lg text-slate-600 dark:text-slate-400">
-              Average rating based on {testimonials.length} reviews
-            </div>
-          </Card>
-        </motion.div>
-      </section>
-
-      {/* Featured Testimonial */}
-      {testimonials.length > 0 && (
-        <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedTestimonial}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card className="p-8 sm:p-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-100 dark:border-blue-800/50">
-                <div className="flex gap-4 mb-6">
-                  <Quote className="h-12 w-12 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                </div>
-
-                <p className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white mb-8 leading-relaxed">
-                  "{testimonials[selectedTestimonial].review}"
+      {/* Featured */}
+      {featured && (
+        <section className="border-b border-line py-20 lg:py-28">
+          <Container>
+            <div className="grid gap-10 lg:grid-cols-[0.35fr_0.65fr] lg:gap-16">
+              <Reveal>
+                <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
+                  Featured
                 </p>
-
-                <div className="flex items-center justify-between flex-wrap gap-6">
-                  <div>
-                    <div className="flex gap-2 mb-3">
-                      {renderStars(testimonials[selectedTestimonial].rating)}
-                    </div>
-                    <p className="font-semibold text-slate-900 dark:text-white">
-                      {testimonials[selectedTestimonial].customerName}
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    {testimonials.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedTestimonial(idx)}
-                        className={`h-3 rounded-full transition-all ${
-                          idx === selectedTestimonial
-                            ? "bg-blue-600 w-8"
-                            : "bg-slate-300 dark:bg-slate-600 w-3 hover:bg-slate-400 dark:hover:bg-slate-500"
-                        }`}
-                        aria-label={`View testimonial ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
+                <div className="mt-6 flex gap-2">
+                  {testimonials.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelected(idx)}
+                      className={`h-1 rounded-full transition-all ${
+                        idx === selected
+                          ? "w-8 bg-accent"
+                          : "w-3 bg-line-strong hover:bg-muted"
+                      }`}
+                      aria-label={`View testimonial ${idx + 1}`}
+                    />
+                  ))}
                 </div>
-              </Card>
-            </motion.div>
-          </AnimatePresence>
+              </Reveal>
+
+              <AnimatePresence mode="wait">
+                <motion.blockquote
+                  key={selected}
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0, y: -16 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <p className="font-display text-[clamp(1.6rem,3.2vw,2.6rem)] leading-[1.15] text-balance">
+                    “{featured.review}”
+                  </p>
+                  <footer className="mt-8 flex items-center gap-4">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line-strong font-mono text-xs text-ink-soft">
+                      {initials(featured.customerName)}
+                    </span>
+                    <span>
+                      <span className="block font-medium text-ink">
+                        {featured.customerName}
+                      </span>
+                      <span className="mt-1 block">
+                        <Stars rating={featured.rating} />
+                      </span>
+                    </span>
+                  </footer>
+                </motion.blockquote>
+              </AnimatePresence>
+            </div>
+          </Container>
         </section>
       )}
 
-      {/* Testimonials Grid */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center mb-12">
-            All Testimonials
-          </motion.h2>
+      {/* List */}
+      <section className="py-20 lg:py-28">
+        <Container>
+          <Reveal>
+            <div className="flex items-end justify-between gap-6 border-b border-line pb-6">
+              <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+                More from clients.
+              </h2>
+              {testimonials.length > 0 && (
+                <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
+                  {String(testimonials.length).padStart(2, "0")} in all
+                </span>
+              )}
+            </div>
+          </Reveal>
 
           {isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            <div className="py-16 text-center">
+              <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-accent" />
             </div>
           ) : testimonials.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-slate-600 dark:text-slate-400">
-                No testimonials yet. Check back soon!
+            <Reveal>
+              <div className="border-t border-line py-16 text-center">
+                <p className="mx-auto max-w-md text-lg text-ink-soft text-pretty">
+                  We're gathering notes from recent jobs. In the meantime, we'd
+                  rather show you the work in person — come by the shop or send
+                  us the details of your project.
+                </p>
+                <div className="mt-8 flex items-center justify-center gap-6">
+                  <PrimaryCTA to="/quote">Get a quote</PrimaryCTA>
+                  <GhostCTA to="/contact">Contact us</GhostCTA>
+                </div>
+              </div>
+            </Reveal>
+          ) : (
+            <ul>
+              {testimonials.map((t, i) => (
+                <Reveal as="li" key={t.id} delay={(i % 3) * 0.06}>
+                  <div className="grid gap-4 border-t border-line py-8 sm:grid-cols-[auto_1fr] sm:gap-8">
+                    <span className="font-mono text-sm text-muted">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <Stars rating={t.rating} />
+                      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft text-pretty">
+                        “{t.review}”
+                      </p>
+                      <p className="mt-4 font-medium text-ink">
+                        {t.customerName}
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </ul>
+          )}
+        </Container>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+                Start your next project with us.
+              </h2>
+              <p className="mt-5 max-w-md text-inverse/70 text-pretty">
+                Tell us what you need printed or made, and we'll come back with a
+                written quote — usually the same day.
               </p>
             </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, idx) => (
-                <motion.div
-                  key={testimonial.id}
-                  variants={itemVariants}
-                  custom={idx}
-                  whileHover={{ y: -8 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Card className="p-6 h-full flex flex-col">
-                    {/* Rating */}
-                    <div className="mb-4">
-                      {renderStars(testimonial.rating)}
-                    </div>
-
-                    {/* Review Text */}
-                    <p className="text-slate-700 dark:text-slate-300 mb-6 flex-1 leading-relaxed">
-                      "{testimonial.review}"
-                    </p>
-
-                    {/* Customer Info */}
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                        {getInitials(testimonial.customerName)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 dark:text-white truncate">
-                          {testimonial.customerName}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
+            <div className="flex shrink-0 items-center gap-6">
+              <PrimaryCTA
+                to="/quote"
+                className="bg-inverse text-ink hover:bg-accent hover:text-inverse"
+              >
+                Get a quote
+              </PrimaryCTA>
+              <GhostCTA
+                to="/contact"
+                className="text-inverse/80 hover:text-inverse"
+              >
+                Contact us
+              </GhostCTA>
             </div>
-          )}
-        </motion.div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <Card className="p-12 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 border-0 shadow-lg text-center">
-            <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Ready to join our happy clients?
-            </motion.h2>
-
-            <motion.p variants={itemVariants} className="text-lg text-blue-100 max-w-2xl mx-auto mb-8">
-              Start your next printing project with us and experience the Shrestha Services difference. Get a free quote today.
-            </motion.p>
-
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/quote">
-                <Button
-                  className="bg-white hover:bg-slate-100 text-blue-600 h-12 px-8 font-semibold"
-                  rightIcon={<ArrowRight size={18} />}
-                >
-                  Get Free Quote
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button
-                  variant="outline"
-                  className="border-white text-white hover:bg-blue-700 h-12 px-8"
-                  leftIcon={<MessageSquare size={18} />}
-                >
-                  Contact Us
-                </Button>
-              </Link>
-            </motion.div>
-          </Card>
-        </motion.div>
-      </section>
-
-      {/* Social Proof */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-8 sm:p-12">
-            <div className="grid sm:grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                  98%
-                </div>
-                <p className="text-slate-600 dark:text-slate-400">Client Satisfaction Rate</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                  4.8★
-                </div>
-                <p className="text-slate-600 dark:text-slate-400">Average Rating</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                  99%
-                </div>
-                <p className="text-slate-600 dark:text-slate-400">On-Time Delivery</p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
+          </div>
+        </Container>
       </section>
     </div>
   );

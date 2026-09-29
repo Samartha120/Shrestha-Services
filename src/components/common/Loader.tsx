@@ -4,27 +4,12 @@ interface Props {
   text?: string;
 }
 
-export default function Loader({
-  text = "Loading...",
-}: Props) {
+export default function Loader({ text = "Loading..." }: Props) {
   return (
-    <div
-      className="
-      flex
-      flex-col
-      items-center
-      justify-center
-      py-10
-      "
-    >
-      <Loader2
-        size={32}
-        className="animate-spin"
-      />
+    <div className="flex flex-col items-center justify-center py-10">
+      <Loader2 size={32} className="animate-spin text-accent" />
 
-      <p className="mt-3 text-slate-500 dark:text-slate-400">
-        {text}
-      </p>
+      <p className="mt-3 text-muted">{text}</p>
     </div>
   );
 }

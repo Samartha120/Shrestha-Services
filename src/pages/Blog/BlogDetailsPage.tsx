@@ -1,14 +1,11 @@
 import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import {
-  Calendar,
-  Clock,
-  User,
-  ArrowLeft,
-  Share2,
-} from "lucide-react";
-import Card from "@/components/ui/Card";
-import Button from "@/components/common/Button";
+  Container,
+  Reveal,
+  PrimaryCTA,
+  GhostCTA,
+} from "@/components/marketing/primitives";
 
 const blogPostsData = [
   {
@@ -179,17 +176,15 @@ export default function BlogDetailsPage() {
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center bg-paper text-ink">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
-            Post Not Found
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mb-8">
-            The blog post you're looking for doesn't exist.
+          <h1 className="font-display text-3xl text-ink">Post not found</h1>
+          <p className="mt-3 text-ink-soft text-pretty">
+            The article you're looking for doesn't exist.
           </p>
-          <Link to="/blog">
-            <Button variant="primary">Back to Blog</Button>
-          </Link>
+          <div className="mt-8 flex justify-center">
+            <PrimaryCTA to="/blog">Back to journal</PrimaryCTA>
+          </div>
         </div>
       </div>
     );
@@ -202,236 +197,213 @@ export default function BlogDetailsPage() {
   const shareUrl = `${window.location.origin}/blog/${post.slug}`;
   const shareTitle = post.title;
 
+  const formattedDate = new Date(post.date)
+    .toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+    .toUpperCase();
+
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
+    <div className="bg-paper text-ink">
       {/* Breadcrumb */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="border-b border-line">
+        <Container>
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            className="group inline-flex items-center gap-2 py-4 text-sm font-medium text-ink-soft transition-colors hover:text-accent"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Blog
+            <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+            Back to journal
           </Link>
-        </div>
+        </Container>
       </div>
 
-      {/* Hero Image */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative h-96 overflow-hidden"
-      >
-        <img
-          src={post.image}
-          alt={post.title}
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
-
-      {/* Article Header */}
-      <section className="py-12 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full mb-6">
-              <span className="text-xs font-semibold">{post.category}</span>
+      {/* Header */}
+      <section className="border-b border-line py-16 lg:py-20">
+        <Container>
+          <Reveal>
+            <div className="flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+              <span className="text-accent">{post.category}</span>
+              <span aria-hidden>/</span>
+              <span>{formattedDate}</span>
+              <span aria-hidden>/</span>
+              <span>{post.readTime} read</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-8">
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 max-w-4xl font-display text-[clamp(2.2rem,5vw,3.8rem)] leading-[1.05] text-balance">
               {post.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-8 mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full" />
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">
-                    {post.author}
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {post.authorBio}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-6 pt-8 border-t border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <Calendar className="w-4 h-4" />
-                <span className="text-sm">
-                  {new Date(post.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="mt-8 flex items-center gap-4 border-t border-line pt-6">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line-strong font-mono text-xs text-ink-soft">
+                {post.author
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </span>
+              <span>
+                <span className="block font-medium text-ink">
+                  {post.author}
                 </span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm">{post.readTime} read</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <User className="w-4 h-4" />
-                <span className="text-sm">By {post.author}</span>
-              </div>
+                <span className="mt-0.5 block text-sm text-muted text-pretty">
+                  {post.authorBio}
+                </span>
+              </span>
             </div>
-          </motion.div>
-        </div>
+          </Reveal>
+        </Container>
       </section>
 
-      {/* Article Content */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="prose dark:prose-invert max-w-none"
-          >
-            <div className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed space-y-6">
-              {post.content.split("\n\n").map((paragraph, idx) => {
-                const isHeading = paragraph.length < 50 && paragraph.includes(" ");
-                if (isHeading && idx > 0) {
-                  return (
-                    <h2
-                      key={idx}
-                      className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4"
-                    >
-                      {paragraph}
-                    </h2>
-                  );
-                }
-                return (
-                  <p key={idx} className="leading-relaxed">
-                    {paragraph}
-                  </p>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* Share Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-700"
-          >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <Share2 className="w-5 h-5" />
-              Share This Article
-            </h3>
-            <div className="flex flex-wrap gap-4">
-              <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors font-medium"
-              >
-                f Facebook
-              </a>
-              <a
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors font-medium"
-              >
-                𝕏 Twitter
-              </a>
-              <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors font-medium"
-              >
-                in LinkedIn
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Related Posts */}
-      {relatedPosts.length > 0 && (
-        <section className="py-20 bg-slate-50 dark:bg-slate-800/50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-12 text-center">
-                Related Articles
-              </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                {relatedPosts.map((relatedPost) => (
-                  <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`}>
-                    <Card className="h-full flex flex-col overflow-hidden">
-                      <div className="relative h-40 overflow-hidden">
-                        <img
-                          src={relatedPost.image}
-                          alt={relatedPost.title}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="p-6 flex flex-col flex-grow">
-                        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase mb-2">
-                          {relatedPost.category}
-                        </p>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">
-                          {relatedPost.title}
-                        </h3>
-                        <p className="text-slate-600 dark:text-slate-400 text-sm flex-grow">
-                          {relatedPost.excerpt}
-                        </p>
-                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                          <Clock className="w-3 h-3" />
-                          {relatedPost.readTime}
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
+      {/* Hero image */}
+      <Reveal>
+        <Container className="py-12 lg:py-16">
+          <div className="aspect-[16/8] overflow-hidden rounded-sm border border-line">
+            <img
+              src={post.image}
+              alt={post.title}
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
           </div>
+        </Container>
+      </Reveal>
+
+      {/* Article */}
+      <section className="pb-16 lg:pb-24">
+        <Container>
+          <div className="mx-auto max-w-2xl space-y-6">
+            {post.content.split("\n\n").map((paragraph, idx) => {
+              const isHeading =
+                paragraph.length < 50 && paragraph.includes(" ");
+              if (isHeading && idx > 0) {
+                return (
+                  <h2
+                    key={idx}
+                    className="pt-6 font-display text-2xl leading-tight text-ink text-balance"
+                  >
+                    {paragraph}
+                  </h2>
+                );
+              }
+              return (
+                <p
+                  key={idx}
+                  className="text-lg leading-relaxed text-ink-soft text-pretty"
+                >
+                  {paragraph}
+                </p>
+              );
+            })}
+
+            {/* Share */}
+            <div className="mt-12 border-t border-line pt-8">
+              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                Share this article
+              </p>
+              <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-ink-soft transition-colors hover:text-accent"
+                >
+                  Facebook
+                </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-ink-soft transition-colors hover:text-accent"
+                >
+                  Twitter
+                </a>
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-ink-soft transition-colors hover:text-accent"
+                >
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Related */}
+      {relatedPosts.length > 0 && (
+        <section className="border-t border-line py-16 lg:py-24">
+          <Container>
+            <Reveal>
+              <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl text-balance">
+                Related reading.
+              </h2>
+            </Reveal>
+            <ul className="mt-10 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedPosts.map((relatedPost, i) => (
+                <Reveal as="li" key={relatedPost.id} delay={(i % 3) * 0.06}>
+                  <Link to={`/blog/${relatedPost.slug}`} className="group block">
+                    <div className="aspect-[16/10] overflow-hidden rounded-sm border border-line">
+                      <img
+                        src={relatedPost.image}
+                        alt={relatedPost.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+                      {relatedPost.category}
+                    </p>
+                    <h3 className="mt-2 font-display text-xl leading-tight text-ink transition-colors group-hover:text-accent text-balance">
+                      {relatedPost.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-ink-soft text-pretty">
+                      {relatedPost.excerpt}
+                    </p>
+                  </Link>
+                </Reveal>
+              ))}
+            </ul>
+          </Container>
         </section>
       )}
 
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
-              Ready to Transform Your Brand?
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
-              Let us help you bring your printing and design vision to life.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/quote">
-                <Button variant="primary" size="lg">
-                  Get a Quote
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button variant="outline" size="lg">
-                  Contact Us
-                </Button>
-              </Link>
+      {/* CTA */}
+      <section className="bg-ink py-20 text-inverse lg:py-28">
+        <Container>
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05] text-inverse text-balance">
+                Have a project in mind?
+              </h2>
+              <p className="mt-5 max-w-md text-inverse/70 text-pretty">
+                Tell us what you need printed or made, and we'll come back with a
+                written quote — usually the same day.
+              </p>
             </div>
-          </motion.div>
-        </div>
+            <div className="flex shrink-0 items-center gap-6">
+              <PrimaryCTA
+                to="/quote"
+                className="bg-inverse text-ink hover:bg-accent hover:text-inverse"
+              >
+                Get a quote
+              </PrimaryCTA>
+              <GhostCTA
+                to="/contact"
+                className="text-inverse/80 hover:text-inverse"
+              >
+                Contact us
+              </GhostCTA>
+            </div>
+          </div>
+        </Container>
       </section>
     </div>
   );

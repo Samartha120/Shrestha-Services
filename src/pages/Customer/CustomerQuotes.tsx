@@ -31,35 +31,35 @@ export default function CustomerQuotes() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted">
             <Link to="/dashboard" className="hover:underline">Dashboard</Link>
             <span>/</span>
-            <span className="text-slate-900 dark:text-slate-100">Quotes</span>
+            <span className="text-ink">Quotes</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Your Quote Requests</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="font-display text-2xl tracking-tight text-ink">Your Quote Requests</h1>
+          <p className="text-sm text-muted">
             Manage, review, and track custom size printing price calculations.
           </p>
         </div>
 
         <Link
           to="/quote"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all shrink-0"
+          className="bg-ink hover:bg-accent-hover text-inverse text-sm font-semibold px-4 py-2.5 rounded-full transition-all shrink-0"
         >
           Request Quote
         </Link>
       </div>
 
       {/* Tabs / Filter Controls */}
-      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <div className="flex gap-2 border-b border-line pb-3">
         {["all", "pending", "approved", "rejected"].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all capitalize ${
+            className={`px-4 py-2 text-xs font-bold rounded-full transition-all capitalize ${
               filter === tab
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
-                : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900"
+                ? "bg-ink text-inverse"
+                : "text-muted hover:bg-paper-dim"
             }`}
           >
             {tab}
@@ -68,39 +68,39 @@ export default function CustomerQuotes() {
       </div>
 
       {/* List Container */}
-      <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+      <Card className="border border-line rounded-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-slate-500">Loading quotes catalog...</div>
+          <div className="p-12 text-center text-sm text-muted">Loading quotes catalog...</div>
         ) : filteredQuotes.length === 0 ? (
-          <div className="p-16 text-center text-slate-450 text-sm space-y-2">
-            <FileText size={44} className="mx-auto text-slate-300" />
-            <p className="font-semibold text-slate-700 dark:text-slate-300">No quotes found</p>
+          <div className="p-16 text-center text-muted text-sm space-y-2">
+            <FileText size={44} className="mx-auto text-faint" />
+            <p className="font-semibold text-ink">No quotes found</p>
             <p className="text-xs">There are no quotes matching the category filter "{filter}".</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800">
-                  <th className="p-4 font-semibold text-slate-500">Quote ID</th>
-                  <th className="p-4 font-semibold text-slate-500">Submitted Date</th>
-                  <th className="p-4 font-semibold text-slate-500">Dimensions</th>
-                  <th className="p-4 font-semibold text-slate-500">Material Choice</th>
-                  <th className="p-4 font-semibold text-slate-500">Estimated Price</th>
-                  <th className="p-4 font-semibold text-slate-500">Status</th>
-                  <th className="p-4 font-semibold text-slate-500">Actions</th>
+                <tr className="bg-paper-dim border-b border-line">
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Quote ID</th>
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Submitted Date</th>
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Dimensions</th>
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Material Choice</th>
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Estimated Price</th>
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Status</th>
+                  <th className="p-4 font-mono uppercase text-xs tracking-wide text-muted">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {filteredQuotes.map((q) => (
-                  <tr key={q.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30">
-                    <td className="p-4 font-bold">{q.id}</td>
-                    <td className="p-4 text-slate-500 text-xs">
+                  <tr key={q.id} className="hover:bg-paper-dim">
+                    <td className="p-4 font-bold text-ink">{q.id}</td>
+                    <td className="p-4 text-muted text-xs">
                       {new Date(q.date).toLocaleDateString()}
                     </td>
-                    <td className="p-4 font-medium">{q.width} x {q.height} ft</td>
-                    <td className="p-4 truncate max-w-[160px]">{q.material}</td>
-                    <td className="p-4 font-semibold text-slate-950 dark:text-white">NPR {q.estimatedPrice}</td>
+                    <td className="p-4 font-medium text-ink-soft">{q.width} x {q.height} ft</td>
+                    <td className="p-4 truncate max-w-[160px] text-ink-soft">{q.material}</td>
+                    <td className="p-4 font-semibold text-ink">NPR {q.estimatedPrice}</td>
                     <td className="p-4">
                       <Badge
                         variant={
@@ -117,7 +117,7 @@ export default function CustomerQuotes() {
                     <td className="p-4">
                       <button
                         onClick={() => setSelectedQuote(q)}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                        className="text-xs font-bold text-accent hover:underline"
                       >
                         Inspect details
                       </button>
@@ -138,13 +138,13 @@ export default function CustomerQuotes() {
           title={`Quote Request Specification - ${selectedQuote.id}`}
         >
           <div className="space-y-6 pt-4 text-sm">
-            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-line">
               <div>
-                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Calculated Cost</p>
-                <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">NPR {selectedQuote.estimatedPrice}</p>
+                <p className="text-xs text-muted font-mono uppercase tracking-wide">Calculated Cost</p>
+                <p className="text-xl font-bold text-ink mt-1">NPR {selectedQuote.estimatedPrice}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Current Status</p>
+                <p className="text-xs text-muted font-mono uppercase tracking-wide">Current Status</p>
                 <div className="mt-1">
                   <Badge variant={selectedQuote.status === "Approved" ? "success" : selectedQuote.status === "Pending" ? "warning" : "danger"}>
                     {selectedQuote.status}
@@ -155,41 +155,41 @@ export default function CustomerQuotes() {
 
             <div className="grid grid-cols-2 gap-y-4 gap-x-6">
               <div>
-                <p className="text-xs font-semibold text-slate-400">Dimensions</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.width} x {selectedQuote.height} feet</p>
+                <p className="text-xs font-semibold text-muted">Dimensions</p>
+                <p className="font-bold text-ink-soft mt-0.5">{selectedQuote.width} x {selectedQuote.height} feet</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-400">Total Area</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{(selectedQuote.width || 0) * (selectedQuote.height || 0)} sq. ft.</p>
+                <p className="text-xs font-semibold text-muted">Total Area</p>
+                <p className="font-bold text-ink-soft mt-0.5">{(selectedQuote.width || 0) * (selectedQuote.height || 0)} sq. ft.</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-400">Material Composition</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.material}</p>
+                <p className="text-xs font-semibold text-muted">Material Composition</p>
+                <p className="font-bold text-ink-soft mt-0.5">{selectedQuote.material}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-400">Quantity Required</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.quantity || 1} units</p>
+                <p className="text-xs font-semibold text-muted">Quantity Required</p>
+                <p className="font-bold text-ink-soft mt-0.5">{selectedQuote.quantity || 1} units</p>
               </div>
             </div>
 
             {selectedQuote.notes && (
-              <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-150/40 dark:border-slate-800">
-                <p className="text-xs font-semibold text-slate-400">Client Specifications Note:</p>
-                <p className="text-slate-700 dark:text-slate-300 mt-1 italic">"{selectedQuote.notes}"</p>
+              <div className="bg-paper-dim rounded-sm p-3 border border-line">
+                <p className="text-xs font-semibold text-muted">Client Specifications Note:</p>
+                <p className="text-ink-soft mt-1 italic">"{selectedQuote.notes}"</p>
               </div>
             )}
 
             {selectedQuote.fileUrl && (
-              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800">
-                <FileType className="h-8 w-8 text-blue-600 shrink-0" />
+              <div className="flex items-center gap-3 p-3 bg-paper-dim rounded-sm border border-line">
+                <FileType className="h-8 w-8 text-accent shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{selectedQuote.fileUrl}</p>
-                  <p className="text-xs text-slate-500">{selectedQuote.fileWeight || "Unknown size"} &bull; {selectedQuote.fileType || "PDF / Layout"}</p>
+                  <p className="font-bold text-ink-soft truncate">{selectedQuote.fileUrl}</p>
+                  <p className="text-xs text-muted">{selectedQuote.fileWeight || "Unknown size"} &bull; {selectedQuote.fileType || "PDF / Layout"}</p>
                 </div>
               </div>
             )}
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 border-t border-line">
               <Button variant="outline" onClick={() => setSelectedQuote(null)}>
                 Close Specifications
               </Button>

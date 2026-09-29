@@ -14,17 +14,13 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        primary:
-          "bg-blue-100 text-blue-700",
+        primary: "bg-accent-soft text-accent",
 
-        success:
-          "bg-green-100 text-green-700",
+        success: "bg-surface-2 text-ok",
 
-        warning:
-          "bg-yellow-100 text-yellow-700",
+        warning: "bg-surface-2 text-warn",
 
-        danger:
-          "bg-red-100 text-red-700",
+        danger: "bg-surface-2 text-err",
       },
     },
 
@@ -36,11 +32,7 @@ const badgeVariants = cva(
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?:
-    | "primary"
-    | "success"
-    | "warning"
-    | "danger";
+  variant?: "primary" | "success" | "warning" | "danger";
 
   className?: string;
 }

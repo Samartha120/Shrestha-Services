@@ -29,33 +29,19 @@ export default class ErrorBoundary extends React.Component<
       this.state.hasError
     ) {
       return (
-        <div
-          className="
-          flex
-          min-h-[300px]
-          flex-col
-          items-center
-          justify-center
-          "
-        >
-          <h2 className="text-2xl font-bold">
+        <div className="flex min-h-[300px] flex-col items-center justify-center bg-paper px-6 text-center">
+          <p className="eyebrow text-accent">Something broke on the press</p>
+          <h2 className="mt-3 font-display text-2xl text-ink">
             Something went wrong
           </h2>
-
+          <p className="mt-2 max-w-sm text-sm text-ink-soft">
+            The page hit an unexpected error. Reloading usually clears it.
+          </p>
           <button
-            className="
-            mt-4
-            rounded-lg
-            bg-blue-600
-            px-4
-            py-2
-            text-white
-            "
-            onClick={() =>
-              window.location.reload()
-            }
+            className="mt-6 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+            onClick={() => window.location.reload()}
           >
-            Reload Page
+            Reload page
           </button>
         </div>
       );

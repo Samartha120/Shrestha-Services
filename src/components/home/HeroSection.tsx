@@ -10,10 +10,10 @@ const headline: { text: string; accent?: string }[] = [
 ];
 
 const proofRows = [
-  { label: "Large-format flex", note: "up to 16 ft" },
+  { label: "Large-format flex", note: "wide format" },
   { label: "LED acrylic sign boards", note: "back-lit" },
   { label: "Vehicle wraps", note: "cast vinyl" },
-  { label: "Digital & offset print", note: "same-week" },
+  { label: "Digital & offset print", note: "in-house" },
 ];
 
 export default function HeroSection() {
@@ -117,12 +117,12 @@ export default function HeroSection() {
               className="mt-12 flex gap-10 border-t border-line pt-6"
             >
               <div>
-                <dt className="eyebrow">Since</dt>
-                <dd className="font-display text-2xl text-ink">2013</dd>
+                <dt className="eyebrow">Turnaround</dt>
+                <dd className="font-display text-2xl text-ink">24–48 hrs</dd>
               </div>
               <div>
-                <dt className="eyebrow">Turnaround</dt>
-                <dd className="font-display text-2xl text-ink">48 hrs</dd>
+                <dt className="eyebrow">Formats</dt>
+                <dd className="font-display text-2xl text-ink">Any scale</dd>
               </div>
               <div>
                 <dt className="eyebrow">Work</dt>

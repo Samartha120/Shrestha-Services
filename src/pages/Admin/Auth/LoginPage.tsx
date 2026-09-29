@@ -39,64 +39,61 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-12">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl dark:shadow-2xl relative overflow-hidden">
-        
-        {/* Glow effect */}
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-blue-600/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-indigo-600/10 blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center bg-paper px-4 py-12">
+      <div className="w-full max-w-md bg-surface border border-line rounded-sm p-8 shadow-[var(--shadow-sm)] relative overflow-hidden">
 
         {/* Header */}
         <div className="flex flex-col items-center mb-8 text-center relative z-10">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
-            <ShieldCheck className="h-7 w-7 text-white" />
+          <div className="h-14 w-14 rounded-sm bg-ink flex items-center justify-center mb-4">
+            <ShieldCheck className="h-7 w-7 text-inverse" />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Admin Control Center</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          <p className="text-xs uppercase tracking-wide text-muted mb-2">Admin Portal</p>
+          <h2 className="font-display text-2xl tracking-tight text-ink">Admin Control Center</h2>
+          <p className="text-xs text-muted mt-2">
             Authorized administrative personnel only.
           </p>
         </div>
 
         {/* Credentials Tip */}
-        <div className="mb-6 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-2xl p-4 text-xs space-y-1">
-          <p className="font-semibold text-blue-700 dark:text-blue-400">Admin Account Info:</p>
-          <p className="text-slate-600 dark:text-slate-300">Email: <span className="font-mono text-slate-800 dark:text-slate-200">admin@shrestha.com</span></p>
-          <p className="text-slate-600 dark:text-slate-300">Password: <span className="font-mono text-slate-800 dark:text-slate-200">admin123</span></p>
+        <div className="mb-6 bg-accent-soft border border-line rounded-sm p-4 text-xs space-y-1">
+          <p className="font-semibold text-accent">Admin Account Info:</p>
+          <p className="text-ink-soft">Email: <span className="font-mono text-ink">admin@shrestha.com</span></p>
+          <p className="text-ink-soft">Password: <span className="font-mono text-ink">admin123</span></p>
         </div>
 
         {/* Error Alert */}
         {(validationError || authError) && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/35 border border-red-100 dark:border-red-900/50 text-sm text-red-600 dark:text-red-400">
+          <div className="mb-6 p-4 rounded-sm bg-accent-soft border border-line text-sm text-err">
             {validationError || authError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Admin Email</label>
+            <label className="text-sm font-medium text-ink-soft block mb-2">Admin Email</label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@shresthaservices.com.np"
-              leftIcon={<Mail size={18} className="text-slate-400 dark:text-slate-500" />}
+              leftIcon={<Mail size={18} className="text-muted" />}
               required
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Password</label>
+            <label className="text-sm font-medium text-ink-soft block mb-2">Password</label>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              leftIcon={<Lock size={18} className="text-slate-400 dark:text-slate-500" />}
+              leftIcon={<Lock size={18} className="text-muted" />}
               required
             />
           </div>
 
-          <Button type="submit" loading={loading} className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white">
+          <Button type="submit" loading={loading} className="w-full mt-2 rounded-full bg-ink text-inverse hover:bg-accent">
             Secure Log In
           </Button>
         </form>

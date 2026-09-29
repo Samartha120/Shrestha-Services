@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface Props {
   title: string;
@@ -7,17 +7,17 @@ interface Props {
 }
 
 export default function EmptyState({ title, description, action }: Props) {
+  const reduce = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={reduce ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center"
+      className="flex flex-col items-center justify-center rounded-sm border border-dashed border-line p-12 text-center"
     >
-      <h3 className="text-xl font-semibold">{title}</h3>
+      <h3 className="font-display text-xl text-ink">{title}</h3>
 
-      {description && (
-        <p className="mt-2 text-slate-500 dark:text-slate-400">{description}</p>
-      )}
+      {description && <p className="mt-2 text-muted">{description}</p>}
 
       {action && <div className="mt-6">{action}</div>}
     </motion.div>

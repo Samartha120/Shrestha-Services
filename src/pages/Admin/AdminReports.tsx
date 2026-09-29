@@ -46,10 +46,10 @@ const reportTypes = [
 ];
 
 const colorClasses: Record<string, string> = {
-  blue: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
-  indigo: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400",
-  emerald: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
-  amber: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400",
+  blue: "bg-accent-soft text-accent",
+  indigo: "bg-accent-soft text-accent",
+  emerald: "bg-accent-soft text-accent",
+  amber: "bg-accent-soft text-accent",
 };
 
 export default function AdminReports() {
@@ -103,8 +103,8 @@ export default function AdminReports() {
 
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Financial & Order Reports</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <h1 className="font-display text-2xl tracking-tight text-ink">Financial & Order Reports</h1>
+        <p className="text-sm text-muted mt-1">
           Export audit sheets, PAN/VAT summaries, and print operations spreadsheets.
         </p>
       </div>
@@ -113,13 +113,13 @@ export default function AdminReports() {
 
         {/* Left — Report Builder Panel */}
         <div className="space-y-5">
-          <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Generate Export</h3>
+          <h3 className="font-bold text-sm text-ink uppercase tracking-wide">Generate Export</h3>
 
-          <Card className="p-6 border border-slate-200/80 dark:border-slate-800 space-y-5">
+          <Card className="p-6 border border-line space-y-5">
 
             {/* Report Type Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-muted uppercase tracking-wide">
                 Report Category
               </label>
               <div className="space-y-2">
@@ -130,27 +130,27 @@ export default function AdminReports() {
                     <button
                       key={rt.value}
                       onClick={() => setSelectedType(rt.value)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all duration-200 ${
+                      className={`w-full flex items-center gap-3 p-3 rounded-sm border text-left transition-all duration-200 ${
                         isSelected
-                          ? "border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/30"
-                          : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                          ? "border-accent bg-accent-soft"
+                          : "border-line hover:bg-paper-dim"
                       }`}
                     >
                       <div
-                        className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          isSelected ? colorClasses[rt.color] : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                        className={`h-8 w-8 rounded-sm flex items-center justify-center shrink-0 ${
+                          isSelected ? colorClasses[rt.color] : "bg-surface-2 text-muted"
                         }`}
                       >
                         <Icon size={15} />
                       </div>
                       <div className="min-w-0">
-                        <p className={`text-xs font-bold truncate ${isSelected ? "text-blue-700 dark:text-blue-300" : "text-slate-800 dark:text-slate-200"}`}>
+                        <p className={`text-xs font-bold truncate ${isSelected ? "text-accent" : "text-ink"}`}>
                           {rt.label}
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{rt.sublabel}</p>
+                        <p className="text-[10px] text-muted mt-0.5">{rt.sublabel}</p>
                       </div>
                       {isSelected && (
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0 ml-auto" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-accent shrink-0 ml-auto" />
                       )}
                     </button>
                   );
@@ -159,13 +159,13 @@ export default function AdminReports() {
             </div>
 
             {/* Selected preview */}
-            <div className={`p-3 rounded-xl border border-dashed ${
+            <div className={`p-3 rounded-sm border border-dashed ${
               selectedTypeInfo
-                ? "border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/20"
-                : "border-slate-200 dark:border-slate-700"
+                ? "border-accent bg-accent-soft"
+                : "border-line"
             }`}>
-              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                <SelectedIcon size={13} className="text-blue-500 shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-ink-soft">
+                <SelectedIcon size={13} className="text-accent shrink-0" />
                 <span>
                   Will export as <strong>{selectedType === "revenue" || selectedType === "quotes" ? "PDF" : "CSV"}</strong>
                 </span>
@@ -185,35 +185,35 @@ export default function AdminReports() {
 
         {/* Right — Generated Reports List */}
         <div className="lg:col-span-2 space-y-5">
-          <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Generated Catalog</h3>
+          <h3 className="font-bold text-sm text-ink uppercase tracking-wide">Generated Catalog</h3>
 
-          <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+          <Card className="border border-line overflow-hidden">
             {loading ? (
-              <div className="p-12 text-center text-sm text-slate-500">Checking spreadsheets index...</div>
+              <div className="p-12 text-center text-sm text-muted">Checking spreadsheets index...</div>
             ) : reports.length === 0 ? (
               <div className="p-16 text-center space-y-3">
-                <div className="h-14 w-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
-                  <FileSpreadsheet size={24} className="text-slate-400" />
+                <div className="h-14 w-14 rounded-sm bg-surface-2 flex items-center justify-center mx-auto">
+                  <FileSpreadsheet size={24} className="text-muted" />
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">No reports compiled</p>
-                  <p className="text-xs text-slate-400 mt-1">Select a report category on the left to export records.</p>
+                  <p className="font-semibold text-ink text-sm">No reports compiled</p>
+                  <p className="text-xs text-muted mt-1">Select a report category on the left to export records.</p>
                 </div>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="divide-y divide-line">
                 {reports.map((rep) => (
                   <div
                     key={rep.id}
-                    className="p-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors"
+                    className="p-5 flex items-center justify-between gap-4 hover:bg-paper-dim transition-colors"
                   >
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <div className="h-10 w-10 rounded-sm bg-accent-soft text-accent flex items-center justify-center shrink-0">
                         <FileSpreadsheet size={18} />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{rep.title}</p>
-                        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                        <p className="font-bold text-sm text-ink truncate">{rep.title}</p>
+                        <p className="text-[11px] text-muted mt-0.5">
                           {rep.size} &bull; {rep.type} &bull; Generated {new Date(rep.createdAt || rep.date).toLocaleDateString()}
                         </p>
                       </div>
@@ -223,7 +223,7 @@ export default function AdminReports() {
                       <Badge variant="success">Completed</Badge>
                       <button
                         onClick={() => handleDownload(rep.title)}
-                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-xl transition-colors"
+                        className="p-2 text-muted hover:text-accent hover:bg-surface-2 rounded-sm transition-colors"
                         title="Download sheet"
                       >
                         <DownloadCloud size={17} />

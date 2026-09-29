@@ -122,13 +122,13 @@ export default function CustomerFiles() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <Link to="/dashboard" className="hover:underline hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Dashboard</Link>
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted">
+            <Link to="/dashboard" className="hover:underline hover:text-ink transition-colors">Dashboard</Link>
             <span>/</span>
-            <span className="text-slate-900 dark:text-slate-100">Design Files</span>
+            <span className="text-ink">Design Files</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Design & Template Files</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="font-display text-2xl tracking-tight text-ink">Design & Template Files</h1>
+          <p className="text-sm text-muted">
             Upload high-resolution vector artwork (AI, PDF, EPS) for flex printing prepress.
           </p>
         </div>
@@ -148,21 +148,21 @@ export default function CustomerFiles() {
         {/* Left — Files List */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Active Design Uploads</h3>
-            <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full font-semibold">
+            <h3 className="font-mono text-sm text-ink uppercase tracking-wide">Active Design Uploads</h3>
+            <span className="text-xs text-muted bg-paper-dim px-2.5 py-1 rounded-full font-mono">
               {files.length} file{files.length !== 1 ? "s" : ""}
             </span>
           </div>
 
-          <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+          <Card className="border border-line rounded-sm overflow-hidden">
             {files.length === 0 ? (
               <div className="p-16 text-center space-y-3">
-                <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center mx-auto">
-                  <FileText size={24} className="text-blue-400" />
+                <div className="h-14 w-14 rounded-sm bg-accent-soft flex items-center justify-center mx-auto">
+                  <FileText size={24} className="text-accent" />
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">No files uploaded yet</p>
-                  <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                  <p className="font-semibold text-ink text-sm">No files uploaded yet</p>
+                  <p className="text-xs text-muted mt-1 max-w-xs mx-auto">
                     Upload files when requesting quotes, or add files directly to your dashboard drafts.
                   </p>
                 </div>
@@ -171,28 +171,28 @@ export default function CustomerFiles() {
                 </Button>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="divide-y divide-line">
                 {files.map((file) => {
                   const Icon = getFileIcon(file.type);
                   const isDeleting = deleting === file.id;
                   return (
                     <div
                       key={file.id}
-                      className={`p-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all duration-300 ${
+                      className={`p-5 flex items-center justify-between gap-4 hover:bg-paper-dim transition-all duration-300 ${
                         isDeleting ? "opacity-40 pointer-events-none" : ""
                       }`}
                     >
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                        <div className="h-10 w-10 rounded-sm bg-accent-soft text-accent flex items-center justify-center shrink-0">
                           <Icon size={18} />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{file.name}</p>
-                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          <p className="font-bold text-sm text-ink truncate">{file.name}</p>
+                          <p className="text-xs text-muted mt-0.5">
                             {file.size} &bull; {file.type} &bull; {new Date(file.uploadedAt).toLocaleDateString()}
                           </p>
                           {file.quoteId && (
-                            <span className="inline-block mt-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded-md">
+                            <span className="inline-block mt-1 text-[10px] font-mono text-accent bg-accent-soft px-2 py-0.5 rounded-full">
                               Linked Quote {file.quoteId}
                             </span>
                           )}
@@ -202,14 +202,14 @@ export default function CustomerFiles() {
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => toast.success(`Downloading "${file.name}"`)}
-                          className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-xl transition-colors"
+                          className="p-2 text-muted hover:text-accent hover:bg-accent-soft rounded-sm transition-colors"
                           title="Download file"
                         >
                           <Download size={15} />
                         </button>
                         <button
                           onClick={() => handleDeleteFile(file.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors"
+                          className="p-2 text-muted hover:text-err hover:bg-paper-dim rounded-sm transition-colors"
                           title="Delete file"
                         >
                           <Trash2 size={15} />
@@ -228,17 +228,17 @@ export default function CustomerFiles() {
 
           {/* Print Guidelines */}
           <div className="space-y-3">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Prepress Print Guide</h3>
+            <h3 className="font-mono text-sm text-ink uppercase tracking-wide">Prepress Print Guide</h3>
 
-            <Card className="border border-slate-200/80 dark:border-slate-800 p-5 space-y-4">
+            <Card className="border border-line rounded-sm p-5 space-y-4">
               {printGuideItems.map((item, i) => (
                 <div key={i} className="flex gap-3 items-start">
-                  <div className="h-7 w-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center shrink-0 mt-0.5">
-                    <AlertCircle size={13} className="text-blue-500" />
+                  <div className="h-7 w-7 rounded-sm bg-accent-soft flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertCircle size={13} className="text-accent" />
                   </div>
                   <div>
-                    <p className="font-bold text-xs text-slate-800 dark:text-slate-200">{item.title}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                    <p className="font-bold text-xs text-ink-soft">{item.title}</p>
+                    <p className="text-xs text-muted mt-0.5 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -247,24 +247,24 @@ export default function CustomerFiles() {
 
           {/* Template Downloads */}
           <div className="space-y-3">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-wider">Empty Templates</h3>
+            <h3 className="font-mono text-sm text-ink uppercase tracking-wide">Empty Templates</h3>
 
-            <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <Card className="border border-line rounded-sm overflow-hidden divide-y divide-line">
               {templates.map((tpl, i) => (
                 <button
                   key={i}
                   onClick={() => handleTemplateDownload(tpl.label)}
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors text-left"
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-paper-dim transition-colors text-left"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{tpl.label}</span>
+                    <CheckCircle2 size={14} className="text-ok shrink-0" />
+                    <span className="text-xs font-medium text-ink-soft truncate">{tpl.label}</span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-mono text-muted bg-paper-dim px-1.5 py-0.5 rounded-sm">
                       {tpl.ext}
                     </span>
-                    <Download size={13} className="text-blue-500" />
+                    <Download size={13} className="text-accent" />
                   </div>
                 </button>
               ))}

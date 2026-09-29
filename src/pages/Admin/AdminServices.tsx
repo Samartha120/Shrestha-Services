@@ -94,8 +94,8 @@ export default function AdminServices() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Services Catalog</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="font-display text-2xl tracking-tight text-ink">Services Catalog</h1>
+          <p className="text-sm text-muted mt-1">
             Manage your digital printing machinery outputs, material pricing options, and specifications.
           </p>
         </div>
@@ -107,35 +107,35 @@ export default function AdminServices() {
 
       {/* Grid of services */}
       {isLoading ? (
-        <div className="p-12 text-center text-sm text-slate-500">Loading catalog...</div>
+        <div className="p-12 text-center text-sm text-muted">Loading catalog...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((s) => (
-            <Card key={s.id} className="border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col justify-between">
-              
-              <div className="relative h-44 bg-slate-100 dark:bg-slate-900 overflow-hidden shrink-0">
+            <Card key={s.id} className="border border-line rounded-sm overflow-hidden flex flex-col justify-between">
+
+              <div className="relative h-44 bg-surface-2 overflow-hidden shrink-0">
                 <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
-                <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 rounded text-[10px] uppercase font-bold text-white tracking-widest">
+                <div className="absolute top-3 right-3 px-2 py-1 bg-ink/70 rounded-sm text-[10px] uppercase font-mono text-inverse tracking-widest">
                   NPR {s.basePrice || 15}/sq.ft
                 </div>
               </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <h3 className="font-bold text-base text-slate-950 dark:text-white">{s.title}</h3>
-                  <p className="text-xs text-slate-500 line-clamp-3">{s.description}</p>
+                  <h3 className="font-display text-base text-ink">{s.title}</h3>
+                  <p className="text-xs text-muted line-clamp-3">{s.description}</p>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800 shrink-0">
+                <div className="flex justify-end gap-2 pt-4 border-t border-line shrink-0">
                   <button
                     onClick={() => openEditModal(s)}
-                    className="p-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-350 transition-colors"
+                    className="p-2 border border-line rounded-sm hover:bg-paper-dim text-ink-soft transition-colors"
                   >
                     <Edit2 size={14} />
                   </button>
                   <button
                     onClick={() => handleDelete(s.id)}
-                    className="p-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 hover:text-red-600 transition-colors"
+                    className="p-2 border border-line rounded-sm hover:bg-accent-soft text-err transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -171,12 +171,12 @@ export default function AdminServices() {
             />
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Catalog Description</label>
+              <label className="text-sm font-medium text-ink">Catalog Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Details of print machine outputs, resolution specifications..."
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-blue-500 text-sm focus:outline-none dark:bg-slate-900 dark:border-slate-800 text-slate-900 dark:text-white"
+                className="w-full rounded-sm border border-line bg-surface px-4 py-3 min-h-[100px] focus:border-accent text-sm focus:outline-none text-ink placeholder:text-muted"
                 required
               />
             </div>
@@ -204,7 +204,7 @@ export default function AdminServices() {
               placeholder="Weather Resistant, Spot UV..."
             />
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 border-t border-line">
               <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
                 Cancel
               </Button>

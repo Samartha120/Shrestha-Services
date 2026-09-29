@@ -1,67 +1,55 @@
-import { useRef, useState, useEffect } from "react";
-import { useInView, useReducedMotion } from "framer-motion";
-import { statistics } from "@/data/statistics";
 import { Container } from "@/components/marketing/primitives";
 
-function AnimatedCounter({ end }: { end: number }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const reduce = useReducedMotion();
-
-  useEffect(() => {
-    if (!isInView) return;
-    if (reduce) {
-      setCount(end);
-      return;
-    }
-    let raf = 0;
-    const duration = 1400;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setCount(Math.round(end * eased));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [isInView, end, reduce]);
-
-  return (
-    <span ref={ref}>
-      {count}
-      <span className="text-accent">+</span>
-    </span>
-  );
-}
+/*
+ * Capability band (replaces the old fabricated stat counters).
+ * No invented numbers — qualitative proof drawn from what the shop actually does.
+ */
+const handles = [
+  { k: "Large format", v: "Flex, banners & hoardings printed at scale." },
+  { k: "Signage", v: "Acrylic, metal & LED boards, built and mounted." },
+  { k: "Vehicle & vinyl", v: "Wraps, decals and frosted glass graphics." },
+  { k: "Finishing", v: "Cutting, lamination, mounting and install." },
+];
 
 export default function Statistics() {
   return (
-    <section className="bg-ink py-20 text-inverse lg:py-24">
+    <section className="bg-ink py-20 text-inverse lg:py-28">
       <Container>
-        <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
           <div>
             <span className="inline-flex items-center gap-3 eyebrow text-faint">
               <span className="h-px w-6 bg-accent" aria-hidden />
-              By the numbers
+              What leaves the shop
             </span>
-            <p className="mt-4 max-w-md font-display text-2xl text-inverse/90">
-              A decade of work you can point at around the city.
+            <h2 className="mt-5 max-w-md font-display text-[clamp(2rem,3.4vw,3rem)] leading-[1.05] text-inverse text-balance">
+              One roof, from the artwork to the wall.
+            </h2>
+            <p className="mt-5 max-w-sm text-inverse/60 text-pretty">
+              Design, print, finish and fit — handled in-house so nothing gets
+              lost in a hand-off and the colour you approve is the colour that
+              ships.
             </p>
           </div>
-        </div>
 
-        <dl className="grid grid-cols-2 gap-y-10 border-t border-white/10 pt-10 lg:grid-cols-4">
-          {statistics.map((stat) => (
-            <div key={stat.label} className="border-l border-white/10 pl-5 first:border-l-0 first:pl-0 lg:border-l lg:pl-8 lg:first:border-l-0">
-              <dd className="font-display text-5xl leading-none text-inverse lg:text-6xl">
-                <AnimatedCounter end={stat.value} />
-              </dd>
-              <dt className="mt-3 text-sm text-inverse/60">{stat.label}</dt>
-            </div>
-          ))}
-        </dl>
+          <dl className="grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:gap-x-10">
+            {handles.map((h, i) => (
+              <div
+                key={h.k}
+                className="border-t border-white/12 pt-5"
+              >
+                <dt className="flex items-baseline gap-3 font-display text-xl text-inverse">
+                  <span className="font-mono text-xs text-accent">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {h.k}
+                </dt>
+                <dd className="mt-2 text-sm leading-relaxed text-inverse/60 text-pretty">
+                  {h.v}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </Container>
     </section>
   );

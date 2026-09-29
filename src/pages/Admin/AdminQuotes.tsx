@@ -48,22 +48,22 @@ export default function AdminQuotes() {
       
       {/* Title */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Quote Requests</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="font-display text-2xl tracking-tight text-ink">Quote Requests</h1>
+        <p className="text-sm text-muted mt-1">
           Review layout design specs, override pricing calculators, and dispatch approvals.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <div className="flex gap-2 border-b border-line pb-3">
         {["all", "pending", "approved", "rejected"].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all capitalize ${
+            className={`px-4 py-2 text-xs font-bold rounded-full transition-all capitalize ${
               filter === tab
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
-                : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900"
+                ? "bg-ink text-inverse"
+                : "text-muted hover:bg-paper-dim"
             }`}
           >
             {tab}
@@ -72,42 +72,42 @@ export default function AdminQuotes() {
       </div>
 
       {/* List Container */}
-      <Card className="border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+      <Card className="border border-line overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-slate-500">Syncing quotes catalog...</div>
+          <div className="p-12 text-center text-sm text-muted">Syncing quotes catalog...</div>
         ) : filteredQuotes.length === 0 ? (
-          <div className="p-16 text-center text-slate-450 text-sm space-y-2">
-            <FileText size={44} className="mx-auto text-slate-300" />
-            <p className="font-semibold text-slate-700 dark:text-slate-300">No quotes found</p>
+          <div className="p-16 text-center text-muted text-sm space-y-2">
+            <FileText size={44} className="mx-auto text-faint" />
+            <p className="font-semibold text-ink">No quotes found</p>
             <p className="text-xs">There are no quotes matching the filter status "{filter}".</p>
           </div>
         ) : (
           <div className="overflow-x-auto text-sm">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800">
-                  <th className="p-4 font-semibold text-slate-500">ID</th>
-                  <th className="p-4 font-semibold text-slate-500">Client Info</th>
-                  <th className="p-4 font-semibold text-slate-500">Dimensions (WxH)</th>
-                  <th className="p-4 font-semibold text-slate-500">Material Choice</th>
-                  <th className="p-4 font-semibold text-slate-500">Price Quote</th>
-                  <th className="p-4 font-semibold text-slate-500">Status</th>
-                  <th className="p-4 font-semibold text-slate-500 text-right">Action</th>
+                <tr className="bg-paper-dim border-b border-line">
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide">ID</th>
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide">Client Info</th>
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide">Dimensions (WxH)</th>
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide">Material Choice</th>
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide">Price Quote</th>
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide">Status</th>
+                  <th className="p-4 font-semibold text-muted uppercase text-xs tracking-wide text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {filteredQuotes.map((q) => (
-                  <tr key={q.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30">
-                    <td className="p-4 font-bold">{q.id}</td>
+                  <tr key={q.id} className="hover:bg-paper-dim">
+                    <td className="p-4 font-bold text-ink font-mono">{q.id}</td>
                     <td className="p-4">
                       <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">{q.customerName}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">{q.email} &bull; {q.phone}</p>
+                        <p className="font-semibold text-ink">{q.customerName}</p>
+                        <p className="text-xs text-muted mt-0.5">{q.email} &bull; {q.phone}</p>
                       </div>
                     </td>
-                    <td className="p-4">{q.width} x {q.height} ft</td>
-                    <td className="p-4 truncate max-w-[150px]">{q.material}</td>
-                    <td className="p-4 font-semibold">NPR {q.estimatedPrice}</td>
+                    <td className="p-4 text-ink-soft">{q.width} x {q.height} ft</td>
+                    <td className="p-4 truncate max-w-[150px] text-ink-soft">{q.material}</td>
+                    <td className="p-4 font-semibold text-ink font-mono">NPR {q.estimatedPrice}</td>
                     <td className="p-4">
                       <Badge
                         variant={
@@ -124,7 +124,7 @@ export default function AdminQuotes() {
                     <td className="p-4 text-right">
                       <button
                         onClick={() => handleAuditClick(q)}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                        className="text-xs font-bold text-accent hover:underline"
                       >
                         Audit specs
                       </button>
@@ -147,42 +147,42 @@ export default function AdminQuotes() {
           <div className="space-y-6 pt-4 text-sm">
             <div className="grid grid-cols-2 gap-y-4 gap-x-6">
               <div>
-                <p className="text-xs font-semibold text-slate-400">Client Name</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.customerName}</p>
+                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Client Name</p>
+                <p className="font-bold text-ink mt-0.5">{selectedQuote.customerName}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-400">Contact</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.phone}</p>
+                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Contact</p>
+                <p className="font-bold text-ink mt-0.5">{selectedQuote.phone}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-400">Dimensions</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.width} x {selectedQuote.height} ft</p>
+                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Dimensions</p>
+                <p className="font-bold text-ink mt-0.5">{selectedQuote.width} x {selectedQuote.height} ft</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-400">Material</p>
-                <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedQuote.material}</p>
+                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Material</p>
+                <p className="font-bold text-ink mt-0.5">{selectedQuote.material}</p>
               </div>
             </div>
 
             {selectedQuote.notes && (
-              <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-150/40 dark:border-slate-800">
-                <p className="text-xs font-semibold text-slate-400">Specifications Notes:</p>
-                <p className="text-slate-700 dark:text-slate-350 mt-1 italic">"{selectedQuote.notes}"</p>
+              <div className="bg-paper-dim rounded-sm p-3 border border-line">
+                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Specifications Notes:</p>
+                <p className="text-ink-soft mt-1 italic">"{selectedQuote.notes}"</p>
               </div>
             )}
 
             {selectedQuote.fileUrl && (
-              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800">
-                <FileType className="h-8 w-8 text-blue-600 shrink-0" />
+              <div className="flex items-center gap-3 p-3 bg-paper-dim rounded-sm border border-line">
+                <FileType className="h-8 w-8 text-accent shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{selectedQuote.fileUrl}</p>
-                  <p className="text-xs text-slate-500">{selectedQuote.fileWeight || "Unknown size"} &bull; {selectedQuote.fileType || "PDF / Layout"}</p>
+                  <p className="font-bold text-ink truncate">{selectedQuote.fileUrl}</p>
+                  <p className="text-xs text-muted">{selectedQuote.fileWeight || "Unknown size"} &bull; {selectedQuote.fileType || "PDF / Layout"}</p>
                 </div>
               </div>
             )}
 
             <div className="space-y-2 pt-2">
-              <label className="text-sm font-semibold">Override Estimated Price (NPR)</label>
+              <label className="text-sm font-semibold text-ink">Override Estimated Price (NPR)</label>
               <Input
                 type="number"
                 value={priceOverride}
@@ -192,7 +192,7 @@ export default function AdminQuotes() {
             </div>
 
             {/* Audit action items */}
-            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-line">
               <div className="flex gap-2">
                 <Button variant="danger" leftIcon={<X size={14} />} onClick={() => handleUpdateStatus("Rejected")}>
                   Reject Quote

@@ -86,13 +86,13 @@ export default function CustomerProfile() {
       
       {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted">
           <Link to="/dashboard" className="hover:underline">Dashboard</Link>
           <span>/</span>
-          <span className="text-slate-900 dark:text-slate-100">Profile</span>
+          <span className="text-ink">Profile</span>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Business Profile</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="font-display text-2xl tracking-tight text-ink">Business Profile</h1>
+        <p className="text-sm text-muted">
           Manage corporate info, PAN/VAT configurations, and dispatch billing addresses.
         </p>
       </div>
@@ -101,28 +101,28 @@ export default function CustomerProfile() {
         
         {/* Left Column - Card Overview */}
         <div className="space-y-6">
-          <Card className="p-6 border border-slate-200/80 dark:border-slate-800 text-center space-y-4">
-            <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 text-2xl font-extrabold flex items-center justify-center mx-auto shadow-md">
+          <Card className="p-6 border border-line rounded-sm text-center space-y-4">
+            <div className="h-20 w-20 rounded-full bg-accent-soft text-accent text-2xl font-display flex items-center justify-center mx-auto">
               {name.charAt(0)}
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{name}</h2>
-              <p className="text-xs text-slate-500">{email}</p>
-              <p className="inline-block px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] uppercase font-bold text-slate-500 mt-2">
+              <h2 className="font-display text-lg text-ink">{name}</h2>
+              <p className="text-xs text-muted">{email}</p>
+              <p className="inline-block px-3 py-1 rounded-full bg-paper-dim text-[10px] uppercase font-mono tracking-wide text-muted mt-2">
                 Customer Account
               </p>
             </div>
           </Card>
 
-          <Card className="p-6 border border-slate-200/80 dark:border-slate-800 space-y-4 text-xs">
-            <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider">Verification Checklist</h4>
+          <Card className="p-6 border border-line rounded-sm space-y-4 text-xs">
+            <h4 className="font-mono text-ink uppercase tracking-wide">Verification Checklist</h4>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350">
-                <CheckCircle2 size={14} className="text-emerald-500" />
+              <div className="flex items-center gap-2 text-ink-soft">
+                <CheckCircle2 size={14} className="text-ok" />
                 <span>Email address verified</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-355">
-                <CheckCircle2 size={14} className="text-emerald-500" />
+              <div className="flex items-center gap-2 text-ink-soft">
+                <CheckCircle2 size={14} className="text-ok" />
                 <span>Business credentials loaded</span>
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function CustomerProfile() {
 
         {/* Right Column - Editor Form */}
         <div className="lg:col-span-2">
-          <Card className="p-6 border border-slate-200/80 dark:border-slate-800">
+          <Card className="p-6 border border-line rounded-sm">
             <form onSubmit={handleSubmit} className="space-y-6">
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -139,15 +139,15 @@ export default function CustomerProfile() {
                   label="Contact Representative Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  leftIcon={<User size={16} className="text-slate-400" />}
+                  leftIcon={<User size={16} className="text-muted" />}
                   required
                 />
                 <Input
                   label="Email Address (Static)"
                   value={email}
                   disabled
-                  leftIcon={<Landmark size={16} className="text-slate-400" />}
-                  className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400"
+                  leftIcon={<Landmark size={16} className="text-muted" />}
+                  className="bg-paper-dim text-muted"
                 />
                 <Input
                   label="Company Name"
@@ -160,20 +160,20 @@ export default function CustomerProfile() {
                   value={registrationId}
                   onChange={(e) => setRegistrationId(e.target.value)}
                   placeholder="PAN number"
-                  leftIcon={<FileText size={16} className="text-slate-400" />}
+                  leftIcon={<FileText size={16} className="text-muted" />}
                 />
                 <Input
                   label="Contact Phone Number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+977-98..."
-                  leftIcon={<Phone size={16} className="text-slate-400" />}
+                  leftIcon={<Phone size={16} className="text-muted" />}
                 />
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                  <MapPin size={16} className="text-slate-400" /> Delivery Address
+              <div className="space-y-4 pt-4 border-t border-line">
+                <h3 className="font-mono text-sm text-ink flex items-center gap-2">
+                  <MapPin size={16} className="text-muted" /> Delivery Address
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -208,7 +208,7 @@ export default function CustomerProfile() {
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-end pt-4 border-t border-line">
                 <Button type="submit" loading={saving}>
                   Save Settings
                 </Button>
