@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import type { User, LoginPayload } from "@/types/auth.types";
 import { authApi } from "@/services/authApi";
-import { supabase } from "@/lib/supabase/supabaseClient";
 
 interface AuthState {
   user: User | null;
@@ -67,10 +66,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      const user = await authApi.register(payload);
-      const token = localStorage.getItem("accessToken");
-      set({ user, token, isAuthenticated: !!token, isLoading: false });
-      return user;
+      await authApi.register(payload);
+      // The register endpoint returns only the created user (no token). To land the
+      // user on the dashboard we establish a real session by logging in with the same
+      // credentials, which stores the access token and hydrates the auth state.
+      if (payload?.email && payload?.password) {
+        const { user, token } = await authApi.login({
+          email: payload.email,
+          password: payload.password,
+        });
+        set({ user, token, isAuthenticated: true, isLoading: false });
+        return user;
+      }
+      set({ isLoading: false });
+      return null;
     } catch (err: any) {
       set({ error: err.message || "Registration failed", isLoading: false });
       throw err;
@@ -110,38 +119,41 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
-    // 1. Instantly load from localStorage if available to avoid flicker
+    // Local JWT mode: the access token in localStorage is the source of truth.
     const cachedToken = localStorage.getItem("accessToken");
     const cachedUser = localStorage.getItem("currentUser");
-    if (cachedToken && cachedUser) {
+
+    // No token means the user simply isn't logged in — do NOT call /auth/me.
+    // (A 401 from an unauthenticated /auth/me used to clobber a fresh login,
+    // bouncing the user back to /login instead of the dashboard.)
+    if (!cachedToken) {
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      return null;
+    }
+
+    // Optimistically hydrate from cache to avoid a redirect flicker.
+    if (cachedUser) {
       try {
-        const parsedUser = JSON.parse(cachedUser);
-        set({ user: parsedUser, token: cachedToken, isAuthenticated: true });
-      } catch (e) {
-        // ignore
+        set({ user: JSON.parse(cachedUser), token: cachedToken, isAuthenticated: true });
+      } catch {
+        // ignore malformed cache
       }
     }
 
-    // 2. Perform async check to see if the session is still active
+    // Validate the token against the backend.
     set({ isLoading: true });
     try {
       const user = await authApi.me();
       if (user) {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token || cachedToken;
-        if (token) {
-          localStorage.setItem("accessToken", token);
-          localStorage.setItem("currentUser", JSON.stringify(user));
-        }
-        set({ user, token, isAuthenticated: true, isLoading: false });
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        set({ user, token: cachedToken, isAuthenticated: true, isLoading: false });
         return user;
-      } else {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("currentUser");
-        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-        return null;
       }
-    } catch (err: any) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("currentUser");
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      return null;
+    } catch {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("currentUser");
       set({ user: null, token: null, isAuthenticated: false, isLoading: false });

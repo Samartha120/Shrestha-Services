@@ -12,7 +12,7 @@ export interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, logout, checkAuth } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { notifications, fetchNotifications, markAsRead } = useNotificationStore();
   const { fetchSettings } = useSettingsStore();
   const { isDark, setTheme } = useTheme();
@@ -25,7 +25,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
+    // NOTE: checkAuth() is intentionally NOT called here. AuthProvider runs it
+    // once at app startup (above the router). Calling it in the layout caused an
+    // infinite mount loop: checkAuth sets isLoading=true → ProtectedRoute unmounts
+    // this layout to show its spinner → checkAuth resolves (isLoading=false) →
+    // layout remounts → checkAuth fires again, flooding the API (the /admin/
+    // revenue-chart 401 storm) and blanking the page.
     fetchNotifications();
     fetchSettings();
   }, [fetchNotifications, fetchSettings]);

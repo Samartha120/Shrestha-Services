@@ -25,9 +25,10 @@ model Permission {
 }
 
 model User {
-  id            String         @id @db.Uuid
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name          String
   email         String         @unique
+  password      String?
   roleId        String?        @map("role_id") @db.Uuid
   avatar        String?
   isVerified    Boolean        @default(false) @map("is_verified")

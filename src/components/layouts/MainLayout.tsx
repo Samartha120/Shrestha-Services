@@ -58,7 +58,7 @@ const footerCols = [
 /* __APPEND_1__ */
 
 export default function MainLayout({ children }: MainLayoutProps) {
-  const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const { fetchSettings } = useSettingsStore();
   const { isDark, setTheme } = useTheme();
   const reduce = useReducedMotion();
@@ -76,9 +76,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
     fetchSettings();
   }, [fetchSettings]);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // NOTE: checkAuth() is intentionally NOT called here. AuthProvider runs it
+  // once at app startup (above the router). Calling it here caused an infinite
+  // mount loop: checkAuth sets isLoading=true → ProtectedRoute unmounts this
+  // layout to show its spinner → checkAuth resolves (isLoading=false) → layout
+  // remounts → checkAuth fires again, flooding the API and blanking the page.
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
