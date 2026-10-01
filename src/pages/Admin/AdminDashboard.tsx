@@ -88,10 +88,10 @@ export default function AdminDashboard() {
     loadData();
   }, []);
 
-  const COLORS = ["#d8402a", "#1a1714", "#776f64", "#2f7d54", "#b5730f", "#bf3320"];
+  const COLORS = ["#8c2f39", "#1a1714", "#776f64", "#2f7d54", "#b5730f", "#74252e"];
   const gridStroke = isDark ? "rgba(44,40,34,0.9)" : "rgba(230,225,214,0.9)";
   const axisTickFill = isDark ? "#948b7d" : "#776f64";
-  const accentStroke = isDark ? "#f2603f" : "#d8402a";
+  const accentStroke = isDark ? "#c04b57" : "#8c2f39";
   const tooltipBg = isDark ? "#201d18" : "#ffffff";
   const tooltipBorder = isDark ? "#2c2822" : "#e6e1d6";
   const tooltipText = isDark ? "#f4f0e8" : "#1a1714";

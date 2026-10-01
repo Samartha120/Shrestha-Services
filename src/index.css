@@ -5,7 +5,8 @@
 /*
   ─────────────────────────────────────────────────────────────
   Shrestha Services — design system
-  Identity: ink & paper neutrals + a single press-vermilion accent.
+  Identity: warm ink & paper-ivory neutrals + an oxblood (burgundy) accent,
+  with muted brass reserved for fine premium detail.
   Type: Fraunces (display serif) / Inter (UI + body).
   Colors are exposed to Tailwind as semantic utilities via @theme inline,
   backed by CSS variables that swap under `.dark`.
@@ -35,6 +36,8 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
+  --color-brass: var(--brass);
+  --color-brass-soft: var(--brass-soft);
 
   --color-ok: var(--ok);
   --color-warn: var(--warn);
@@ -43,25 +46,29 @@
 
 /* ── Light (paper) ── */
 :root {
-  --paper: #fbfaf7;
-  --paper-dim: #f2efe8;
-  --surface: #ffffff;
-  --surface-2: #f7f5f0;
+  --paper: #f4efe6;
+  --paper-dim: #ebe4d7;
+  --surface: #fdfcf9;
+  --surface-2: #f1ebe0;
 
-  --ink: #1a1714;
-  --ink-soft: #4a443c;
-  --muted: #776f64;
+  --ink: #171513;
+  --ink-soft: #45403a;
+  --muted: #5e5a54;
   --faint: #a79f92;
-  --inverse: #fbfaf7;
+  --inverse: #f4efe6;
 
-  --line: #e6e1d6;
-  --line-strong: #d5cebf;
+  --line: #dcd4c6;
+  --line-strong: #cbc1af;
 
-  /* press vermilion */
-  --accent: #d8402a;
-  --accent-hover: #bf3320;
-  --accent-soft: rgba(216, 64, 42, 0.09);
-  --accent-ink: #bf3320;
+  /* oxblood / burgundy */
+  --accent: #8c2f39;
+  --accent-hover: #74252e;
+  --accent-soft: rgba(140, 47, 57, 0.09);
+  --accent-ink: #74252e;
+
+  /* muted brass — fine premium detail only */
+  --brass: #9a7b33;
+  --brass-soft: rgba(154, 123, 51, 0.1);
 
   --ok: #2f7d54;
   --warn: #b5730f;
@@ -71,7 +78,7 @@
   --shadow-md: 0 6px 20px -8px rgba(26, 23, 20, 0.14);
   --shadow-lg: 0 24px 60px -20px rgba(26, 23, 20, 0.22);
 
-  --code-bg: #f2efe8;
+  --code-bg: #ebe4d7;
 
   color-scheme: light;
   font-synthesis: none;
@@ -82,24 +89,27 @@
 
 /* ── Dark (ink) ── */
 .dark {
-  --paper: #14120f;
-  --paper-dim: #1b1814;
-  --surface: #201d18;
-  --surface-2: #17150f;
+  --paper: #15120f;
+  --paper-dim: #1c1813;
+  --surface: #211d17;
+  --surface-2: #17140f;
 
-  --ink: #f4f0e8;
+  --ink: #f4efe4;
   --ink-soft: #c9c2b5;
   --muted: #948b7d;
   --faint: #6d655a;
-  --inverse: #14120f;
+  --inverse: #15120f;
 
-  --line: #2c2822;
-  --line-strong: #3a352d;
+  --line: #2d2821;
+  --line-strong: #3b352c;
 
-  --accent: #f2603f;
-  --accent-hover: #f47a5c;
-  --accent-soft: rgba(242, 96, 63, 0.13);
-  --accent-ink: #f2603f;
+  --accent: #c04b57;
+  --accent-hover: #d06a74;
+  --accent-soft: rgba(192, 75, 87, 0.14);
+  --accent-ink: #c04b57;
+
+  --brass: #c9a24b;
+  --brass-soft: rgba(201, 162, 75, 0.14);
 
   --ok: #4bb47c;
   --warn: #e0a13c;
