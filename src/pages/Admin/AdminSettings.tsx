@@ -3,7 +3,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import Card from "@/components/ui/Card";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
-import { Landmark, Mail, Phone, MapPin, Sliders } from "lucide-react";
+import { Landmark, Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminSettings() {
@@ -14,9 +14,6 @@ export default function AdminSettings() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [description, setDescription] = useState("");
-
-  const [taxRate, setTaxRate] = useState(13); // Default VAT in Nepal
-  const [multiplier, setMultiplier] = useState(1.0);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -45,14 +42,9 @@ export default function AdminSettings() {
         description,
         logo: companyInfo?.logo || ""
       });
-
-      // Save custom variables in localstorage settings
-      localStorage.setItem("ss_tax_rate", taxRate.toString());
-      localStorage.setItem("ss_pricing_multiplier", multiplier.toString());
-
-      toast.success("System configurations updated successfully");
+      toast.success("Company settings updated successfully");
     } catch (err) {
-      toast.error("Failed to save configuration settings");
+      toast.error("Failed to save company settings");
     } finally {
       setSaving(false);
     }
@@ -63,111 +55,77 @@ export default function AdminSettings() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-3xl">
 
       {/* Title */}
       <div>
-        <h1 className="font-display text-2xl tracking-tight text-ink">System Settings</h1>
+        <h1 className="font-display text-2xl tracking-tight text-ink">Company Settings</h1>
         <p className="text-sm text-muted mt-1">
-          Configure shop coordinates, Nepalese tax VAT ratios, and support emails.
+          Manage the business details shown across the site and in customer communications.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <Card className="p-6 border border-line">
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* Left column */}
-        <div className="space-y-6">
-          <Card className="p-6 border border-line space-y-4">
-            <h3 className="font-bold text-sm text-ink uppercase tracking-wide flex items-center gap-2">
-              <Sliders className="h-4.5 w-4.5 text-accent" /> Print Variables
-            </h3>
-            
-            <div className="space-y-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <Input
+              label="Company Name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="Shrestha Services"
+              leftIcon={<Landmark size={16} className="text-muted" />}
+              required
+            />
+            <Input
+              label="Support Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="info@shrestha.com"
+              leftIcon={<Mail size={16} className="text-muted" />}
+              required
+            />
+            <div className="md:col-span-2">
               <Input
-                label="Nepal VAT Rate (%)"
-                type="number"
-                value={taxRate}
-                onChange={(e) => setTaxRate(Number(e.target.value))}
-                placeholder="13"
-              />
-              <Input
-                label="Raw Material Pricing Multiplier"
-                type="number"
-                step="0.1"
-                value={multiplier}
-                onChange={(e) => setMultiplier(Number(e.target.value))}
-                placeholder="1.0"
+                label="Official Contacts (comma separated)"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+977-1-4412345"
+                leftIcon={<Phone size={16} className="text-muted" />}
+                required
               />
             </div>
-          </Card>
-        </div>
+            <div className="md:col-span-2">
+              <Input
+                label="Office Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Main Road, Biratnagar"
+                leftIcon={<MapPin size={16} className="text-muted" />}
+                required
+              />
+            </div>
+          </div>
 
-        {/* Right Form Editor Column */}
-        <div className="lg:col-span-2">
-          <Card className="p-6 border border-line">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <Input
-                  label="Company Name"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="Shrestha Services"
-                  leftIcon={<Landmark size={16} className="text-muted" />}
-                  required
-                />
-                <Input
-                  label="Support Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="info@shrestha.com"
-                  leftIcon={<Mail size={16} className="text-muted" />}
-                  required
-                />
-                <div className="md:col-span-2">
-                  <Input
-                    label="Official Contacts (comma separated)"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+977-1-4412345"
-                    leftIcon={<Phone size={16} className="text-muted" />}
-                    required
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <Input
-                    label="Office Address coordinates"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Main Road, Biratnagar"
-                    leftIcon={<MapPin size={16} className="text-muted" />}
-                    required
-                  />
-                </div>
-              </div>
+          <div className="space-y-2 text-sm pt-4 border-t border-line">
+            <label className="text-sm font-semibold text-ink">Corporate Agency Summary</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Company overview highlights, machinery models..."
+              className="w-full rounded-sm border border-line bg-surface px-4 py-3 min-h-[100px] focus:border-accent text-sm focus:outline-none text-ink placeholder:text-muted"
+              required
+            />
+          </div>
 
-              <div className="space-y-2 text-sm pt-4 border-t border-line">
-                <label className="text-sm font-semibold text-ink">Corporate Agency Summary</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Company overview highlights, machinery models..."
-                  className="w-full rounded-sm border border-line bg-surface px-4 py-3 min-h-[100px] focus:border-accent text-sm focus:outline-none text-ink placeholder:text-muted"
-                  required
-                />
-              </div>
+          <div className="flex justify-end pt-4 border-t border-line">
+            <Button type="submit" loading={saving}>
+              Save Company Settings
+            </Button>
+          </div>
 
-              <div className="flex justify-end pt-4 border-t border-line">
-                <Button type="submit" loading={saving}>
-                  Save System Variables
-                </Button>
-              </div>
-
-            </form>
-          </Card>
-        </div>
-
-      </div>
+        </form>
+      </Card>
 
     </div>
   );

@@ -12,7 +12,8 @@ router.use(roleMiddleware(["admin", "superadmin"]) as any);
 // Analytics charts and metrics
 router.get("/stats", adminController.getStats as any);
 router.get("/revenue-chart", adminController.getRevenueChartData as any);
-router.get("/visitor-chart", adminController.getVisitorChartData as any);
+router.get("/order-chart", adminController.getOrderStatsData as any);
+router.get("/user-growth-chart", adminController.getUserGrowthData as any);
 router.get("/service-chart", adminController.getServiceChartData as any);
 router.get("/quote-chart", adminController.getQuoteChartData as any);
 router.get("/recent-activities", adminController.getRecentActivities as any);
@@ -22,7 +23,7 @@ router.get("/users", adminController.getAllUsers as any);
 router.patch("/users/:id/role", adminController.updateUserRole as any);
 router.delete("/users/:id", adminController.deleteUser as any);
 
-// Reports management
-router.get("/reports", adminController.getReportsList as any);
+// Reports — real CSV exports generated from live data
+router.get("/reports/:type/export", adminController.exportReport as any);
 
 export default router;

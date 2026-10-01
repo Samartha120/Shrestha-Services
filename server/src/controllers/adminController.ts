@@ -3,6 +3,15 @@ import { adminService } from "../services/adminService.js";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { prisma } from "../config/prisma.js";
 
+// Minimal, dependency-free CSV serialiser with correct quoting/escaping.
+const toCsv = (rows: (string | number | null | undefined)[][]): string => {
+  const escape = (val: string | number | null | undefined) => {
+    const s = val === null || val === undefined ? "" : String(val);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return rows.map((r) => r.map(escape).join(",")).join("\r\n");
+};
+
 export const adminController = {
   getStats: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -22,15 +31,18 @@ export const adminController = {
     }
   },
 
-  getVisitorChartData: async (req: AuthRequest, res: Response, next: NextFunction) => {
+  getOrderStatsData: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const userCount = await prisma.user.count();
-      const baseVisitors = 800;
-      const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const data = MONTHS.map((name, idx) => ({
-        name,
-        visitors: baseVisitors + Math.round((userCount * 50) + (idx * 120) + ((idx * 53) % 300)),
-      }));
+      const data = await adminService.getOrderStatsData();
+      res.status(200).json({ status: "success", data });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getUserGrowthData: async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const data = await adminService.getUserGrowthData();
       res.status(200).json({ status: "success", data });
     } catch (err) {
       next(err);
@@ -121,10 +133,79 @@ export const adminController = {
     }
   },
 
-  getReportsList: async (req: AuthRequest, res: Response, next: NextFunction) => {
+  // Stream a real CSV export built from live data for the requested category.
+  exportReport: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const reports = await adminService.getReportsList();
-      res.status(200).json({ status: "success", data: reports });
+      const type = String(req.params.type || "").toLowerCase();
+      let rows: (string | number | null | undefined)[][];
+      let filename: string;
+
+      if (type === "orders") {
+        const orders = await prisma.order.findMany({
+          include: { status: true },
+          orderBy: { createdAt: "desc" },
+        });
+        rows = [["Order Number", "Customer", "Status", "Total (NPR)", "Created"]];
+        orders.forEach((o) =>
+          rows.push([
+            o.orderNumber,
+            o.customerName,
+            o.status?.name || "—",
+            Number(o.totalAmount),
+            o.createdAt.toISOString(),
+          ])
+        );
+        filename = "orders-report.csv";
+      } else if (type === "quotes") {
+        const quotes = await prisma.quote.findMany({ orderBy: { date: "desc" } });
+        rows = [["Quote ID", "Customer", "Email", "Material", "Qty", "Status", "Estimate (NPR)", "Date"]];
+        quotes.forEach((q) =>
+          rows.push([
+            q.id,
+            q.customerName,
+            q.email,
+            q.material,
+            q.quantity,
+            q.status,
+            Number(q.estimatedPrice),
+            q.date.toISOString(),
+          ])
+        );
+        filename = "quotes-report.csv";
+      } else if (type === "users") {
+        const customerRole = await prisma.role.findUnique({ where: { name: "customer" } });
+        const users = await prisma.user.findMany({
+          where: customerRole ? { roleId: customerRole.id } : undefined,
+          include: { customer: true },
+          orderBy: { createdAt: "desc" },
+        });
+        rows = [["Name", "Email", "Phone", "Company", "PAN/VAT", "Verified", "Registered"]];
+        users.forEach((u) =>
+          rows.push([
+            u.name,
+            u.email,
+            u.customer?.phone || "",
+            u.customer?.companyName || "",
+            u.customer?.panVatNumber || "",
+            u.isVerified ? "Yes" : "No",
+            u.createdAt.toISOString(),
+          ])
+        );
+        filename = "customers-report.csv";
+      } else if (type === "revenue") {
+        const data = await adminService.getRevenueChartData();
+        rows = [["Month", "Revenue (NPR)"]];
+        data.forEach((d) => rows.push([d.name, d.revenue]));
+        filename = "revenue-report.csv";
+      } else {
+        res.status(400).json({ status: "error", message: "Unknown report type" });
+        return;
+      }
+
+      const csv = toCsv(rows);
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.status(200).send(csv);
     } catch (err) {
       next(err);
     }

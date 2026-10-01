@@ -11,8 +11,13 @@ export const analyticsApi = {
     return res.data.data;
   },
 
-  getVisitorChartData: async () => {
-    const res = await api.get("/admin/visitor-chart");
+  getOrderStatsData: async () => {
+    const res = await api.get("/admin/order-chart");
+    return res.data.data;
+  },
+
+  getUserGrowthData: async () => {
+    const res = await api.get("/admin/user-growth-chart");
     return res.data.data;
   },
 

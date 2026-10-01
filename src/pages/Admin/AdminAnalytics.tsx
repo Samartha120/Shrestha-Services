@@ -43,7 +43,7 @@ interface KpiCardProps {
   icon: React.ElementType;
   label: string;
   value: string;
-  trend: number;
+  trend?: number | null;
   trendLabel: string;
   tone: "accent" | "ink";
 }
@@ -55,21 +55,24 @@ const toneMap = {
 
 const KpiCard = ({ icon: Icon, label, value, trend, trendLabel, tone }: KpiCardProps) => {
   const { bg, text } = toneMap[tone];
-  const isPositive = trend >= 0;
+  const hasTrend = trend !== undefined && trend !== null;
+  const isPositive = (trend ?? 0) >= 0;
   return (
     <Card className="p-5 border border-line rounded-sm group transition-shadow duration-300">
       <div className="flex items-start justify-between gap-4">
         <div className={`h-11 w-11 rounded-sm ${bg} ${text} flex items-center justify-center shrink-0`}>
           <Icon size={20} />
         </div>
-        <div
-          className={`flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded-full bg-accent-soft ${
-            isPositive ? "text-ok" : "text-err"
-          }`}
-        >
-          {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-          {Math.abs(trend)}%
-        </div>
+        {hasTrend && (
+          <div
+            className={`flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded-full bg-accent-soft ${
+              isPositive ? "text-ok" : "text-err"
+            }`}
+          >
+            {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+            {Math.abs(trend as number)}%
+          </div>
+        )}
       </div>
       <div className="mt-4 space-y-0.5">
         <p className="text-2xl font-display tracking-tight text-ink">{value}</p>
@@ -82,8 +85,9 @@ const KpiCard = ({ icon: Icon, label, value, trend, trendLabel, tone }: KpiCardP
 
 export default function AdminAnalytics() {
   const { isDark } = useTheme();
+  const [stats, setStats] = useState<any>(null);
   const [revenueData, setRevenueData] = useState<any[]>([]);
-  const [visitorData, setVisitorData] = useState<any[]>([]);
+  const [growthData, setGrowthData] = useState<any[]>([]);
   const [quoteData, setQuoteData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,13 +101,15 @@ export default function AdminAnalytics() {
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        const [rev, vis, quo] = await Promise.all([
+        const [st, rev, growth, quo] = await Promise.all([
+          analyticsApi.getStats(),
           analyticsApi.getRevenueChartData(),
-          analyticsApi.getVisitorChartData(),
+          analyticsApi.getUserGrowthData(),
           analyticsApi.getQuoteChartData(),
         ]);
+        setStats(st);
         setRevenueData(rev);
-        setVisitorData(vis);
+        setGrowthData(growth);
         setQuoteData(quo);
       } catch (err) {
         console.error("Failed to load analytics records", err);
@@ -145,33 +151,30 @@ export default function AdminAnalytics() {
         <KpiCard
           icon={Coins}
           label="Avg Order Value"
-          value="NPR 16,340"
-          trend={8.2}
-          trendLabel="vs. last 30 days"
+          value={`NPR ${(stats?.avgOrderValue || 0).toLocaleString("en-IN")}`}
+          trendLabel="Revenue ÷ orders placed"
           tone="accent"
         />
         <KpiCard
           icon={BarChart3}
           label="Conversion Rate"
-          value="42.8%"
-          trend={3.5}
-          trendLabel="quotes → orders"
+          value={`${stats?.conversionRate ?? 0}%`}
+          trendLabel="Approved quotes ÷ total"
           tone="ink"
         />
         <KpiCard
           icon={Users}
-          label="Monthly Visitors"
-          value="8,432"
-          trend={-2.1}
-          trendLabel="portal sessions"
+          label="Registered Clients"
+          value={String(stats?.totalCustomers ?? 0)}
+          trendLabel="Verified customer accounts"
           tone="accent"
         />
         <KpiCard
           icon={Activity}
-          label="Active Inquiries"
-          value="14 Inbound"
-          trend={12.0}
-          trendLabel="pending responses"
+          label="Pending Quotes"
+          value={`${stats?.pendingQuotes ?? 0} Open`}
+          trend={stats?.monthlyGrowth}
+          trendLabel="Awaiting review"
           tone="ink"
         />
       </div>
@@ -220,15 +223,15 @@ export default function AdminAnalytics() {
           </div>
         </Card>
 
-        {/* Monthly Visitors Line Chart */}
+        {/* Client Growth Line Chart */}
         <Card className="p-6 border border-line rounded-sm space-y-5">
           <div className="space-y-0.5">
-            <h3 className="font-display text-sm text-ink uppercase tracking-wide">Monthly Portal Visitors</h3>
-            <p className="text-xs text-faint">Unique sessions on the customer portal</p>
+            <h3 className="font-display text-sm text-ink uppercase tracking-wide">Client Growth</h3>
+            <p className="text-xs text-faint">Cumulative registered clients per month</p>
           </div>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={visitorData}>
+              <LineChart data={growthData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
                 <XAxis
                   dataKey="name"
@@ -239,11 +242,13 @@ export default function AdminAnalytics() {
                   stroke="transparent"
                   tick={{ fill: axisTickFill, fontSize: 11 }}
                   width={50}
+                  allowDecimals={false}
                 />
                 <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(216,64,42,0.3)", strokeWidth: 1 }} />
                 <Line
                   type="monotone"
-                  dataKey="visitors"
+                  dataKey="totalUsers"
+                  name="total clients"
                   stroke={lineStroke}
                   strokeWidth={2.5}
                   dot={{ fill: lineStroke, r: 4, strokeWidth: 2, stroke: lineDotStroke }}
