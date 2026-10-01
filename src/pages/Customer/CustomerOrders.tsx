@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { orderService } from "@/lib/supabase/orderService";
+import { ordersApi } from "@/services/ordersApi";
 import { useAuthStore } from "@/store/authStore";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -19,12 +19,9 @@ export default function CustomerOrders() {
       setLoading(true);
       try {
         if (!user) return;
-        let userOrders;
-        if (user.role === "admin" || user.role === "superadmin") {
-          userOrders = await orderService.getAll();
-        } else {
-          userOrders = await orderService.getByUserId(user.id);
-        }
+        // Backend scopes /orders to the authenticated user (customers get their
+        // own orders, admins get all), so one call covers both roles.
+        const userOrders = await ordersApi.getAll();
         setOrders(userOrders);
       } catch (err) {
         console.error(err);
