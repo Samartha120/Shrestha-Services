@@ -297,6 +297,27 @@ model FileUpload {
   @@map("file_uploads")
 }
 
+model BlogPost {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String
+  slug         String   @unique
+  excerpt      String
+  content      String
+  category     String
+  author       String
+  authorBio    String?  @map("author_bio")
+  readTime     String?  @map("read_time")
+  image        String?
+  featured     Boolean  @default(false)
+  published    Boolean  @default(true)
+  relatedSlugs String[] @default([]) @map("related_slugs")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("blog_posts")
+}
+
 model Otp {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email     String

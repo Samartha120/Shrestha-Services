@@ -28,6 +28,7 @@ import testimonialRoute from "./routes/testimonialRoute.js";
 import notificationRoute from "./routes/notificationRoute.js";
 import adminRoute from "./routes/adminRoute.js";
 import fileRoute from "./routes/fileRoute.js";
+import blogRoute from "./routes/blogRoute.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,6 +84,7 @@ app.use("/api/v1/testimonials", testimonialRoute);
 app.use("/api/v1/notifications", notificationRoute);
 app.use("/api/v1/admin", adminRoute);
 app.use("/api/v1/files", fileRoute);
+app.use("/api/v1/blog", blogRoute);
 
 // Catch 404 routes
 app.use((req: Request, res: Response, next: NextFunction) => {

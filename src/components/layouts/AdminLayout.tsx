@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useNotificationStore } from "@/store/notificationStore";
 import { useTheme } from "@/providers/ThemeProvider";
-import { LayoutDashboard, ChartBar as BarChart3, Users, Grid2x2 as Grid, FolderOpen, Image, MessageSquare, FileText, Mail, Bell, Settings, LogOut, Menu, Printer, ChevronDown, Sun, Moon, Check } from "lucide-react";
+import { LayoutDashboard, ChartBar as BarChart3, Users, Grid2x2 as Grid, FolderOpen, Image, MessageSquare, FileText, Mail, Bell, Settings, LogOut, Menu, Printer, ChevronDown, Sun, Moon, Check, Newspaper } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface AdminLayoutProps {
@@ -65,6 +65,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: "Testimonials", path: "/admin/testimonials", icon: MessageSquare },
     { name: "Quote Requests", path: "/admin/quotes", icon: FileText },
     { name: "Inquiries Logs", path: "/admin/contacts", icon: Mail },
+    { name: "Journal / Blog", path: "/admin/blog", icon: Newspaper },
     { name: "Reports Export", path: "/admin/reports", icon: BarChart3 },
     { name: "System Settings", path: "/admin/settings", icon: Settings },
   ];

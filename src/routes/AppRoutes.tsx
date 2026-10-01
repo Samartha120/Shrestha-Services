@@ -57,6 +57,7 @@ import AdminGallery from "@/pages/Admin/AdminGallery";
 import AdminTestimonials from "@/pages/Admin/AdminTestimonials";
 import AdminQuotes from "@/pages/Admin/AdminQuotes";
 import AdminInquiries from "@/pages/Admin/AdminInquiries";
+import AdminBlog from "@/pages/Admin/AdminBlog";
 import AdminReports from "@/pages/Admin/AdminReports";
 import AdminSettings from "@/pages/Admin/AdminSettings";
 
@@ -355,6 +356,14 @@ export default function AppRoutes() {
             element={
               <AdminLayout>
                 <AdminInquiries />
+              </AdminLayout>
+            }
+          />
+          <Route
+            path="/admin/blog"
+            element={
+              <AdminLayout>
+                <AdminBlog />
               </AdminLayout>
             }
           />
