@@ -8,6 +8,7 @@ import {
   GhostCTA,
 } from "@/components/marketing/primitives";
 import { blogApi, type BlogPost } from "@/services/blogApi";
+import { usePageMeta } from "@/components/common/RouteMeta";
 
 export default function BlogDetailsPage() {
   const { slug } = useParams();
@@ -15,6 +16,8 @@ export default function BlogDetailsPage() {
   const [related, setRelated] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
+  usePageMeta(post?.title, post?.excerpt);
 
   useEffect(() => {
     if (!slug) return;

@@ -9,6 +9,7 @@ import {
   PrimaryCTA,
   GhostCTA,
 } from "@/components/marketing/primitives";
+import { usePageMeta } from "@/components/common/RouteMeta";
 
 export default function ServiceDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -20,6 +21,8 @@ export default function ServiceDetailsPage() {
       fetchServiceBySlug(slug);
     }
   }, [slug, fetchServiceBySlug]);
+
+  usePageMeta(selectedService?.title, selectedService?.description);
 
   const relatedServices = selectedService
     ? services

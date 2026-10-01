@@ -8,6 +8,7 @@ import {
   Eyebrow,
   Reveal,
 } from "@/components/marketing/primitives";
+import { usePageMeta } from "@/components/common/RouteMeta";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -25,6 +26,8 @@ export default function ProjectDetailsPage() {
   }, [slug, fetchProjectBySlug]);
 
   const relatedProjects = projects.filter((p) => p.slug !== slug).slice(0, 3);
+
+  usePageMeta(selectedProject?.title, selectedProject?.description);
 
   if (isLoading) {
     return (
