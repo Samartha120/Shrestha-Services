@@ -19,6 +19,8 @@ import {
   PrimaryCTA,
   GhostCTA,
 } from "@/components/marketing/primitives";
+import { contactApi } from "@/services/contactApi";
+import { toast } from "sonner";
 
 const positions = [
   {
@@ -153,6 +155,56 @@ export default function CareersPage() {
   );
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const reduce = useReducedMotion();
+
+  const emptyApplication = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    about: "",
+  };
+  const [application, setApplication] = useState(emptyApplication);
+  const [submitting, setSubmitting] = useState(false);
+
+  const setField = (key: keyof typeof emptyApplication, value: string) =>
+    setApplication((prev) => ({ ...prev, [key]: value }));
+
+  const openApplication = () => {
+    setApplication(emptyApplication);
+    setShowApplicationForm(true);
+  };
+
+  const roleLabel = selectedPosition
+    ? selectedPosition.title
+    : "Open application";
+
+  const handleApplicationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = `${application.firstName} ${application.lastName}`.trim();
+    if (!name || !application.email) {
+      toast.error("Please add your name and email.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await contactApi.submit({
+        name,
+        email: application.email,
+        phone: application.phone,
+        subject: `Job Application — ${roleLabel}`,
+        message:
+          `Applying for: ${roleLabel}\n\n` +
+          `${application.about || "No additional details provided."}`,
+      });
+      toast.success("Application received — we'll be in touch.");
+      setShowApplicationForm(false);
+      setApplication(emptyApplication);
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-paper text-ink">
@@ -307,7 +359,7 @@ export default function CareersPage() {
                               ))}
                             </ul>
                             <button
-                              onClick={() => setShowApplicationForm(true)}
+                              onClick={openApplication}
                               className="group mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
                             >
                               Apply for this role
@@ -394,19 +446,31 @@ export default function CareersPage() {
                 </button>
               </div>
 
-              <form className="mt-8 flex flex-col gap-6">
+              <form onSubmit={handleApplicationSubmit} className="mt-8 flex flex-col gap-6">
                 <div className="grid gap-6 sm:grid-cols-2">
-                  {["First name", "Last name"].map((label) => (
-                    <div key={label}>
-                      <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
-                        {label}
-                      </label>
-                      <input
-                        type="text"
-                        className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
-                      />
-                    </div>
-                  ))}
+                  <div>
+                    <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                      First name
+                    </label>
+                    <input
+                      type="text"
+                      value={application.firstName}
+                      onChange={(e) => setField("firstName", e.target.value)}
+                      required
+                      className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                      Last name
+                    </label>
+                    <input
+                      type="text"
+                      value={application.lastName}
+                      onChange={(e) => setField("lastName", e.target.value)}
+                      className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
@@ -414,6 +478,9 @@ export default function CareersPage() {
                   </label>
                   <input
                     type="email"
+                    value={application.email}
+                    onChange={(e) => setField("email", e.target.value)}
+                    required
                     className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
                   />
                 </div>
@@ -423,6 +490,8 @@ export default function CareersPage() {
                   </label>
                   <input
                     type="tel"
+                    value={application.phone}
+                    onChange={(e) => setField("phone", e.target.value)}
                     className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
                   />
                 </div>
@@ -432,15 +501,18 @@ export default function CareersPage() {
                   </label>
                   <textarea
                     rows={4}
+                    value={application.about}
+                    onChange={(e) => setField("about", e.target.value)}
                     className="mt-2 w-full resize-none border-b border-line bg-transparent py-2.5 text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div className="mt-2 flex items-center gap-4">
                   <button
                     type="submit"
-                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+                    disabled={submitting}
+                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent disabled:opacity-60"
                   >
-                    Submit application
+                    {submitting ? "Submitting…" : "Submit application"}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
                   <button

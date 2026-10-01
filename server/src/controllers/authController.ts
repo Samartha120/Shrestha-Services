@@ -60,7 +60,7 @@ export const authController = {
 
   resetPassword: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      await authService.resetPassword(req.body.password);
+      await authService.resetPassword(req.body.token, req.body.password);
       res.status(200).json({ status: "success", message: "Password has been successfully updated" });
     } catch (err) {
       next(err);

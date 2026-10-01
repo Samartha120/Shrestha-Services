@@ -183,13 +183,78 @@ export const authService = {
   },
 
   forgotPassword: async (email: string) => {
-    // Local mode has no email-link session; surface a clear message.
-    logger.info(`[Forgot Password] Requested reset for: ${email} (local mode: contact an admin to reset)`);
-    throw new Error("Password reset by email is not available in local mode. Please contact an administrator.");
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    // Always resolve the same way to avoid leaking whether an account exists.
+    // Only users with a local password can reset (OAuth-only accounts can't).
+    if (!user || !user.password) {
+      logger.info(`[Forgot Password] No resettable account for: ${email} (silent no-op)`);
+      return { success: true };
+    }
+
+    // Invalidate any outstanding tokens for this user, then issue a fresh one.
+    await (prisma as any).passwordResetToken.updateMany({
+      where: { userId: user.id, used: false },
+      data: { used: true },
+    });
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await (prisma as any).passwordResetToken.create({
+      data: { userId: user.id, token: hashedToken, expiresAt },
+    });
+
+    const appOrigin = env.CORS_ORIGIN.split(",")[0].trim();
+    const resetUrl = `${appOrigin}/reset-password?token=${rawToken}`;
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #d8402a;">Reset your password</h2>
+        <p>We received a request to reset the password for your Shrestha Services account.</p>
+        <p style="margin: 24px 0; text-align: center;">
+          <a href="${resetUrl}" style="background: #d8402a; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; display: inline-block;">Reset password</a>
+        </p>
+        <p>Or paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #64748b;">${resetUrl}</p>
+        <p>This link is valid for 1 hour. If you didn't request a reset, you can safely ignore this email.</p>
+      </div>
+    `;
+
+    await sendEmail(email, "Reset Your Password - Shrestha Services", emailHtml);
+    logger.info(`[Forgot Password] Reset link issued for: ${email}`);
+    return { success: true };
   },
 
-  resetPassword: async (_password: string) => {
-    throw new Error("Password reset is not available in local mode. Please contact an administrator.");
+  resetPassword: async (token: string, password: string) => {
+    if (!token) {
+      throw badRequest("Reset token is missing");
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const record = await (prisma as any).passwordResetToken.findFirst({
+      where: { token: hashedToken, used: false, expiresAt: { gt: new Date() } },
+    });
+
+    if (!record) {
+      logger.warn(`[Reset Password] Invalid or expired token presented`);
+      throw badRequest("This reset link is invalid or has expired. Please request a new one.");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await prisma.user.update({
+      where: { id: record.userId },
+      data: { password: hashedPassword },
+    });
+
+    await (prisma as any).passwordResetToken.update({
+      where: { id: record.id },
+      data: { used: true },
+    });
+
+    logger.info(`[Reset Password] Password updated for user: ${record.userId}`);
+    return { success: true };
   },
 
   logout: async () => {

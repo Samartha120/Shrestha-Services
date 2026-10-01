@@ -8,7 +8,7 @@ import AuthShell, { authFieldClass, authLabelClass } from "@/components/auth/Aut
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const token = searchParams.get("token") || "mock-token";
+  const token = searchParams.get("token") || "";
   const { resetPassword, error, clearError } = useAuthStore();
   const reduce = useReducedMotion();
   const [password, setPassword] = useState("");
@@ -75,6 +75,23 @@ export default function ResetPasswordPage() {
             className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft transition-colors hover:text-accent"
           >
             Go to sign in now
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
+      ) : !token ? (
+        <motion.div {...fade(0)}>
+          <h2 className="font-display text-4xl leading-tight text-ink">
+            Link not valid.
+          </h2>
+          <p className="mt-3 text-ink-soft text-pretty">
+            This password reset link is missing or malformed. Request a new one
+            and we'll email you a fresh link.
+          </p>
+          <Link
+            to="/forgot-password"
+            className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft transition-colors hover:text-accent"
+          >
+            Request a new link
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </motion.div>

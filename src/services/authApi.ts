@@ -41,9 +41,8 @@ export const authApi = {
     return { success: true };
   },
 
-  resetPassword: async (_token: string, password: string) => {
-    // Send password reset update to backend
-    await api.post("/auth/reset-password", { password });
+  resetPassword: async (token: string, password: string) => {
+    await api.post("/auth/reset-password", { token, password });
     return { success: true };
   },
 
