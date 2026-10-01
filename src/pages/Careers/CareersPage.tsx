@@ -268,7 +268,6 @@ export default function CareersPage() {
           </div>
         </Container>
       </section>
-{/* CAREERS_PLACEHOLDER */}
 
       {/* Open positions */}
       <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
@@ -376,7 +375,6 @@ export default function CareersPage() {
           </ul>
         </Container>
       </section>
-{/* CAREERS_PLACEHOLDER_2 */}
 
       {/* Open application CTA */}
       <section className="bg-ink py-20 text-inverse lg:py-28">
