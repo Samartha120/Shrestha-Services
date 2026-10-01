@@ -52,6 +52,22 @@ export const authApi = {
     return res.data.data.user;
   },
 
+  getProfile: async () => {
+    const res = await api.get("/auth/profile");
+    return res.data.data.profile;
+  },
+
+  updateProfile: async (payload: {
+    name?: string;
+    phone?: string;
+    companyName?: string;
+    panVatNumber?: string;
+    address?: string;
+  }) => {
+    const res = await api.put("/auth/profile", payload);
+    return res.data.data.profile;
+  },
+
   logout: async () => {
     try {
       await api.post("/auth/logout");

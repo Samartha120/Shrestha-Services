@@ -236,6 +236,10 @@ export default function AppRoutes() {
         <Route element={<RoleBasedRoute allowedRoles={["customer", "admin"]} />}>
           <Route
             path="/dashboard"
+            element={<Navigate to="/my-dashboard" replace />}
+          />
+          <Route
+            path="/my-dashboard"
             element={
               <MainLayout>
                 <CustomerDashboard />
@@ -243,7 +247,7 @@ export default function AppRoutes() {
             }
           />
           <Route
-            path="/dashboard/quotes"
+            path="/my-dashboard/quotes"
             element={
               <MainLayout>
                 <CustomerQuotes />
@@ -251,7 +255,7 @@ export default function AppRoutes() {
             }
           />
           <Route
-            path="/dashboard/orders"
+            path="/my-dashboard/orders"
             element={
               <MainLayout>
                 <CustomerOrders />
@@ -259,7 +263,7 @@ export default function AppRoutes() {
             }
           />
           <Route
-            path="/dashboard/profile"
+            path="/my-dashboard/profile"
             element={
               <MainLayout>
                 <CustomerProfile />
@@ -267,7 +271,7 @@ export default function AppRoutes() {
             }
           />
           <Route
-            path="/dashboard/files"
+            path="/my-dashboard/files"
             element={
               <MainLayout>
                 <CustomerFiles />

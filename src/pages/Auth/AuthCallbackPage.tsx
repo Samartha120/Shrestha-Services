@@ -40,7 +40,7 @@ export default function AuthCallbackPage() {
           if (user.role === "admin") {
             navigate("/admin/dashboard");
           } else {
-            navigate("/dashboard");
+            navigate("/my-dashboard");
           }
         }
       } catch (err) {

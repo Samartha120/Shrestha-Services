@@ -35,12 +35,27 @@ export const quoteController = {
 
   getById: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
+      if (!req.user) {
+        res.status(401).json({ status: "error", message: "Unauthorized access" });
+        return;
+      }
+
       const { id } = req.params;
       const quote = await quoteService.getById(id);
       if (!quote) {
         res.status(404).json({ status: "error", message: "Quote not found" });
         return;
       }
+
+      // Ownership enforcement: a customer may only view their own quotes
+      // (matched by email). Admins and superadmins may view any quote.
+      const isPrivileged =
+        req.user.role === "admin" || req.user.role === "superadmin";
+      if (!isPrivileged && quote.email !== req.user.email) {
+        res.status(403).json({ status: "error", message: "You do not have access to this quote" });
+        return;
+      }
+
       res.status(200).json({ status: "success", data: quote });
     } catch (err) {
       next(err);

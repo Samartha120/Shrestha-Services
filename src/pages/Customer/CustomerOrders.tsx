@@ -68,7 +68,7 @@ export default function CustomerOrders() {
       {/* Header */}
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-xs font-semibold text-muted">
-          <Link to="/dashboard" className="hover:underline hover:text-ink transition-colors">Dashboard</Link>
+          <Link to="/my-dashboard" className="hover:underline hover:text-ink transition-colors">Dashboard</Link>
           <span>/</span>
           <span className="text-ink">Orders</span>
         </div>

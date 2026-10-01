@@ -8,7 +8,7 @@ export default function PublicRoute() {
     if (user.role === "admin") {
       return <Navigate to="/admin/dashboard" replace />;
     }
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/my-dashboard" replace />;
   }
 
   return <Outlet />;

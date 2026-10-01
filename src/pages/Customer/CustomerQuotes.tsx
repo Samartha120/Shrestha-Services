@@ -32,7 +32,7 @@ export default function CustomerQuotes() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted">
-            <Link to="/dashboard" className="hover:underline">Dashboard</Link>
+            <Link to="/my-dashboard" className="hover:underline">Dashboard</Link>
             <span>/</span>
             <span className="text-ink">Quotes</span>
           </div>

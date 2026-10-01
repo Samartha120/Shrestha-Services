@@ -24,6 +24,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Surface the backend's actual error ("Invalid or expired OTP") instead of
+    // axios's generic "Request failed with status code 400".
+    const serverMessage =
+      error.response?.data?.message || error.response?.data?.error;
+    if (serverMessage) {
+      error.message = serverMessage;
+    }
     return Promise.reject(error);
   }
 );

@@ -32,7 +32,7 @@ export default function QuoteSuccessPage() {
   useEffect(() => {
     // Auto-redirect after 8 seconds
     const timer = setTimeout(() => {
-      navigate("/dashboard/quotes");
+      navigate("/my-dashboard/quotes");
     }, 8000);
     return () => clearTimeout(timer);
   }, [navigate]);
@@ -99,7 +99,7 @@ export default function QuoteSuccessPage() {
 
           {/* Actions */}
           <div className="mt-12 flex flex-col gap-4 sm:flex-row">
-            <Link to="/dashboard/quotes">
+            <Link to="/my-dashboard/quotes">
               <Button size="lg" className="w-full sm:w-auto" rightIcon={<ArrowRight size={18} />}>
                 View my quotes
               </Button>

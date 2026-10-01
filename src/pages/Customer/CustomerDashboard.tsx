@@ -97,7 +97,7 @@ export default function CustomerDashboard() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="font-display text-xl tracking-tight text-ink">Recent Quote Requests</h3>
-            <Link to="/dashboard/quotes" className="text-xs font-bold text-accent flex items-center gap-0.5 hover:underline">
+            <Link to="/my-dashboard/quotes" className="text-xs font-bold text-accent flex items-center gap-0.5 hover:underline">
               View All Quotes <ChevronRight size={14} />
             </Link>
           </div>
@@ -158,7 +158,7 @@ export default function CustomerDashboard() {
 
           {/* Quick Portal Action Cards */}
           <div className="grid grid-cols-2 gap-4">
-            <Link to="/dashboard/files" className="group flex items-center justify-between p-5 rounded-sm border border-line bg-surface hover:bg-paper-dim transition-all">
+            <Link to="/my-dashboard/files" className="group flex items-center justify-between p-5 rounded-sm border border-line bg-surface hover:bg-paper-dim transition-all">
               <span className="flex items-center gap-3">
                 <span className="p-2.5 rounded-sm bg-accent-soft text-accent"><Upload size={18} /></span>
                 <span className="flex flex-col">
@@ -169,7 +169,7 @@ export default function CustomerDashboard() {
               <ChevronRight size={16} className="text-muted group-hover:translate-x-1 transition-transform" />
             </Link>
 
-            <Link to="/dashboard/profile" className="group flex items-center justify-between p-5 rounded-sm border border-line bg-surface hover:bg-paper-dim transition-all">
+            <Link to="/my-dashboard/profile" className="group flex items-center justify-between p-5 rounded-sm border border-line bg-surface hover:bg-paper-dim transition-all">
               <span className="flex items-center gap-3">
                 <span className="p-2.5 rounded-sm bg-accent-soft text-accent"><UserCog size={18} /></span>
                 <span className="flex flex-col">

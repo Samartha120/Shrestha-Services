@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/services/authApi";
 import Card from "@/components/ui/Card";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
@@ -14,29 +15,32 @@ export default function CustomerProfile() {
   const [companyName, setCompanyName] = useState("");
   const [registrationId, setRegistrationId] = useState("");
   const [phone, setPhone] = useState("");
-  const [street, setStreet] = useState("");
-  const [city, setCity] = useState("");
-  const [stateName, setStateName] = useState("");
-  const [zip, setZip] = useState("");
+  const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setName(user.name);
-      setEmail(user.email);
-      
-      // Load extra info from localStorage db profile if available
-      const dbUsers = JSON.parse(localStorage.getItem("ss_users") || "[]");
-      const matched = dbUsers.find((u: any) => u.email === user.email) || {};
-
-      setCompanyName(matched.companyName || "");
-      setRegistrationId(matched.registrationId || "");
-      setPhone(matched.phone || "+977-9851088888");
-      setStreet(matched.street || "Putalisadak Road");
-      setCity(matched.city || "Kathmandu");
-      setStateName(matched.stateName || "Bagmati Province");
-      setZip(matched.zip || "44600");
-    }
+    let active = true;
+    (async () => {
+      try {
+        const profile = await authApi.getProfile();
+        if (!active) return;
+        setName(profile.name || "");
+        setEmail(profile.email || "");
+        setCompanyName(profile.companyName || "");
+        setRegistrationId(profile.panVatNumber || "");
+        setPhone(profile.phone || "");
+        setAddress(profile.address || "");
+      } catch {
+        if (!active) return;
+        toast.error("Could not load your profile");
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,42 +48,37 @@ export default function CustomerProfile() {
     setSaving(true);
 
     try {
-      // Update inside ss_users
-      const dbUsers = JSON.parse(localStorage.getItem("ss_users") || "[]");
-      const updatedUsers = dbUsers.map((u: any) => {
-        if (u.email === email) {
-          return {
-            ...u,
-            name,
-            companyName,
-            registrationId,
-            phone,
-            street,
-            city,
-            stateName,
-            zip,
-          };
-        }
-        return u;
+      await authApi.updateProfile({
+        name,
+        companyName,
+        panVatNumber: registrationId,
+        phone,
+        address,
       });
 
-      localStorage.setItem("ss_users", JSON.stringify(updatedUsers));
-
-      // Also update currentUser details
-      const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({ ...currentUser, name })
-      );
-
+      // Refresh the auth store so the header/name reflect the change.
       await checkAuth();
       toast.success("Business profile updated successfully");
-    } catch (err) {
-      toast.error("Failed to update profile");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update profile");
     } finally {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="animate-pulse space-y-6">
+          <div className="h-6 w-48 bg-paper-dim rounded-sm" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="h-64 bg-paper-dim rounded-sm" />
+            <div className="lg:col-span-2 h-96 bg-paper-dim rounded-sm" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -87,7 +86,7 @@ export default function CustomerProfile() {
       {/* Header */}
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-xs font-semibold text-muted">
-          <Link to="/dashboard" className="hover:underline">Dashboard</Link>
+          <Link to="/my-dashboard" className="hover:underline">Dashboard</Link>
           <span>/</span>
           <span className="text-ink">Profile</span>
         </div>
@@ -122,8 +121,15 @@ export default function CustomerProfile() {
                 <span>Email address verified</span>
               </div>
               <div className="flex items-center gap-2 text-ink-soft">
-                <CheckCircle2 size={14} className="text-ok" />
-                <span>Business credentials loaded</span>
+                <CheckCircle2
+                  size={14}
+                  className={companyName ? "text-ok" : "text-muted"}
+                />
+                <span>
+                  {companyName
+                    ? "Business credentials on file"
+                    : "Business credentials incomplete"}
+                </span>
               </div>
             </div>
           </Card>
@@ -176,36 +182,12 @@ export default function CustomerProfile() {
                   <MapPin size={16} className="text-muted" /> Delivery Address
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <Input
-                      label="Street Line"
-                      value={street}
-                      onChange={(e) => setStreet(e.target.value)}
-                      placeholder="e.g. Putalisadak Chowk"
-                    />
-                  </div>
-                  <Input
-                    label="City"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Kathmandu"
-                  />
-                  <Input
-                    label="State / Province"
-                    value={stateName}
-                    onChange={(e) => setStateName(e.target.value)}
-                    placeholder="Bagmati Province"
-                  />
-                  <div className="md:col-span-2">
-                    <Input
-                      label="Postal (Zip) Code"
-                      value={zip}
-                      onChange={(e) => setZip(e.target.value)}
-                      placeholder="e.g. 44600"
-                    />
-                  </div>
-                </div>
+                <Input
+                  label="Full Delivery / Billing Address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="e.g. Putalisadak Chowk, Kathmandu, Bagmati Province 44600"
+                />
               </div>
 
               <div className="flex justify-end pt-4 border-t border-line">

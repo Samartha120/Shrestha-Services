@@ -7,7 +7,7 @@ import AuthShell, { authFieldClass, authLabelClass } from "@/components/auth/Aut
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register, sendOtp, error: authError, clearError } = useAuthStore();
+  const { sendOtp, error: authError, clearError } = useAuthStore();
   const reduce = useReducedMotion();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -45,27 +45,22 @@ export default function RegisterPage() {
   };
   const passwordStrength = getPasswordStrength(password);
 
-  const handleNextStep = async () => {
+  const handleNextStep = () => {
     setValidationError("");
+    clearError();
     if (step === 1) {
       if (!name || !email || !password || !confirmPassword) {
         setValidationError("Please complete all fields in this step.");
+        return;
+      }
+      if (password.length < 6) {
+        setValidationError("Password must be at least 6 characters.");
         return;
       }
       if (password !== confirmPassword) {
         setValidationError("Passwords do not match.");
         return;
       }
-      setLoading(true);
-      try {
-        await sendOtp(email);
-        navigate("/verify-otp", { state: { email, password, name } });
-      } catch {
-        // Handled by store
-      } finally {
-        setLoading(false);
-      }
-      return;
     } else if (step === 2) {
       if (!companyName || !industryType) {
         setValidationError("Company name and industry type are required.");
@@ -82,6 +77,7 @@ export default function RegisterPage() {
 
   const handlePrevStep = () => {
     setValidationError("");
+    clearError();
     setStep((prev) => Math.max(1, prev - 1));
   };
 
@@ -90,6 +86,11 @@ export default function RegisterPage() {
     setValidationError("");
     clearError();
 
+    if (step < 4) {
+      handleNextStep();
+      return;
+    }
+
     if (!agreeTerms) {
       setValidationError("You must agree to the Terms & Conditions.");
       return;
@@ -97,22 +98,21 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register({
-        name,
-        email,
-        password,
-        companyName,
-        registrationId,
-        industryType,
-        city,
-        stateName,
-        zip,
-        street,
+      await sendOtp(email);
+      navigate("/verify-otp", {
+        state: {
+          name,
+          email,
+          password,
+          companyName,
+          registrationId,
+          industryType,
+          city,
+          stateName,
+          zip,
+          street,
+        },
       });
-      setStep(5);
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2500);
     } catch {
       // Handled by store
     } finally {

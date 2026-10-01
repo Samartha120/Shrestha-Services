@@ -25,6 +25,11 @@ export const orderController = {
 
   getById: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
+      if (!req.user) {
+        res.status(401).json({ status: "error", message: "Unauthorized access" });
+        return;
+      }
+
       const { id } = req.params;
       const order = await orderService.getById(id);
 
@@ -33,12 +38,13 @@ export const orderController = {
         return;
       }
 
-      // Customer check: can only view own order
-      if (req.user && req.user.role === "customer" && order.id !== id) {
-        // Wait, the order repository findById returns order. We can check if order has userId matching req.user.id.
-        // Let's verify by checking the database properties.
-        const dbOrder = await orderService.getById(id);
-        // Let's just compare owner details safely or permit view.
+      // Ownership enforcement: a customer may only view their own order.
+      // Admins and superadmins may view any order.
+      const isPrivileged =
+        req.user.role === "admin" || req.user.role === "superadmin";
+      if (!isPrivileged && order.userId !== req.user.id) {
+        res.status(403).json({ status: "error", message: "You do not have access to this order" });
+        return;
       }
 
       res.status(200).json({ status: "success", data: { order } });

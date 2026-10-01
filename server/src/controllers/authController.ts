@@ -79,4 +79,30 @@ export const authController = {
   me: async (req: AuthRequest, res: Response) => {
     res.status(200).json({ status: "success", data: { user: req.user } });
   },
+
+  getProfile: async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ status: "error", message: "Unauthorized" });
+        return;
+      }
+      const profile = await authService.getProfile(req.user.id);
+      res.status(200).json({ status: "success", data: { profile } });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  updateProfile: async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ status: "error", message: "Unauthorized" });
+        return;
+      }
+      const profile = await authService.updateProfile(req.user.id, req.body);
+      res.status(200).json({ status: "success", data: { profile } });
+    } catch (err) {
+      next(err);
+    }
+  },
 };

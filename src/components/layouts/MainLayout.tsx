@@ -256,7 +256,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         </p>
                       </div>
                       <Link
-                        to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+                        to={user.role === "admin" ? "/admin/dashboard" : "/my-dashboard"}
                         className="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink-soft transition-colors hover:bg-paper-dim"
                       >
                         <User className="h-4 w-4" />
@@ -362,7 +362,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 {isAuthenticated && user ? (
                   <>
                     <Link
-                      to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+                      to={user.role === "admin" ? "/admin/dashboard" : "/my-dashboard"}
                       className="flex items-center gap-2.5 text-sm font-medium text-ink"
                     >
                       <User className="h-4 w-4" />

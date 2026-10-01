@@ -6,6 +6,7 @@ import { logger } from "../config/logger.js";
 import { sendEmail } from "../config/mail.js";
 import type { LoginPayload } from "../types/auth.types.js";
 import crypto from "crypto";
+import { unauthorized, conflict, badRequest } from "../utils/AppError.js";
 
 // Issue the backend access + refresh JWT pair for an authenticated profile.
 const issueTokens = (profile: { id: string; email: string }) => {
@@ -32,13 +33,13 @@ export const authService = {
 
     if (!profile || !profile.password) {
       logger.warn(`[Login Failed] Email: ${payload.email} - Reason: user missing or has no password`);
-      throw new Error("Invalid credentials");
+      throw unauthorized("Invalid credentials");
     }
 
     const passwordMatches = await bcrypt.compare(payload.password, profile.password);
     if (!passwordMatches) {
       logger.warn(`[Login Failed] Email: ${payload.email} - Reason: password mismatch`);
-      throw new Error("Invalid credentials");
+      throw unauthorized("Invalid credentials");
     }
 
     const { token, refreshToken } = issueTokens(profile);
@@ -64,6 +65,13 @@ export const authService = {
   },
 
   sendOtp: async (email: string) => {
+    // Prevent sending OTP if email already has an account
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      logger.warn(`[OTP Request Failed] Email already in use: ${email}`);
+      throw conflict("An account with this email already exists");
+    }
+
     // Generate 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -109,7 +117,7 @@ export const authService = {
 
     if (!validOtp) {
       logger.warn(`[OTP Invalid] Email: ${email}`);
-      throw new Error("Invalid or expired OTP");
+      throw badRequest("Invalid or expired OTP");
     }
 
     // Mark OTP as used
@@ -127,7 +135,7 @@ export const authService = {
     const existing = await prisma.user.findUnique({ where: { email: payload.email } });
     if (existing) {
       logger.warn(`[Registration Failed] Email already in use: ${payload.email}`);
-      throw new Error("An account with this email already exists");
+      throw conflict("An account with this email already exists");
     }
 
     // Ensure the customer role exists, then create the user + customer profile.
@@ -150,11 +158,17 @@ export const authService = {
       include: { role: true },
     });
 
+    const fullAddress = [payload.street, payload.city, payload.stateName, payload.zip]
+      .filter(Boolean)
+      .join(", ");
+
     await prisma.customer.create({
       data: {
         id: profile.id,
         phone: payload.phone ?? null,
         companyName: payload.companyName ?? null,
+        panVatNumber: payload.registrationId ?? payload.panVatNumber ?? null,
+        address: fullAddress || null,
       },
     });
 
@@ -181,5 +195,70 @@ export const authService = {
   logout: async () => {
     // Stateless JWT: nothing to revoke server-side. Client discards the token.
     return { success: true };
+  },
+
+  // Return the full profile (user + customer business details) for the dashboard.
+  getProfile: async (userId: string) => {
+    const profile = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { role: true, customer: true },
+    });
+
+    if (!profile) {
+      throw unauthorized("User session not found");
+    }
+
+    return {
+      id: profile.id,
+      name: profile.name,
+      email: profile.email,
+      role: profile.role?.name || "customer",
+      avatar: profile.avatar || undefined,
+      isVerified: profile.isVerified,
+      phone: profile.customer?.phone || "",
+      companyName: profile.customer?.companyName || "",
+      panVatNumber: profile.customer?.panVatNumber || "",
+      address: profile.customer?.address || "",
+    };
+  },
+
+  // Update editable profile fields. Name lives on the user; business details
+  // live on the customer record (created on demand if missing).
+  updateProfile: async (
+    userId: string,
+    data: {
+      name?: string;
+      phone?: string;
+      companyName?: string;
+      panVatNumber?: string;
+      address?: string;
+    }
+  ) => {
+    if (data.name !== undefined) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { name: data.name },
+      });
+    }
+
+    await prisma.customer.upsert({
+      where: { id: userId },
+      update: {
+        phone: data.phone ?? undefined,
+        companyName: data.companyName ?? undefined,
+        panVatNumber: data.panVatNumber ?? undefined,
+        address: data.address ?? undefined,
+      },
+      create: {
+        id: userId,
+        phone: data.phone ?? null,
+        companyName: data.companyName ?? null,
+        panVatNumber: data.panVatNumber ?? null,
+        address: data.address ?? null,
+      },
+    });
+
+    logger.info(`[Profile Updated] User ID: ${userId}`);
+    return authService.getProfile(userId);
   },
 };

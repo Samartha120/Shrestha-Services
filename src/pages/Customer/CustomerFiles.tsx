@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useQuoteStore } from "@/store/quoteStore";
+import { filesApi, fileBaseUrl, type CustomerFile } from "@/services/filesApi";
 import Card from "@/components/ui/Card";
 import Button from "@/components/common/Button";
 import {
@@ -11,18 +12,19 @@ import {
   Trash2,
   FileImage,
   FileCode,
-  CheckCircle2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-interface UploadedFile {
+interface DisplayFile {
   id: string;
   name: string;
   size: string;
   type: string;
+  url: string;
   quoteId?: string;
   uploadedAt: string;
+  deletable: boolean;
 }
 
 const getFileIcon = (type: string) => {
@@ -35,85 +37,101 @@ const printGuideItems = [
   {
     title: "Color Profile",
     desc: "All banners must use CMYK color profile (not RGB) to ensure correct ink output ratios.",
-    color: "blue",
   },
   {
     title: "Resolution Settings",
     desc: "Large flex printing requires minimum 150 DPI. Large banner decals can use 72–100 DPI.",
-    color: "indigo",
   },
   {
     title: "Outline Text Fonts",
     desc: "Convert all text to vector outlines (curves) in Illustrator/CorelDraw to avoid missing font errors.",
-    color: "violet",
   },
-];
-
-const templates = [
-  { label: "Standard Roll-up (3×6 ft)", ext: ".AI" },
-  { label: "Outdoor Flex Banner (4×8 ft)", ext: ".CDR" },
-  { label: "Business Cards (3.5×2 in)", ext: ".PDF" },
-  { label: "A4 Flyer Template", ext: ".PDF" },
 ];
 
 export default function CustomerFiles() {
   const { user } = useAuthStore();
   const { quotes, fetchQuotesByEmail } = useQuoteStore();
-  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [uploads, setUploads] = useState<CustomerFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (user?.email) {
       fetchQuotesByEmail(user.email);
     }
+    void loadUploads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  // Aggregate files from quotes
-  useEffect(() => {
-    const list: UploadedFile[] = [];
-    quotes.forEach((q) => {
-      if (q.fileUrl) {
-        list.push({
-          id: `file-${q.id}`,
-          name: q.fileUrl,
-          size: q.fileWeight || "2.1 MB",
-          type: q.fileType || "image/jpeg",
-          quoteId: q.id,
-          uploadedAt: q.date || new Date().toISOString(),
-        });
-      }
-    });
-    setFiles(list);
-  }, [quotes]);
+  const loadUploads = async () => {
+    try {
+      const list = await filesApi.list();
+      setUploads(list);
+    } catch {
+      toast.error("Could not load your uploaded files");
+    }
+  };
+
+  const toAbsoluteUrl = (url: string) =>
+    url.startsWith("http") ? url : `${fileBaseUrl}${url}`;
+
+  // Merge standalone uploads with files attached to quote requests.
+  const files: DisplayFile[] = [
+    ...uploads.map((f) => ({
+      id: f.id,
+      name: f.fileName,
+      size: f.fileSize,
+      type: f.fileType,
+      url: toAbsoluteUrl(f.fileUrl),
+      uploadedAt: f.createdAt,
+      deletable: true,
+    })),
+    ...quotes
+      .filter((q) => q.fileUrl)
+      .map((q) => ({
+        id: `quote-${q.id}`,
+        name: (q.fileUrl || "").split("/").pop() || "attachment",
+        size: q.fileWeight || "—",
+        type: q.fileType || "application/octet-stream",
+        url: toAbsoluteUrl(q.fileUrl as string),
+        quoteId: q.id,
+        uploadedAt: q.date || new Date().toISOString(),
+        deletable: false,
+      })),
+  ];
 
   const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     setUploading(true);
-    setTimeout(() => {
-      const mockFile: UploadedFile = {
-        id: `file-up-${Date.now()}`,
-        name: `branding_logo_vector_${Date.now().toString().slice(-4)}.ai`,
-        size: "8.4 MB",
-        type: "application/postscript",
-        uploadedAt: new Date().toISOString(),
-      };
-      setFiles((prev) => [mockFile, ...prev]);
-      setUploading(false);
+    try {
+      await filesApi.upload(file);
+      await loadUploads();
       toast.success("Design file uploaded successfully.");
-    }, 1500);
+    } catch (err: any) {
+      toast.error(err?.message || "Upload failed. Check file type and size (max 15 MB).");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
-  const handleDeleteFile = (id: string) => {
+  const handleDeleteFile = async (id: string) => {
     setDeleting(id);
-    setTimeout(() => {
-      setFiles((prev) => prev.filter((f) => f.id !== id));
+    try {
+      await filesApi.delete(id);
+      setUploads((prev) => prev.filter((f) => f.id !== id));
+      toast.success("File removed from your drafts.");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not delete file.");
+    } finally {
       setDeleting(null);
-      toast.success("File removed from design drafts.");
-    }, 600);
-  };
-
-  const handleTemplateDownload = (label: string) => {
-    toast.success(`Downloading template: "${label}"`);
+    }
   };
 
   return (
@@ -123,7 +141,7 @@ export default function CustomerFiles() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted">
-            <Link to="/dashboard" className="hover:underline hover:text-ink transition-colors">Dashboard</Link>
+            <Link to="/my-dashboard" className="hover:underline hover:text-ink transition-colors">Dashboard</Link>
             <span>/</span>
             <span className="text-ink">Design Files</span>
           </div>
@@ -141,6 +159,13 @@ export default function CustomerFiles() {
         >
           Upload Artwork Draft
         </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,application/zip,.ai,.eps,.cdr"
+          onChange={handleFileSelected}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -200,20 +225,25 @@ export default function CustomerFiles() {
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => toast.success(`Downloading "${file.name}"`)}
+                        <a
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
                           className="p-2 text-muted hover:text-accent hover:bg-accent-soft rounded-sm transition-colors"
                           title="Download file"
                         >
                           <Download size={15} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteFile(file.id)}
-                          className="p-2 text-muted hover:text-err hover:bg-paper-dim rounded-sm transition-colors"
-                          title="Delete file"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        </a>
+                        {file.deletable && (
+                          <button
+                            onClick={() => handleDeleteFile(file.id)}
+                            className="p-2 text-muted hover:text-err hover:bg-paper-dim rounded-sm transition-colors"
+                            title="Delete file"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -245,31 +275,13 @@ export default function CustomerFiles() {
             </Card>
           </div>
 
-          {/* Template Downloads */}
-          <div className="space-y-3">
-            <h3 className="font-mono text-sm text-ink uppercase tracking-wide">Empty Templates</h3>
-
-            <Card className="border border-line rounded-sm overflow-hidden divide-y divide-line">
-              {templates.map((tpl, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleTemplateDownload(tpl.label)}
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-paper-dim transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <CheckCircle2 size={14} className="text-ok shrink-0" />
-                    <span className="text-xs font-medium text-ink-soft truncate">{tpl.label}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] font-mono text-muted bg-paper-dim px-1.5 py-0.5 rounded-sm">
-                      {tpl.ext}
-                    </span>
-                    <Download size={13} className="text-accent" />
-                  </div>
-                </button>
-              ))}
-            </Card>
-          </div>
+          <Card className="border border-line rounded-sm p-5 space-y-2 bg-paper-dim/40">
+            <p className="font-bold text-xs text-ink-soft">Accepted formats</p>
+            <p className="text-xs text-muted leading-relaxed">
+              JPG, PNG, WEBP, GIF, PDF and ZIP up to 15&nbsp;MB. For vector
+              artwork (AI, EPS, CDR), compress to a ZIP before uploading.
+            </p>
+          </Card>
 
         </div>
       </div>

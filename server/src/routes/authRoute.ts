@@ -10,6 +10,7 @@ import {
   resetPasswordSchema,
   sendOtpSchema,
   verifyOtpSchema,
+  updateProfileSchema,
 } from "../validators/auth.validator.js";
 
 const router = Router();
@@ -56,5 +57,14 @@ router.post("/google-callback", authController.googleCallback);
 router.post("/logout", authController.logout);
 
 router.get("/me", authMiddleware as any, authController.me as any);
+
+router.get("/profile", authMiddleware as any, authController.getProfile as any);
+
+router.put(
+  "/profile",
+  authMiddleware as any,
+  validateRequest(updateProfileSchema),
+  authController.updateProfile as any
+);
 
 export default router;

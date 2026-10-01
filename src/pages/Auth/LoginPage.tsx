@@ -41,7 +41,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const user = await login({ email, password });
-      navigate(user.role === "admin" ? "/admin/dashboard" : "/dashboard");
+      navigate(user.role === "admin" ? "/admin/dashboard" : "/my-dashboard");
     } catch {
       // Error surfaced via store
     } finally {

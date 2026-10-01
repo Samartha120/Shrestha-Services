@@ -16,9 +16,8 @@ export default function VerifyOtpPage() {
   const [countdown, setCountdown] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const email = location.state?.email || "";
-  const password = location.state?.password || "";
-  const name = location.state?.name || "";
+  const registrationPayload = location.state || {};
+  const email = registrationPayload.email || "";
 
   useEffect(() => {
     if (!email) {
@@ -70,8 +69,8 @@ export default function VerifyOtpPage() {
     clearError();
     try {
       await useAuthStore.getState().verifyOtp(email, otp.join(""));
-      await register({ email, password, name });
-      navigate("/dashboard");
+      await register(registrationPayload);
+      navigate("/my-dashboard");
     } catch (err) {
       console.error(err);
     } finally {

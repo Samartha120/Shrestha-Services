@@ -18,6 +18,8 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().email().default("info@shresthaservices.com.np"),
+  // Comma-separated list of allowed browser origins for CORS.
+  CORS_ORIGIN: z.string().default("http://localhost:5173"),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -27,6 +27,7 @@ import inquiryRoute from "./routes/inquiryRoute.js";
 import testimonialRoute from "./routes/testimonialRoute.js";
 import notificationRoute from "./routes/notificationRoute.js";
 import adminRoute from "./routes/adminRoute.js";
+import fileRoute from "./routes/fileRoute.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,8 +38,17 @@ const app = express();
 app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
+// Restrict CORS to the configured frontend origin(s). Non-browser clients
+// (curl, server-to-server, same-origin) send no Origin header and are allowed.
+const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim()).filter(Boolean);
 app.use(cors({
-  origin: true, // Allow all origins for dev, or specify hosts in production
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -72,6 +82,7 @@ app.use("/api/v1/inquiries", inquiryRoute);
 app.use("/api/v1/testimonials", testimonialRoute);
 app.use("/api/v1/notifications", notificationRoute);
 app.use("/api/v1/admin", adminRoute);
+app.use("/api/v1/files", fileRoute);
 
 // Catch 404 routes
 app.use((req: Request, res: Response, next: NextFunction) => {

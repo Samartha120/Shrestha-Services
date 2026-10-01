@@ -32,6 +32,7 @@ export const orderService = {
       id: order.id,
       orderNumber: order.orderNumber,
       customerName: order.customerName,
+      userId: order.userId,
       totalAmount: Number(order.totalAmount),
       status: order.status?.name || "Pending",
       items: order.items.map((i) => ({
