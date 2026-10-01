@@ -4,7 +4,7 @@ import Statistics from "@/components/home/Statistics";
 import HomeGallery from "@/components/home/HomeGallery";
 import TestimonialsPreview from "@/components/home/TestimonialsPreview";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
-import WorkProcess from "@/components/home/WorkProcess";
+import PrintPass from "@/components/home/PrintPass";
 import Partners from "@/components/home/Partners";
 import ContactCTA from "@/components/home/ContactCTA";
 
@@ -15,7 +15,7 @@ export default function HomePage() {
       <FeaturedServices />
       <Statistics />
       <WhyChooseUs />
-      <WorkProcess />
+      <PrintPass />
       <HomeGallery />
       <TestimonialsPreview />
       <Partners />
