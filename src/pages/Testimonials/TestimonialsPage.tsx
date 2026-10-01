@@ -8,6 +8,7 @@ import {
   Reveal,
   PrimaryCTA,
   GhostCTA,
+  FetchError,
 } from "@/components/marketing/primitives";
 
 function Stars({ rating }: { rating: number }) {
@@ -38,7 +39,8 @@ function initials(name: string) {
 }
 
 export default function TestimonialsPage() {
-  const { testimonials, fetchTestimonials, isLoading } = useTestimonialStore();
+  const { testimonials, fetchTestimonials, isLoading, error } =
+    useTestimonialStore();
   const [selected, setSelected] = useState(0);
   const reduce = useReducedMotion();
 
@@ -147,6 +149,12 @@ export default function TestimonialsPage() {
             <div className="py-16 text-center">
               <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-accent" />
             </div>
+          ) : error ? (
+            <FetchError
+              message="Could not load testimonials."
+              onRetry={fetchTestimonials}
+              className="border-t border-line"
+            />
           ) : testimonials.length === 0 ? (
             <Reveal>
               <div className="border-t border-line py-16 text-center">

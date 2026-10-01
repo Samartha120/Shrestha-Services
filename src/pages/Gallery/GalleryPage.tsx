@@ -9,6 +9,7 @@ import {
   Eyebrow,
   Reveal,
   PrimaryCTA,
+  FetchError,
 } from "@/components/marketing/primitives";
 
 const CATEGORIES = [
@@ -37,7 +38,8 @@ const capabilities = [
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function GalleryPage() {
-  const { galleryItems, isLoading, fetchGalleryItems } = useGalleryStore();
+  const { galleryItems, isLoading, error, fetchGalleryItems } =
+    useGalleryStore();
   const { testimonials, fetchTestimonials } = useTestimonialStore();
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
@@ -131,7 +133,7 @@ export default function GalleryPage() {
         </Container>
       </section>
       {/* Featured — asymmetric feature + two stacked */}
-      {!isLoading && featuredItems.length > 0 && (
+      {!isLoading && !error && featuredItems.length > 0 && (
         <section className="py-16 lg:py-24">
           <Container>
             <Reveal>
@@ -215,8 +217,19 @@ export default function GalleryPage() {
           </Container>
         </section>
       )}
+      {/* Fetch error */}
+      {!isLoading && error && (
+        <section className="py-16 lg:py-24">
+          <Container>
+            <FetchError
+              message="Could not load the gallery."
+              onRetry={fetchGalleryItems}
+            />
+          </Container>
+        </section>
+      )}
       {/* Full gallery grid */}
-      {!isLoading && (
+      {!isLoading && !error && (
         <section className="border-t border-line bg-surface-2 py-16 lg:py-24">
           <Container>
             <Reveal>

@@ -7,10 +7,11 @@ import {
   Eyebrow,
   Reveal,
   PrimaryCTA,
+  FetchError,
 } from "@/components/marketing/primitives";
 
 export default function ServicesPage() {
-  const { services, fetchServices, isLoading } = useServiceStore();
+  const { services, fetchServices, isLoading, error } = useServiceStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
@@ -93,6 +94,11 @@ export default function ServicesPage() {
                 />
               ))}
             </div>
+          ) : error ? (
+            <FetchError
+              message="Could not load services."
+              onRetry={fetchServices}
+            />
           ) : filtered.length === 0 ? (
             <p className="py-16 text-center text-ink-soft">
               No services found in this category.

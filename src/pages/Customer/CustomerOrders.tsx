@@ -12,24 +12,29 @@ export default function CustomerOrders() {
   const { user } = useAuthStore();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
+  const fetchOrders = async () => {
+    if (!user) return;
+    setLoading(true);
+    setError(false);
+    try {
+      // Backend scopes /orders to the authenticated user (customers get their
+      // own orders, admins get all), so one call covers both roles.
+      const userOrders = await ordersApi.getAll();
+      setOrders(userOrders);
+    } catch (err) {
+      console.error(err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      try {
-        if (!user) return;
-        // Backend scopes /orders to the authenticated user (customers get their
-        // own orders, admins get all), so one call covers both roles.
-        const userOrders = await ordersApi.getAll();
-        setOrders(userOrders);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     if (user) fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
 
@@ -81,6 +86,19 @@ export default function CustomerOrders() {
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="h-7 w-7 rounded-full border-2 border-accent border-t-transparent animate-spin" />
             <p className="text-sm text-muted">Retrieving active orders...</p>
+          </div>
+        ) : error ? (
+          <div className="p-16 text-center space-y-4">
+            <div>
+              <p className="font-semibold text-err">Couldn't load your orders.</p>
+              <p className="text-xs text-muted mt-1 max-w-xs mx-auto">
+                There was a problem reaching the server. Please check your
+                connection and try again.
+              </p>
+            </div>
+            <Button variant="outline" onClick={fetchOrders}>
+              Try again
+            </Button>
           </div>
         ) : orders.length === 0 ? (
           <div className="p-16 text-center space-y-4">

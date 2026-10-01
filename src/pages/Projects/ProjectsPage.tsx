@@ -9,6 +9,7 @@ import {
   Eyebrow,
   Reveal,
   PrimaryCTA,
+  FetchError,
 } from "@/components/marketing/primitives";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -71,7 +72,7 @@ function ProjectCard({
 }
 
 export default function ProjectsPage() {
-  const { projects, fetchProjects, isLoading } = useProjectStore();
+  const { projects, fetchProjects, isLoading, error } = useProjectStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
@@ -170,6 +171,11 @@ export default function ProjectsPage() {
                 />
               ))}
             </div>
+          ) : error ? (
+            <FetchError
+              message="Could not load projects."
+              onRetry={fetchProjects}
+            />
           ) : filtered.length === 0 ? (
             <p className="py-20 text-center text-ink-soft">
               No projects in this category yet.

@@ -9,7 +9,7 @@ import Badge from "@/components/ui/Badge";
 
 export default function CustomerDashboard() {
   const { user } = useAuthStore();
-  const { quotes, fetchQuotesByEmail, isLoading } = useQuoteStore();
+  const { quotes, fetchQuotesByEmail, isLoading, error } = useQuoteStore();
   const { notifications, fetchNotifications } = useNotificationStore();
 
   useEffect(() => {
@@ -17,6 +17,7 @@ export default function CustomerDashboard() {
       fetchQuotesByEmail(user.email);
     }
     fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const pendingQuotes = quotes.filter((q) => q.status === "Pending");
@@ -105,6 +106,20 @@ export default function CustomerDashboard() {
           <Card className="border border-line rounded-sm overflow-hidden">
             {isLoading ? (
               <div className="p-16 text-center text-sm font-semibold text-muted">Loading layout quotes...</div>
+            ) : error ? (
+              <div className="p-16 text-center text-muted space-y-4">
+                <FileText size={48} className="mx-auto text-faint" />
+                <p className="font-bold text-base text-err">Couldn't load your quotes.</p>
+                <p className="text-xs max-w-sm mx-auto leading-relaxed text-muted">
+                  There was a problem reaching the server. Please check your connection and try again.
+                </p>
+                <button
+                  onClick={() => user?.email && fetchQuotesByEmail(user.email)}
+                  className="inline-flex items-center gap-1.5 border border-line-strong hover:border-accent hover:text-accent text-ink font-semibold px-4 py-2.5 rounded-full text-xs transition-colors"
+                >
+                  Try again
+                </button>
+              </div>
             ) : quotes.length === 0 ? (
               <div className="p-16 text-center text-muted space-y-4">
                 <FileText size={48} className="mx-auto text-faint" />

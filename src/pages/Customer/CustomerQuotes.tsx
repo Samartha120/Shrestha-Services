@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 export default function CustomerQuotes() {
   const { user } = useAuthStore();
-  const { quotes, fetchQuotesByEmail, isLoading } = useQuoteStore();
+  const { quotes, fetchQuotesByEmail, isLoading, error } = useQuoteStore();
   const [filter, setFilter] = useState("all");
   const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
 
@@ -18,6 +18,7 @@ export default function CustomerQuotes() {
     if (user?.email) {
       fetchQuotesByEmail(user.email);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const filteredQuotes = quotes.filter((q) => {
@@ -71,6 +72,22 @@ export default function CustomerQuotes() {
       <Card className="border border-line rounded-sm overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-sm text-muted">Loading quotes catalog...</div>
+        ) : error ? (
+          <div className="p-16 text-center space-y-3">
+            <FileText size={44} className="mx-auto text-faint" />
+            <p className="font-semibold text-err">Couldn't load your quotes.</p>
+            <p className="text-xs text-muted">
+              There was a problem reaching the server. Please try again.
+            </p>
+            <div className="pt-1">
+              <Button
+                variant="outline"
+                onClick={() => user?.email && fetchQuotesByEmail(user.email)}
+              >
+                Try again
+              </Button>
+            </div>
+          </div>
         ) : filteredQuotes.length === 0 ? (
           <div className="p-16 text-center text-muted text-sm space-y-2">
             <FileText size={44} className="mx-auto text-faint" />

@@ -9,13 +9,15 @@ import {
   Eyebrow,
   Reveal,
   PrimaryCTA,
+  FetchError,
 } from "@/components/marketing/primitives";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function GalleryCategoryPage() {
   const { category } = useParams<{ category: string }>();
-  const { galleryItems, isLoading, fetchItemsByCategory } = useGalleryStore();
+  const { galleryItems, isLoading, error, fetchItemsByCategory } =
+    useGalleryStore();
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const reduce = useReducedMotion();
@@ -109,8 +111,22 @@ export default function GalleryCategoryPage() {
         </section>
       )}
 
+      {/* Fetch error */}
+      {!isLoading && error && (
+        <section className="py-16 lg:py-24">
+          <Container>
+            <FetchError
+              message="Could not load this category."
+              onRetry={() =>
+                decodedCategory && fetchItemsByCategory(decodedCategory)
+              }
+            />
+          </Container>
+        </section>
+      )}
+
       {/* Grid */}
-      {!isLoading && (
+      {!isLoading && !error && (
         <section className="py-16 lg:py-24">
           <Container>
             {galleryItems.length > 0 ? (
