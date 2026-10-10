@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { galleryImages } from "@/data/gallery";
 import { Container, Eyebrow, Reveal, GhostCTA } from "@/components/marketing/primitives";
+import TiltCard from "@/components/motion/TiltCard";
 
 const categoryLabels: Record<string, string> = {
   signage: "Signage",
@@ -33,35 +34,42 @@ export default function HomeGallery() {
               delay={i * 0.06}
               className={i === 0 ? "col-span-2 lg:col-span-2 lg:row-span-2" : ""}
             >
-              <Link
-                to="/gallery"
-                className="group relative flex h-full min-h-[180px] flex-col justify-end overflow-hidden rounded-sm border border-line-strong bg-ink p-5 text-inverse"
-              >
-                {/* specimen texture, not a glowing blob */}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 opacity-[0.12] transition-opacity duration-500 group-hover:opacity-20"
-                  style={{
-                    backgroundImage:
-                      "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 9px)",
-                  }}
-                />
-                <span
-                  aria-hidden
-                  className="absolute right-4 top-4 font-mono text-[11px] text-inverse/50"
+              <TiltCard max={4} className="h-full">
+                <Link
+                  to="/gallery"
+                  className="group relative flex h-full min-h-[180px] flex-col justify-end overflow-hidden rounded-sm border border-line-strong bg-ink p-5 text-inverse transition-shadow duration-500 hover:shadow-[var(--shadow-lg)]"
                 >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="relative">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-                    {categoryLabels[item.category] ?? item.category}
-                  </p>
-                  <h3 className="mt-1 flex items-center gap-1 font-display text-xl text-inverse sm:text-2xl">
-                    {item.title}
-                    <ArrowUpRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
-                  </h3>
-                </div>
-              </Link>
+                  {/* specimen texture, not a glowing blob */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 opacity-[0.12] transition-opacity duration-500 group-hover:opacity-20"
+                    style={{
+                      backgroundImage:
+                        "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 9px)",
+                    }}
+                  />
+                  {/* ink sheen that sweeps across on hover */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
+                  />
+                  <span
+                    aria-hidden
+                    className="absolute right-4 top-4 font-mono text-[11px] text-inverse/50"
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className="relative" style={{ transform: "translateZ(28px)" }}>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
+                      {categoryLabels[item.category] ?? item.category}
+                    </p>
+                    <h3 className="mt-1 flex items-center gap-1 font-display text-xl text-inverse sm:text-2xl">
+                      {item.title}
+                      <ArrowUpRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                    </h3>
+                  </div>
+                </Link>
+              </TiltCard>
             </Reveal>
           ))}
         </div>

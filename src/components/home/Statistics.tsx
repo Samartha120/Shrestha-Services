@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Container } from "@/components/marketing/primitives";
 
 /*
@@ -12,9 +14,33 @@ const handles = [
 ];
 
 export default function Statistics() {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  // A soft light drifts up through the dark band as it scrolls past —
+  // carries the eye between the light sections above and below.
+  const lightY = useTransform(scrollYProgress, [0, 1], ["12%", "-12%"]);
+
   return (
-    <section className="bg-ink py-20 text-inverse lg:py-28">
-      <Container>
+    <section
+      ref={ref}
+      className="relative overflow-hidden bg-ink py-20 text-inverse lg:py-28"
+    >
+      {!reduce && (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[140%]"
+          style={{
+            y: lightY,
+            background:
+              "radial-gradient(60% 42% at 72% 30%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%)",
+          }}
+        />
+      )}
+      <Container className="relative">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
           <div>
             <span className="inline-flex items-center gap-3 eyebrow text-faint">

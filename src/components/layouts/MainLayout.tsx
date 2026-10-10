@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Toaster } from "sonner";
+import CustomCursor from "@/components/motion/CustomCursor";
+import Magnetic from "@/components/motion/Magnetic";
 
 export interface MainLayoutProps {
   children?: ReactNode;
@@ -125,6 +127,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         Skip to content
       </a>
       <Toaster position="top-right" theme={isDark ? "dark" : "light"} />
+      <CustomCursor />
 
       {/* Utility bar */}
       <div className="hidden bg-ink text-inverse/70 lg:block">
@@ -169,17 +172,22 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`relative py-1 text-sm font-medium transition-colors ${
+                className={`group relative py-1 text-sm font-medium transition-colors ${
                   isActive(link.path)
                     ? "text-ink"
                     : "text-ink-soft hover:text-ink"
                 }`}
               >
                 {link.name}
-                {isActive(link.path) && (
+                {isActive(link.path) ? (
                   <motion.span
                     layoutId="nav-underline"
                     className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-accent"
+                  />
+                ) : (
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-0.5 left-0 right-0 h-0.5 origin-left scale-x-0 bg-accent/50 transition-transform duration-300 ease-out group-hover:scale-x-100"
                   />
                 )}
               </Link>
@@ -285,13 +293,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
               </Link>
             )}
 
-            <Link
-              to="/quote"
-              className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
-            >
-              Get a quote
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
+            <Magnetic strength={0.4}>
+              <Link
+                to="/quote"
+                className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+              >
+                Get a quote
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </Link>
+            </Magnetic>
           </div>
 
           {/* Mobile toggle */}

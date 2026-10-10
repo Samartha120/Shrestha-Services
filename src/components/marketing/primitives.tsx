@@ -1,8 +1,10 @@
 import { type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, RotateCw } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { EASE, printReveal } from "@/lib/motion";
+import Magnetic from "@/components/motion/Magnetic";
 
 /* ── Layout container ── */
 export function Container({
@@ -19,48 +21,54 @@ export function Container({
   );
 }
 
-/* ── Scroll reveal — subtle, single direction, respects reduced motion ── */
+/* ── Scroll reveal — subtle, single direction, respects reduced motion ──
+   `variant="print"` reveals through a clip-path + blur-to-sharp settle,
+   evoking a printing layer being laid onto the sheet. Default is unchanged. */
 export function Reveal({
   children,
   delay = 0,
   y = 18,
   className,
   as = "div",
+  variant = "fade",
 }: {
   children: ReactNode;
   delay?: number;
   y?: number;
   className?: string;
   as?: "div" | "li" | "span";
+  variant?: "fade" | "print";
 }) {
   const reduce = useReducedMotion();
   const MotionTag = motion[as] as typeof motion.div;
+
+  if (variant === "print") {
+    return (
+      <MotionTag
+        variants={reduce ? undefined : printReveal}
+        initial={reduce ? false : "hidden"}
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ delay }}
+        className={className}
+      >
+        {children}
+      </MotionTag>
+    );
+  }
+
   return (
     <MotionTag
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay, ease: EASE }}
       className={className}
     >
       {children}
     </MotionTag>
   );
 }
-
-export const staggerParent: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
-export const staggerChild: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-  },
-};
 
 /* ── Eyebrow label with a short rule ── */
 export function Eyebrow({ children }: { children: ReactNode }) {
@@ -81,31 +89,35 @@ type CTAProps = {
 
 export function PrimaryCTA({ to, children, className }: CTAProps) {
   return (
-    <Link
-      to={to}
-      className={twMerge(
-        "group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-inverse transition-colors hover:bg-accent",
-        className
-      )}
-    >
-      {children}
-      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-    </Link>
+    <Magnetic strength={0.35}>
+      <Link
+        to={to}
+        className={twMerge(
+          "group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-inverse transition-colors hover:bg-accent",
+          className
+        )}
+      >
+        {children}
+        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+      </Link>
+    </Magnetic>
   );
 }
 
 export function GhostCTA({ to, children, className }: CTAProps) {
   return (
-    <Link
-      to={to}
-      className={twMerge(
-        "group inline-flex items-center gap-2 text-sm font-semibold text-ink-soft transition-colors hover:text-accent",
-        className
-      )}
-    >
-      {children}
-      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-    </Link>
+    <Magnetic strength={0.3}>
+      <Link
+        to={to}
+        className={twMerge(
+          "group inline-flex items-center gap-2 text-sm font-semibold text-ink-soft transition-colors hover:text-accent",
+          className
+        )}
+      >
+        {children}
+        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+      </Link>
+    </Magnetic>
   );
 }
 

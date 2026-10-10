@@ -40,6 +40,7 @@
   --color-brass-soft: var(--brass-soft);
 
   --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
   --color-err: var(--err);
 }
@@ -60,17 +61,18 @@
   --line: #dcd4c6;
   --line-strong: #cbc1af;
 
-  /* oxblood / burgundy */
-  --accent: #8c2f39;
-  --accent-hover: #74252e;
-  --accent-soft: rgba(140, 47, 57, 0.09);
-  --accent-ink: #74252e;
+  /* navy blue */
+  --accent: #1e3a8a;
+  --accent-hover: #172554;
+  --accent-soft: rgba(30, 58, 138, 0.09);
+  --accent-ink: #ffffff;
 
   /* muted brass — fine premium detail only */
   --brass: #9a7b33;
   --brass-soft: rgba(154, 123, 51, 0.1);
 
   --ok: #2f7d54;
+  --ok-soft: rgba(47, 125, 84, 0.1);
   --warn: #b5730f;
   --err: #c33629;
 
@@ -89,37 +91,40 @@
 
 /* ── Dark (ink) ── */
 .dark {
-  --paper: #15120f;
-  --paper-dim: #1c1813;
-  --surface: #211d17;
-  --surface-2: #17140f;
+  /* True Navy Blue Theme Backgrounds */
+  --paper: #060b19; /* Deepest Navy */
+  --paper-dim: #0a1128; /* Deep Navy */
+  --surface: #101b3a; /* Surface Navy */
+  --surface-2: #16264a; /* Lighter Surface Navy */
 
-  --ink: #f4efe4;
-  --ink-soft: #c9c2b5;
-  --muted: #948b7d;
-  --faint: #6d655a;
-  --inverse: #15120f;
+  --ink: #ffffff;
+  --ink-soft: #e2e8f0;
+  --muted: #94a3b8;
+  --faint: #64748b;
+  --inverse: #0f1c4a;
 
-  --line: #2d2821;
-  --line-strong: #3b352c;
+  --line: #1e3568;
+  --line-strong: #2c4a8f;
 
-  --accent: #c04b57;
-  --accent-hover: #d06a74;
-  --accent-soft: rgba(192, 75, 87, 0.14);
-  --accent-ink: #c04b57;
+  /* Optimized Light Blue Accent for Navy Background */
+  --accent: #93c5fd; /* blue-300 */
+  --accent-hover: #bfdbfe; /* blue-200 */
+  --accent-soft: rgba(147, 197, 253, 0.15);
+  --accent-ink: #0f1c4a;
 
   --brass: #c9a24b;
   --brass-soft: rgba(201, 162, 75, 0.14);
 
   --ok: #4bb47c;
+  --ok-soft: rgba(75, 180, 124, 0.14);
   --warn: #e0a13c;
   --err: #ef6a5a;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 6px 24px -10px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 30px 70px -25px rgba(0, 0, 0, 0.7);
+  --shadow-sm: 0 1px 2px rgba(2, 6, 23, 0.4);
+  --shadow-md: 0 6px 24px -10px rgba(2, 6, 23, 0.6);
+  --shadow-lg: 0 30px 70px -25px rgba(2, 6, 23, 0.7);
 
-  --code-bg: #201d18;
+  --code-bg: #0f172a;
   color-scheme: dark;
 }
 
@@ -213,12 +218,60 @@ body {
   animation-play-state: paused;
 }
 
+/* ── Premium pointer glow (desktop, fine pointer only) ──────── */
+.ss-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  /* centre the ring on the hotspot */
+  margin: -14px 0 0 -14px;
+  will-change: transform;
+}
+.ss-cursor__ring {
+  display: block;
+  height: 28px;
+  width: 28px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* ── Ambient print motion ───────────────────────────────────── */
+/* Slow ink drift for soft gradient fields — travels + breathes. */
+@keyframes ss-ink-drift {
+  0% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.08);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+    opacity: 0.55;
+  }
+}
+.ss-ink-drift {
+  animation: ss-ink-drift 18s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .ss-marquee {
     animation: none;
+  }
+  .ss-ink-drift {
+    animation: none;
+  }
+  .ss-cursor {
+    display: none;
   }
   *,
   *::before,

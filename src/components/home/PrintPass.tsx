@@ -6,7 +6,7 @@ import {
   useTransform,
   useMotionValueEvent,
 } from "framer-motion";
-import { Container, Eyebrow } from "@/components/marketing/primitives";
+import { Container, Eyebrow, Reveal } from "@/components/marketing/primitives";
 
 type Step = { no: string; tag: string; title: string; body: string };
 
@@ -100,7 +100,7 @@ function FinishedComposition() {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-accent-ink">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-accent">
           Finished print
         </span>
         <span className="h-px w-16 bg-brass/70" />
@@ -145,9 +145,11 @@ export default function PrintPass() {
       <Container className="pt-20 lg:pt-28">
         <div className="max-w-2xl">
           <Eyebrow>The digital print pass</Eyebrow>
-          <h2 className="mt-5 font-display text-4xl leading-tight text-ink sm:text-5xl text-balance">
-            Artwork becomes a physical print — one pass at a time.
-          </h2>
+          <Reveal variant="print" className="mt-5">
+            <h2 className="font-display text-4xl leading-tight text-ink sm:text-5xl text-balance">
+              Artwork becomes a physical print — one pass at a time.
+            </h2>
+          </Reveal>
           <p className="mt-5 max-w-md text-ink-soft text-pretty">
             From a signed-off file to a finished, installed piece. Scroll to run
             a job through the shop.
@@ -253,7 +255,7 @@ export default function PrintPass() {
                   {/* 06 — delivered: lifts off the bed with an install tag */}
                   <motion.span
                     aria-hidden
-                    className="absolute -right-3 top-10 rounded-full border border-accent/40 bg-surface px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-accent-ink shadow-[var(--shadow-sm)]"
+                    className="absolute -right-3 top-10 rounded-full border border-accent/40 bg-surface px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-accent shadow-[var(--shadow-sm)]"
                     style={{ opacity: delivered, y: liftY }}
                   >
                     Installed on site

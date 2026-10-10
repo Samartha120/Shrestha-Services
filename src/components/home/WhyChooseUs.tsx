@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Gauge, Layers, PenTool, Truck, Palette, ShieldCheck } from "lucide-react";
 import { Container, Eyebrow, Reveal } from "@/components/marketing/primitives";
 
@@ -41,9 +43,36 @@ const capabilities = [
 ];
 
 export default function WhyChooseUs() {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const dotsY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+
   return (
-    <section className="border-t border-line bg-surface-2 py-20 lg:py-28">
-      <Container>
+    <section
+      ref={ref}
+      className="relative overflow-hidden border-t border-line bg-surface-2 py-20 lg:py-28"
+    >
+      {/* Subtle ambient lighting effect */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/[0.03] via-transparent to-transparent"
+      />
+      {/* Background dot pattern — drifts gently with scroll for depth */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -inset-y-[8%] opacity-[0.03] dark:opacity-[0.06]"
+        style={{
+          y: reduce ? 0 : dotsY,
+          backgroundImage: "radial-gradient(var(--ink) 1px, transparent 1px)",
+          backgroundSize: "24px 24px"
+        }}
+      />
+      
+      <Container className="relative z-10">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
           <Reveal>
             <Eyebrow>Why work with us</Eyebrow>
@@ -62,12 +91,14 @@ export default function WhyChooseUs() {
               const Icon = cap.icon;
               return (
                 <Reveal key={cap.title} delay={(i % 2) * 0.08}>
-                  <div className="border-t border-line-strong pt-5">
-                    <Icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
-                    <h3 className="mt-4 font-display text-xl text-ink">
+                  <div className="group border-t border-line-strong pt-6 transition-all hover:border-accent">
+                    <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-sm bg-accent-soft text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink">
+                      <Icon className="h-5 w-5" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="font-display text-xl text-ink transition-colors group-hover:text-accent">
                       {cap.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">
+                    <p className="mt-3 text-sm leading-relaxed text-muted">
                       {cap.description}
                     </p>
                   </div>

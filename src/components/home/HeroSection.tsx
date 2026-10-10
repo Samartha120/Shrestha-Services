@@ -1,10 +1,16 @@
-import { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useRef, useState } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Container, Eyebrow } from "@/components/marketing/primitives";
-
-const EASE = [0.22, 1, 0.36, 1] as const;
+import Magnetic from "@/components/motion/Magnetic";
+import { EASE, EASE_IN_OUT } from "@/lib/motion";
 
 const headline: { text: string; accent?: string }[] = [
   { text: "Ink, acrylic" },
@@ -65,6 +71,17 @@ export default function HeroSection() {
   const [active, setActive] = useState(0);
   const current = services[active];
 
+  const sectionRef = useRef<HTMLElement>(null);
+  // Scroll-linked depth: the proof sheet rises and the ambient grid sinks,
+  // opening a subtle parallax gap as the hero leaves the viewport.
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const sheetY = useTransform(scrollYProgress, [0, 1], [0, -56]);
+  const sheetOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.55]);
+  const gridY = useTransform(scrollYProgress, [0, 1], [0, 48]);
+
   const lineVariants = {
     hidden: { y: "110%" },
     visible: (i: number) => ({
@@ -74,12 +91,13 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-paper">
-      {/* ambient print environment — vertical feed grid */}
-      <div
+    <section ref={sectionRef} className="relative overflow-hidden bg-paper">
+      {/* ambient print environment — vertical feed grid (parallax) */}
+      <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.4] dark:opacity-[0.25]"
         style={{
+          y: reduce ? 0 : gridY,
           backgroundImage:
             "linear-gradient(to right, var(--line) 1px, transparent 1px)",
           backgroundSize: "min(20vw, 200px) 100%",
@@ -87,20 +105,56 @@ export default function HeroSection() {
           WebkitMaskImage: "linear-gradient(to bottom, black, transparent 82%)",
         }}
       />
-      {/* slow material-feed line travelling down the sheet */}
+      {/* soft ink field settling behind the composition */}
       {!reduce && (
-        <motion.div
+        <div
           aria-hidden
-          className="pointer-events-none absolute left-0 h-px w-full bg-accent/20"
-          initial={{ top: "12%" }}
-          animate={{ top: ["12%", "86%"] }}
-          transition={{
-            duration: 9,
-            ease: "easeInOut",
-            repeat: Infinity,
-            repeatType: "reverse",
+          className="ss-ink-drift pointer-events-none absolute -right-24 top-1/4 h-[26rem] w-[26rem] rounded-full opacity-60"
+          style={{
+            background:
+              "radial-gradient(closest-side, var(--accent-soft), transparent 70%)",
           }}
         />
+      )}
+      {/* material-feed lines travelling down the sheet — primary + a fainter
+          trailing line for depth, refined accel/decel easing */}
+      {!reduce && (
+        <>
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute left-0 h-px w-full bg-accent/25"
+            initial={{ top: "12%", opacity: 0 }}
+            animate={{ top: ["12%", "86%"], opacity: [0, 1, 1, 0] }}
+            transition={{
+              top: {
+                duration: 9,
+                ease: EASE_IN_OUT,
+                repeat: Infinity,
+                repeatType: "reverse",
+              },
+              opacity: {
+                duration: 9,
+                times: [0, 0.12, 0.88, 1],
+                ease: "linear",
+                repeat: Infinity,
+                repeatType: "reverse",
+              },
+            }}
+          />
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute left-0 h-px w-full bg-accent/10"
+            initial={{ top: "12%" }}
+            animate={{ top: ["12%", "86%"] }}
+            transition={{
+              duration: 9,
+              ease: EASE_IN_OUT,
+              repeat: Infinity,
+              repeatType: "reverse",
+              delay: 0.5,
+            }}
+          />
+        </>
       )}
 
       <Container className="relative">
@@ -154,13 +208,15 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.45 }}
               className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4"
             >
-              <Link
-                to="/quote"
-                className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
-              >
-                Start a quote
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
+              <Magnetic strength={0.4}>
+                <Link
+                  to="/quote"
+                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent"
+                >
+                  Start a quote
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </Magnetic>
               <Link
                 to="/services"
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-accent"
@@ -192,13 +248,16 @@ export default function HeroSection() {
             </motion.dl>
           </div>
 
-          {/* Right — interactive proof sheet */}
+          {/* Right — interactive proof sheet (scroll parallax + entrance) */}
           <motion.div
-            initial={reduce ? false : { opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+            style={reduce ? undefined : { y: sheetY, opacity: sheetOpacity }}
             className="relative"
           >
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+            >
             <div className="relative rounded-sm border border-line-strong bg-surface p-6 shadow-[var(--shadow-lg)] sm:p-8">
               {/* registration corner marks */}
               {[
@@ -228,8 +287,8 @@ export default function HeroSection() {
                 </span>
               </div>
 
-              {/* preview stage — ink pass reveals the hovered service */}
-              <div className="relative mt-4 aspect-[16/10] overflow-hidden rounded-sm border border-line bg-paper-dim">
+              {/* preview stage — rich gradient background for material samples */}
+              <div className="relative mt-4 aspect-[16/10] overflow-hidden rounded-sm border border-line bg-gradient-to-br from-surface-2 via-surface to-paper dark:from-[#02040a] dark:via-[#0a1128] dark:to-[#1e3a8a] shadow-[inset_0_2px_20px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_30px_rgba(0,0,0,0.4)]">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={current.id}
@@ -250,7 +309,7 @@ export default function HeroSection() {
                       <span className="font-display text-2xl leading-tight text-ink">
                         {current.label}
                       </span>
-                      <span className="mt-1 font-mono text-xs text-accent-ink">
+                      <span className="mt-1 font-mono text-xs text-accent">
                         {current.format}
                       </span>
                     </div>
@@ -281,25 +340,27 @@ export default function HeroSection() {
                         onFocus={() => setActive(i)}
                         onClick={() => setActive(i)}
                         aria-pressed={activeRow}
-                        className="flex w-full items-baseline justify-between py-3 text-left"
+                        className={`flex w-full items-baseline justify-between py-3 px-4 rounded-sm transition-colors text-left ${
+                          activeRow ? "bg-accent" : "hover:bg-paper-dim"
+                        }`}
                       >
                         <span className="flex items-baseline gap-3">
                           <span
                             className={`font-mono text-xs transition-colors ${
-                              activeRow ? "text-accent" : "text-faint"
+                              activeRow ? "text-accent-ink" : "text-faint"
                             }`}
                           >
                             {String(i + 1).padStart(2, "0")}
                           </span>
                           <span
                             className={`font-medium transition-colors ${
-                              activeRow ? "text-accent" : "text-ink"
+                              activeRow ? "text-accent-ink" : "text-ink"
                             }`}
                           >
                             {row.label}
                           </span>
                         </span>
-                        <span className="font-mono text-xs text-muted">
+                        <span className={`font-mono text-xs ${activeRow ? "text-accent-ink/70" : "text-muted"}`}>
                           {row.note}
                         </span>
                       </button>
@@ -324,6 +385,7 @@ export default function HeroSection() {
                 </span>
               </div>
             </div>
+            </motion.div>
           </motion.div>
         </div>
       </Container>
