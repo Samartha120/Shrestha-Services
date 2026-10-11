@@ -64,6 +64,7 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 | Submit quote / upload design (bound to self) | — | ✓ | ✓ | ✓ |
 | Manage services/projects/gallery/blog/testimonials/inquiries, quote & order status | — | — | ✓ | ✓ |
 | List users, export reports | — | — | ✓ | ✓ |
+| Impersonate (view as) a **customer** — audited, non-privileged targets only | — | — | ✗ | ✓ |
 | Change a user's role to customer/support/order_manager/admin | — | — | ✓ (not privileged targets, not self) | ✓ |
 | Grant/revoke **super-admin**; modify/delete a privileged account | — | — | ✗ | ✓ |
 
@@ -103,7 +104,7 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 ## G. Remaining Risks & Recommended Next Steps
 
 1. **Admin MFA — DONE.** TOTP two-factor is implemented and verified end-to-end (enrol → login challenge → verify → recovery codes → re-auth disable). Seeds stored AES-256-GCM-encrypted; recovery codes are single-use SHA-256 hashes. Enforced as a login step for privileged accounts that enabled it; others get a non-blocking enrolment nudge. *Optional hardening left:* make enrolment mandatory (block privileged actions until enrolled) and render a QR image (currently secret + otpauth URI for manual/scan entry).
-2. **Admin impersonation — not started.** Recommended: super-admin-only `POST /admin/impersonate/:userId` issuing a short-lived token carrying `{ sub: target, act: actor, imp: true }`, blocked for privileged targets, fully audited (`admin.impersonation.start/stop`), with a persistent frontend banner and a safe exit that restores the original session.
+2. **Admin impersonation — DONE.** Super-admin-only, verified end-to-end: `POST /admin/impersonate/:userId` issues a short-lived token (`imp`+`act` claims); refused for self and privileged targets; `authMiddleware` runs the request as the target while recording the initiating admin; `/auth/impersonate/stop` + start are audited; a persistent "Viewing as…" banner with Exit is shown, and a super-admin-only "View as" action sits on customer rows.
 3. **Token storage (localStorage → httpOnly cookie).** Move access/refresh tokens to `HttpOnly; Secure; SameSite=Lax` cookies + CSRF tokens for state-changing requests, and add a server-side refresh-token/session store so logout and compromise can **revoke** sessions (currently stateless JWT can't be revoked). Broad change — do as a dedicated, tested pass.
 4. **Public uploads.** New uploads are validated, but `/uploads` is still served statically. Migrate customer/quote artwork to a non-served `uploads/private/` dir + an authorized streaming route (`GET /files/:id/download`, owner/role-checked, path-traversal-safe) and switch the customer dashboard to fetch it as an authenticated blob. Add magic-byte (signature) validation and per-user storage quotas.
 5. **Notification polling loop.** Logged-out clients hammer `GET /api/v1/notifications` (hundreds of 401s). Gate the poll behind `isAuthenticated` and add backoff.
