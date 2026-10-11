@@ -85,9 +85,12 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 | Frontend typecheck + build | `npm run build` (`tsc -b && vite build`) | **Pass** |
 | Frontend lint (changed files) | `npx eslint <changed>` | **Pass** (only a pre-existing `set-state-in-effect` warning in `MainLayout` route-reset effect remains; not introduced here) |
 | Backend typecheck | `npx tsc --noEmit` (in `server/`) | **Pass** |
+| **Security test suite** | `npm test` (in `server/`, Node test runner — backend must be running) | **14/14 pass** |
 | Cookie-consent flow | Browser: first-visit gate shown → *Accept all* persists record & dismisses | **Pass (verified)** |
 
-**Not yet done:** there is no test runner configured in either `package.json`. Automated security unit/integration tests (authz, IDOR, rate-limit, upload rejection, MFA) are **not written** — see G. This audit does **not** claim the app is penetration-tested or vulnerability-free.
+The security suite (`server/tests/security.test.mjs`) covers: generic-401 login, OTP-enforced + weak-password registration, mass-assignment, RBAC (unauth 401 / customer→admin 403 / direct-API gating), IDOR (cross-customer file download blocked + not public), upload type-mismatch rejection, privilege escalation (no super-admin grant / self role-change / self-delete), impersonation guard, and the full MFA enrol→challenge→verify→disable cycle. Fixtures are synthetic accounts, cleaned up after.
+
+**Still untested:** rate-limit thresholds and CSRF (N/A — no auth cookies yet) are not covered. This audit does **not** claim the app is penetration-tested or vulnerability-free.
 
 ## F. Deployment Checklist
 
@@ -121,7 +124,7 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 | Cookie consent respects policy without weakening security | ✓ |
 | Customer orders & artwork access-controlled | Orders ✓; customer artwork now in private storage behind authorized downloads ✓ (legacy public-dir files pending migration) |
 | Prices / order state / payment verified server-side | Prices/estimates server-computed ✓; payments out of scope by request |
-| Critical security tests pass | Build/typecheck/lint ✓; automated security test suite pending (E, G) |
+| Critical security tests pass | ✓ — `npm test` (server) 14/14: authz, IDOR, mass-assignment, privilege-escalation, impersonation, uploads, MFA |
 | Deployment prerequisites & unresolved risks documented | ✓ (F, G) |
 
 
