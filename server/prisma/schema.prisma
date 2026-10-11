@@ -1,10 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model Role {
@@ -32,21 +32,35 @@ model User {
   roleId        String?        @map("role_id") @db.Uuid
   avatar        String?
   isVerified    Boolean        @default(false) @map("is_verified")
+  mfaEnabled    Boolean        @default(false) @map("mfa_enabled")
+  mfaSecret     String?        @map("mfa_secret")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
-  
-  role          Role?          @relation(fields: [roleId], references: [id], onDelete: SetNull)
-  customer      Customer?
+  activityLogs  ActivityLog[]
   admin         Admin?
+  auditLogs     AuditLog[]
+  customer      Customer?
+  fileUploads   FileUpload[]
+  mfaRecoveryCodes MfaRecoveryCode[]
+  notifications Notification[]
+  orders        Order[]
   superAdmin    SuperAdmin?
   testimonials  Testimonial[]
-  notifications Notification[]
-  activityLogs  ActivityLog[]
-  auditLogs     AuditLog[]
-  orders        Order[]
-  fileUploads   FileUpload[]
+  role          Role?          @relation(fields: [roleId], references: [id])
 
   @@map("users")
+}
+
+model MfaRecoveryCode {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  codeHash  String   @map("code_hash")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("mfa_recovery_codes")
 }
 
 model Customer {
@@ -56,7 +70,6 @@ model Customer {
   companyName  String?  @map("company_name")
   panVatNumber String?  @map("pan_vat_number")
   updatedAt    DateTime @default(now()) @map("updated_at")
-
   user         User     @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("customers")
@@ -66,7 +79,6 @@ model Admin {
   id         String   @id @db.Uuid
   department String?
   updatedAt  DateTime @default(now()) @map("updated_at")
-
   user       User     @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("admins")
@@ -76,7 +88,6 @@ model SuperAdmin {
   id        String   @id @db.Uuid
   level     Int      @default(1)
   updatedAt DateTime @default(now()) @map("updated_at")
-
   user      User     @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("super_admins")
@@ -117,8 +128,7 @@ model Project {
   categoryId  String?          @map("category_id") @db.Uuid
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
-
-  category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category    ProjectCategory? @relation(fields: [categoryId], references: [id])
 
   @@map("projects")
 }
@@ -143,8 +153,7 @@ model Testimonial {
   userId       String?  @map("user_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user         User?    @relation(fields: [userId], references: [id])
 
   @@map("testimonials")
 }
@@ -167,7 +176,6 @@ model Notification {
   read      Boolean  @default(false)
   userId    String?  @map("user_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
-
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
@@ -179,7 +187,6 @@ model ActivityLog {
   action    String
   details   Json?
   createdAt DateTime @default(now()) @map("created_at")
-
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("activity_logs")
@@ -193,7 +200,6 @@ model AuditLog {
   ipAddress String?  @map("ip_address")
   userAgent String?  @map("user_agent")
   createdAt DateTime @default(now()) @map("created_at")
-
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("audit_logs")
@@ -230,8 +236,8 @@ model Quote {
   fileType       String?      @map("file_type")
   fileWeight     String?      @map("file_weight")
   date           DateTime     @default(now())
-  orders         Order[]
   fileUploads    FileUpload[]
+  orders         Order[]
 
   @@map("quotes")
 }
@@ -246,20 +252,19 @@ model OrderStatus {
 }
 
 model Order {
-  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderNumber  String      @unique @map("order_number")
-  customerName String      @map("customer_name")
-  userId       String?     @map("user_id") @db.Uuid
-  statusId     String?     @map("status_id") @db.Uuid
-  totalAmount  Decimal     @map("total_amount") @db.Decimal
-  quoteId      String?     @map("quote_id")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-
-  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  status       OrderStatus? @relation(fields: [statusId], references: [id], onDelete: SetNull)
-  quote        Quote?      @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderNumber  String       @unique @map("order_number")
+  customerName String       @map("customer_name")
+  userId       String?      @map("user_id") @db.Uuid
+  statusId     String?      @map("status_id") @db.Uuid
+  totalAmount  Decimal      @map("total_amount") @db.Decimal
+  quoteId      String?      @map("quote_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
   items        OrderItem[]
+  quote        Quote?       @relation(fields: [quoteId], references: [id])
+  status       OrderStatus? @relation(fields: [statusId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
 
   @@map("orders")
 }
@@ -275,7 +280,6 @@ model OrderItem {
   notes     String?
   material  String?
   createdAt DateTime @default(now()) @map("created_at")
-
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("order_items")
@@ -290,9 +294,8 @@ model FileUpload {
   userId    String?  @map("user_id") @db.Uuid
   quoteId   String?  @map("quote_id")
   createdAt DateTime @default(now()) @map("created_at")
-
+  quote     Quote?   @relation(fields: [quoteId], references: [id])
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quote     Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
 
   @@map("file_uploads")
 }
