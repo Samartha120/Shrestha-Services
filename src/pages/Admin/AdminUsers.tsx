@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/common/Button";
-import { UserX, Shield, Search, Users } from "lucide-react";
+import { UserX, Shield, Search, Users, UserCog } from "lucide-react";
 import { toast } from "sonner";
+import { startImpersonation } from "@/lib/impersonation";
 
 export default function AdminUsers() {
   const { users, fetchUsers, updateUserRole, deleteUser, isLoading } = useUserStore();
+  const currentUser = useAuthStore((s) => s.user);
+  const isSuperAdmin = currentUser?.role === "superadmin";
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -137,6 +141,23 @@ export default function AdminUsers() {
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
+                        {isSuperAdmin && u.role === "customer" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await startImpersonation(u.id);
+                              } catch {
+                                toast.error("Could not start impersonation");
+                              }
+                            }}
+                            leftIcon={<UserCog size={12} />}
+                            className="text-xs py-1 h-7 px-2.5"
+                          >
+                            View as
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"

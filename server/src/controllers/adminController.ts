@@ -1,8 +1,11 @@
 import { Response, NextFunction } from "express";
 import { adminService } from "../services/adminService.js";
+import { authService as authServiceRaw } from "../services/authService.js";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { prisma } from "../config/prisma.js";
 import { writeAudit } from "../utils/audit.js";
+
+const authService = authServiceRaw as any;
 
 // Formula-injection hardening: a leading =,+,-,@ (or tab/CR) makes spreadsheet
 // apps execute the cell. Prefix such values with a single quote on export.
@@ -146,6 +149,22 @@ export const adminController = {
         details: { targetUserId: id },
       });
       res.status(200).json({ status: "success", message: "User deleted successfully" });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Super-admin only (enforced in authService.impersonate). Returns a
+  // short-lived token the client uses to browse AS the target user.
+  startImpersonation: async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.params;
+      const data = await authService.impersonate(req.user!, userId);
+      await writeAudit(req, "admin.impersonation.start", {
+        userId: req.user!.id,
+        details: { targetUserId: userId },
+      });
+      res.status(200).json({ status: "success", data });
     } catch (err) {
       next(err);
     }

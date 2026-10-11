@@ -12,6 +12,9 @@ export interface AuthRequest extends Request {
     role: string;
     name: string;
   };
+  // Present only during an active impersonation session: the privileged
+  // account that initiated it. `user` is the impersonated (target) account.
+  impersonator?: { id: string };
 }
 
 export const authMiddleware = async (
@@ -27,7 +30,12 @@ export const authMiddleware = async (
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string; email: string };
+    const decoded = jwt.verify(token, env.JWT_SECRET) as {
+      userId: string;
+      email: string;
+      imp?: boolean;
+      act?: string;
+    };
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -45,6 +53,11 @@ export const authMiddleware = async (
       role: user.role?.name || "customer",
       name: user.name,
     };
+
+    // Carry impersonation context so controllers / audit can see both actors.
+    if (decoded.imp && decoded.act) {
+      req.impersonator = { id: decoded.act };
+    }
 
     next();
   } catch (err: any) {

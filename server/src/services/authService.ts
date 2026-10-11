@@ -6,7 +6,7 @@ import { logger } from "../config/logger.js";
 import { sendEmail } from "../config/mail.js";
 import type { LoginPayload } from "../types/auth.types.js";
 import crypto from "crypto";
-import { unauthorized, conflict, badRequest } from "../utils/AppError.js";
+import { unauthorized, conflict, badRequest, forbidden, notFound } from "../utils/AppError.js";
 import { mfaService, MFA_PRIVILEGED_ROLES } from "./mfaService.js";
 
 // Issue the backend access + refresh JWT pair for an authenticated profile.
@@ -324,6 +324,46 @@ export const authService = {
   logout: async () => {
     // Stateless JWT: nothing to revoke server-side. Client discards the token.
     return { success: true };
+  },
+
+  // Issue a short-lived impersonation token. Super-admin only; privileged
+  // targets are refused so impersonation can never escalate privilege.
+  impersonate: async (
+    actor: { id: string; email: string; role: string },
+    targetId: string
+  ) => {
+    if (actor.role !== "superadmin") {
+      throw forbidden("Only a super-administrator can impersonate a user.");
+    }
+    if (actor.id === targetId) {
+      throw badRequest("You cannot impersonate yourself.");
+    }
+    const target = await prisma.user.findUnique({
+      where: { id: targetId },
+      include: { role: true },
+    });
+    if (!target) throw notFound("User not found.");
+
+    const targetRole = target.role?.name || "customer";
+    if (["admin", "superadmin"].includes(targetRole)) {
+      throw forbidden("Privileged accounts cannot be impersonated.");
+    }
+
+    const token = jwt.sign(
+      { userId: target.id, email: target.email, imp: true, act: actor.id },
+      env.JWT_SECRET,
+      { expiresIn: "30m" }
+    );
+
+    return {
+      token,
+      target: {
+        id: target.id,
+        name: target.name,
+        email: target.email,
+        role: targetRole,
+      },
+    };
   },
 
   // Return the full profile (user + customer business details) for the dashboard.

@@ -4,6 +4,7 @@ import AuthProvider from "./providers/AuthProvider";
 import ThemeProvider from "./providers/ThemeProvider";
 import NotificationProvider from "./providers/NotificationProvider";
 import ConsentProvider from "./providers/ConsentProvider";
+import ImpersonationBanner from "./components/admin/ImpersonationBanner";
 import RouteMeta from "./components/common/RouteMeta";
 import AppRoutes from "./routes/AppRoutes";
 
@@ -15,6 +16,7 @@ export default function App() {
           <ThemeProvider>
             <NotificationProvider>
               <ConsentProvider>
+                <ImpersonationBanner />
                 <RouteMeta />
                 <AppRoutes />
               </ConsentProvider>

@@ -23,6 +23,9 @@ router.get("/users", adminController.getAllUsers as any);
 router.patch("/users/:id/role", adminController.updateUserRole as any);
 router.delete("/users/:id", adminController.deleteUser as any);
 
+// Support impersonation (super-admin only; enforced in the service).
+router.post("/impersonate/:userId", adminController.startImpersonation as any);
+
 // Reports — real CSV exports generated from live data
 router.get("/reports/:type/export", adminController.exportReport as any);
 

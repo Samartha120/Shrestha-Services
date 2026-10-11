@@ -85,7 +85,26 @@ export const authController = {
   },
 
   me: async (req: AuthRequest, res: Response) => {
-    res.status(200).json({ status: "success", data: { user: req.user } });
+    res.status(200).json({
+      status: "success",
+      data: { user: req.user, impersonating: !!req.impersonator },
+    });
+  },
+
+  // Ends an impersonation session (audit only — the client restores its own
+  // original token). Safe no-op when not impersonating.
+  stopImpersonation: async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (req.impersonator) {
+        await writeAudit(req, "admin.impersonation.stop", {
+          userId: req.impersonator.id,
+          details: { targetUserId: req.user?.id },
+        });
+      }
+      res.status(200).json({ status: "success", message: "Impersonation ended." });
+    } catch (err) {
+      next(err);
+    }
   },
 
   getProfile: async (req: AuthRequest, res: Response, next: NextFunction) => {
