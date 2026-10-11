@@ -8,7 +8,8 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (payload: LoginPayload) => Promise<User>;
+  login: (payload: LoginPayload) => Promise<User | { mfaRequired: true; challengeToken: string }>;
+  verifyMfaLogin: (challengeToken: string, code: string) => Promise<User>;
   sendOtp: (email: string) => Promise<void>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   register: (payload: any) => Promise<any>;
@@ -32,11 +33,30 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      const { user, token } = await authApi.login(payload);
+      const result = await authApi.login(payload);
+      // MFA-protected account: don't authenticate yet — hand the challenge
+      // back so the UI can collect the verification code.
+      if ("mfaRequired" in result && result.mfaRequired) {
+        set({ isLoading: false });
+        return result;
+      }
+      const { user, token } = result as { user: User; token: string };
       set({ user, token, isAuthenticated: true, isLoading: false });
       return user;
     } catch (err: any) {
       set({ error: err.message || "Login failed", isLoading: false });
+      throw err;
+    }
+  },
+
+  verifyMfaLogin: async (challengeToken, code) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { user, token } = await authApi.verifyMfaLogin(challengeToken, code);
+      set({ user, token, isAuthenticated: true, isLoading: false });
+      return user;
+    } catch (err: any) {
+      set({ error: err.message || "Verification failed", isLoading: false });
       throw err;
     }
   },

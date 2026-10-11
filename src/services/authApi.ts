@@ -5,9 +5,38 @@ export const authApi = {
   login: async (payload: LoginPayload) => {
     const res = await api.post("/auth/login", payload);
     const data = res.data.data;
+    // MFA-protected accounts return a challenge instead of a session.
+    if (data?.mfaRequired) return data as { mfaRequired: true; challengeToken: string };
     localStorage.setItem("accessToken", data.token);
     localStorage.setItem("currentUser", JSON.stringify(data.user));
     return data;
+  },
+
+  // Second login step for MFA-protected accounts.
+  verifyMfaLogin: async (challengeToken: string, code: string) => {
+    const res = await api.post("/auth/mfa/login-verify", { challengeToken, code });
+    const data = res.data.data;
+    localStorage.setItem("accessToken", data.token);
+    localStorage.setItem("currentUser", JSON.stringify(data.user));
+    return data;
+  },
+
+  // MFA enrolment / management (authenticated).
+  mfaStatus: async () => {
+    const res = await api.get("/auth/mfa/status");
+    return res.data.data as { enabled: boolean };
+  },
+  setupMfa: async () => {
+    const res = await api.post("/auth/mfa/setup");
+    return res.data.data as { secret: string; otpauthUri: string };
+  },
+  enableMfa: async (token: string) => {
+    const res = await api.post("/auth/mfa/enable", { token });
+    return res.data.data as { recoveryCodes: string[] };
+  },
+  disableMfa: async (password: string, token: string) => {
+    await api.post("/auth/mfa/disable", { password, token });
+    return { success: true };
   },
 
   googleLogin: async (accessToken: string) => {

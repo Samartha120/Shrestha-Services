@@ -5,6 +5,7 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import { Landmark, Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import MfaCard from "@/components/admin/MfaCard";
 
 export default function AdminSettings() {
   const { companyInfo, fetchCompanyInfo, updateCompanyInfo, isLoading } = useSettingsStore();
@@ -126,6 +127,8 @@ export default function AdminSettings() {
 
         </form>
       </Card>
+
+      <MfaCard />
 
     </div>
   );

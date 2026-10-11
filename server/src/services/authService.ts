@@ -7,6 +7,7 @@ import { sendEmail } from "../config/mail.js";
 import type { LoginPayload } from "../types/auth.types.js";
 import crypto from "crypto";
 import { unauthorized, conflict, badRequest } from "../utils/AppError.js";
+import { mfaService, MFA_PRIVILEGED_ROLES } from "./mfaService.js";
 
 // Issue the backend access + refresh JWT pair for an authenticated profile.
 const issueTokens = (profile: { id: string; email: string }) => {
@@ -42,17 +43,63 @@ export const authService = {
       throw unauthorized("Invalid credentials");
     }
 
+    const roleName = profile.role?.name || "customer";
+    const privileged = MFA_PRIVILEGED_ROLES.includes(roleName);
+
+    // Privileged account with MFA on → do NOT issue session tokens yet. Return
+    // a short-lived challenge the client exchanges via /auth/mfa/login-verify.
+    if (privileged && profile.mfaEnabled) {
+      const challengeToken = jwt.sign(
+        { userId: profile.id, purpose: "mfa_challenge" },
+        env.JWT_SECRET,
+        { expiresIn: "5m" }
+      );
+      logger.info(`[Login MFA] Challenge issued for: ${payload.email}`);
+      return { mfaRequired: true, challengeToken };
+    }
+
     const { token, refreshToken } = issueTokens(profile);
 
-    logger.info(`[Login Success] Email: ${payload.email} - Role: ${profile.role?.name || "customer"}`);
+    logger.info(`[Login Success] Email: ${payload.email} - Role: ${roleName}`);
 
     return {
       user: {
         id: profile.id,
         name: profile.name,
         email: profile.email,
-        role: profile.role?.name || "customer",
+        role: roleName,
         avatar: profile.avatar || undefined,
+      },
+      token,
+      refreshToken,
+      // Nudge privileged accounts without MFA to enrol (non-blocking).
+      mfaEnrollmentRequired: privileged && !profile.mfaEnabled,
+    };
+  },
+
+  // Second step of login for MFA-protected accounts.
+  verifyMfaLogin: async (challengeToken: string, code: string) => {
+    let decoded: { userId: string; purpose?: string };
+    try {
+      decoded = jwt.verify(challengeToken, env.JWT_SECRET) as any;
+    } catch {
+      throw unauthorized("Your verification session expired. Please sign in again.");
+    }
+    if (decoded.purpose !== "mfa_challenge") {
+      throw unauthorized("Invalid verification session.");
+    }
+
+    const user = await mfaService.verifyForLogin(decoded.userId, code);
+    const { token, refreshToken } = issueTokens(user);
+    logger.info(`[Login MFA] Success for: ${user.email}`);
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role?.name || "customer",
+        avatar: user.avatar || undefined,
       },
       token,
       refreshToken,

@@ -7,11 +7,21 @@ import { ShieldCheck, Mail, Lock } from "lucide-react";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
-  const { login, error: authError, clearError } = useAuthStore();
+  const { login, verifyMfaLogin, error: authError, clearError } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
+  const [mfaChallenge, setMfaChallenge] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+
+  const landAdmin = (role: string) => {
+    if (role === "admin" || role === "superadmin") {
+      navigate("/admin/dashboard");
+    } else {
+      setValidationError("Access denied. This portal is restricted to Administrators only.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +35,29 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      const user = await login({ email, password });
-      if (user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        setValidationError("Access denied. This portal is restricted to Administrators only.");
+      const result = await login({ email, password });
+      if (result && typeof result === "object" && "mfaRequired" in result) {
+        setMfaChallenge(result.challengeToken);
+        return;
       }
-    } catch (err: any) {
+      landAdmin((result as { role: string }).role);
+    } catch {
+      // Handled by store
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationError("");
+    clearError();
+    if (!mfaChallenge) return;
+    setLoading(true);
+    try {
+      const user = await verifyMfaLogin(mfaChallenge, mfaCode.trim());
+      landAdmin(user.role);
+    } catch {
       // Handled by store
     } finally {
       setLoading(false);
@@ -68,6 +94,7 @@ export default function AdminLoginPage() {
           </div>
         )}
 
+        {!mfaChallenge && (
         <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
           <div>
             <label className="text-sm font-medium text-ink-soft block mb-2">Admin Email</label>
@@ -97,6 +124,39 @@ export default function AdminLoginPage() {
             Secure Log In
           </Button>
         </form>
+        )}
+
+        {mfaChallenge && (
+          <form onSubmit={handleMfaSubmit} className="space-y-5 relative z-10">
+            <div>
+              <label className="text-sm font-medium text-ink-soft block mb-2">
+                Authenticator code
+              </label>
+              <Input
+                type="text"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+                placeholder="6-digit code or recovery code"
+                leftIcon={<ShieldCheck size={18} className="text-muted" />}
+                autoFocus
+                required
+              />
+              <p className="mt-2 text-xs text-muted">
+                Enter the code from your authenticator app, or a recovery code.
+              </p>
+            </div>
+            <Button type="submit" loading={loading} className="w-full mt-2 rounded-full bg-ink text-inverse hover:bg-accent">
+              Verify & continue
+            </Button>
+            <button
+              type="button"
+              onClick={() => { setMfaChallenge(null); setMfaCode(""); clearError(); }}
+              className="w-full text-sm text-ink-soft hover:text-ink transition-colors"
+            >
+              ← Back
+            </button>
+          </form>
+        )}
 
       </div>
     </div>

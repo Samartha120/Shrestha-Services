@@ -7,13 +7,18 @@ import AuthShell, { authFieldClass, authLabelClass } from "@/components/auth/Aut
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, error: authError, clearError } = useAuthStore();
+  const { login, verifyMfaLogin, error: authError, clearError } = useAuthStore();
   const reduce = useReducedMotion();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [mfaChallenge, setMfaChallenge] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+
+  const goToDashboard = (role: string) =>
+    navigate(role === "admin" || role === "superadmin" ? "/admin/dashboard" : "/my-dashboard");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +32,33 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const user = await login({ email, password });
-      navigate(user.role === "admin" ? "/admin/dashboard" : "/my-dashboard");
+      const result = await login({ email, password });
+      if (result && typeof result === "object" && "mfaRequired" in result) {
+        // Step up to the verification-code screen.
+        setMfaChallenge(result.challengeToken);
+        return;
+      }
+      goToDashboard((result as { role: string }).role);
+    } catch {
+      // Error surfaced via store
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationError("");
+    clearError();
+    if (!mfaChallenge) return;
+    if (!/^\d{6}$/.test(mfaCode) && mfaCode.length < 8) {
+      setValidationError("Enter the 6-digit code from your authenticator, or a recovery code.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const user = await verifyMfaLogin(mfaChallenge, mfaCode.trim());
+      goToDashboard(user.role);
     } catch {
       // Error surfaced via store
     } finally {
@@ -100,6 +130,7 @@ export default function LoginPage() {
         )}
       </AnimatePresence>
 
+      {!mfaChallenge && (
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
         <motion.div {...fade(2)}>
           <label className={authLabelClass}>Email address</label>
@@ -153,6 +184,51 @@ export default function LoginPage() {
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
         </motion.button>
       </form>
+      )}
+
+      {mfaChallenge && (
+        <form onSubmit={handleMfaSubmit} className="mt-8 flex flex-col gap-6">
+          <div>
+            <p className="font-display text-xl text-ink">Two-factor verification</p>
+            <p className="mt-1 text-sm text-ink-soft text-pretty">
+              Enter the 6-digit code from your authenticator app. You can also
+              use one of your recovery codes.
+            </p>
+          </div>
+          <div>
+            <label className={authLabelClass}>Verification code</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoFocus
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value)}
+              placeholder="123456"
+              autoComplete="one-time-code"
+              className={`${authFieldClass} tracking-[0.4em]`}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-inverse transition-colors hover:bg-accent disabled:opacity-60"
+          >
+            {loading ? "Verifying…" : "Verify & sign in"}
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMfaChallenge(null);
+              setMfaCode("");
+              clearError();
+            }}
+            className="text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            ← Back to login
+          </button>
+        </form>
+      )}
 
       <motion.p {...fade(5)} className="mt-8 text-sm text-ink-soft">
         New to Shrestha Services?{" "}
