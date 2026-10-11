@@ -29,14 +29,12 @@ export function sniff(buffer: Buffer): SniffCategory {
 }
 
 // Map a declared MIME to the category we expect its bytes to sniff as.
+// Types with no reliable leading-byte magic (.doc OLE, text/plain) return null
+// so they are allowed through without signature enforcement.
 export function expectedCategory(mime: string): SniffCategory {
   if (mime.startsWith("image/")) return "image";
   if (mime === "application/pdf") return "pdf";
   if (mime === "application/zip" || mime === "application/x-zip-compressed") return "zip";
-  if (
-    mime === "application/msword" ||
-    mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) return "zip"; // .docx is a zip container; .doc is OLE (allowed through)
-  if (mime === "text/plain") return "text";
-  return null;
+  if (mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") return "zip"; // .docx is a zip container
+  return null; // application/msword (.doc), text/plain, etc.
 }

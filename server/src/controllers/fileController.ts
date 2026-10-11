@@ -52,10 +52,11 @@ export const fileController = {
       await fd.close();
       const expected = expectedCategory(req.file.mimetype);
       const actual = sniff(buffer);
-      // Reject only on a positive mismatch (text/.doc have no reliable magic).
-      if (expected && actual && expected !== actual) {
+      // For types with reliable magic (image/pdf/zip/docx) the bytes MUST match
+      // the declared type. Types without magic (.doc, text) skip this check.
+      if (expected && actual !== expected) {
         await fs.promises.unlink(diskPath).catch(() => {});
-        logger.warn(`[Upload Blocked] Signature mismatch: declared ${req.file.mimetype}, sniffed ${actual}`);
+        logger.warn(`[Upload Blocked] Signature mismatch: declared ${req.file.mimetype}, sniffed ${actual ?? "unknown"}`);
         res.status(400).json({ status: "error", message: "File content does not match its type." });
         return;
       }
