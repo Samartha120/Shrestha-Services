@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useQuoteStore } from "@/store/quoteStore";
-import { filesApi, fileBaseUrl, type CustomerFile } from "@/services/filesApi";
+import { filesApi, type CustomerFile } from "@/services/filesApi";
 import Card from "@/components/ui/Card";
 import Button from "@/components/common/Button";
 import {
@@ -21,7 +21,6 @@ interface DisplayFile {
   name: string;
   size: string;
   type: string;
-  url: string;
   quoteId?: string;
   uploadedAt: string;
   deletable: boolean;
@@ -73,9 +72,6 @@ export default function CustomerFiles() {
     }
   };
 
-  const toAbsoluteUrl = (url: string) =>
-    url.startsWith("http") ? url : `${fileBaseUrl}${url}`;
-
   // Merge standalone uploads with files attached to quote requests.
   const files: DisplayFile[] = [
     ...uploads.map((f) => ({
@@ -83,7 +79,6 @@ export default function CustomerFiles() {
       name: f.fileName,
       size: f.fileSize,
       type: f.fileType,
-      url: toAbsoluteUrl(f.fileUrl),
       uploadedAt: f.createdAt,
       deletable: true,
     })),
@@ -91,10 +86,9 @@ export default function CustomerFiles() {
       .filter((q) => q.fileUrl)
       .map((q) => ({
         id: `quote-${q.id}`,
-        name: (q.fileUrl || "").split("/").pop() || "attachment",
+        name: `Attachment · Quote ${q.id}`,
         size: q.fileWeight || "—",
         type: q.fileType || "application/octet-stream",
-        url: toAbsoluteUrl(q.fileUrl as string),
         quoteId: q.id,
         uploadedAt: q.date || new Date().toISOString(),
         deletable: false,
@@ -131,6 +125,19 @@ export default function CustomerFiles() {
       toast.error(err?.message || "Could not delete file.");
     } finally {
       setDeleting(null);
+    }
+  };
+
+  // Authorized download: standalone uploads vs quote attachments.
+  const handleDownload = async (file: DisplayFile) => {
+    try {
+      if (file.quoteId) {
+        await filesApi.downloadQuoteFile(file.quoteId, file.name);
+      } else {
+        await filesApi.download(file.id, file.name);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Could not download file.");
     }
   };
 
@@ -225,16 +232,13 @@ export default function CustomerFiles() {
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0">
-                        <a
-                          href={file.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
+                        <button
+                          onClick={() => handleDownload(file)}
                           className="p-2 text-muted hover:text-accent hover:bg-accent-soft rounded-sm transition-colors"
                           title="Download file"
                         >
                           <Download size={15} />
-                        </a>
+                        </button>
                         {file.deletable && (
                           <button
                             onClick={() => handleDeleteFile(file.id)}

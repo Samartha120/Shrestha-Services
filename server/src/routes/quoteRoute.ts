@@ -2,7 +2,7 @@ import { Router } from "express";
 import { quoteController } from "../controllers/quoteController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { roleMiddleware } from "../middlewares/roleMiddleware.js";
-import { upload } from "../middlewares/uploadMiddleware.js";
+import { privateUpload } from "../middlewares/uploadMiddleware.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
 import { createQuoteSchema, updateQuoteStatusSchema } from "../validators/quote.validator.js";
 
@@ -13,13 +13,14 @@ router.use(authMiddleware as any);
 
 router.post(
   "/",
-  upload.single("file"),
+  privateUpload.single("file"),
   validateRequest(createQuoteSchema),
   quoteController.submit as any
 );
 
 router.get("/", quoteController.getAll as any);
 router.get("/:id", quoteController.getById as any);
+router.get("/:id/file", quoteController.downloadFile as any);
 
 router.patch(
   "/:id/status",

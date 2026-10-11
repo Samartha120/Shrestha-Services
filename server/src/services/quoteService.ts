@@ -27,7 +27,8 @@ export const quoteService = {
 
     // Collision-resistant id (the old `q-${100+rand(900)}` had only 900 values).
     const quoteId = `q-${crypto.randomBytes(8).toString("hex")}`;
-    const fileUrl = file ? `/uploads/${file.filename}` : null;
+    // Private marker — the attachment is streamed via GET /quotes/:id/file.
+    const fileUrl = file ? `private:${file.filename}` : null;
 
     // Identity is taken from the authenticated session, NOT the request body,
     // so a customer cannot file a quote under another person's email.

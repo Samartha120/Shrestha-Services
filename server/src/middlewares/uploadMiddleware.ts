@@ -7,10 +7,17 @@ import { logger } from "../config/logger.js";
 import { Request } from "express";
 
 const uploadDirectory = path.join(process.cwd(), "uploads");
+// Private artwork (customer design files, quote attachments) lives OUTSIDE the
+// statically-served `uploads` dir and is reachable only through authorized,
+// ownership-checked download routes.
+export const PRIVATE_UPLOAD_DIR = path.join(process.cwd(), "private_uploads");
 
-// Auto-create local uploads directory if missing
+// Auto-create local uploads directories if missing
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory, { recursive: true });
+}
+if (!fs.existsSync(PRIVATE_UPLOAD_DIR)) {
+  fs.mkdirSync(PRIVATE_UPLOAD_DIR, { recursive: true });
 }
 
 // Extension allowlist paired with the MIME allowlist. A file must satisfy BOTH
@@ -20,19 +27,20 @@ const ALLOWED_EXTENSIONS = new Set([
   ".pdf", ".zip", ".txt", ".doc", ".docx",
 ]);
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDirectory);
-  },
-  filename: (_req, file, cb) => {
-    // Derive a safe extension from the allowlist only — never trust the raw
-    // client filename (path traversal / double-extension / null bytes).
-    const ext = path.extname(file.originalname).toLowerCase();
-    const safeExt = ALLOWED_EXTENSIONS.has(ext) ? ext : "";
-    const unique = crypto.randomBytes(16).toString("hex");
-    cb(null, `${Date.now()}-${unique}${safeExt}`);
-  },
-});
+const makeFilename = (file: Express.Multer.File): string => {
+  // Derive a safe extension from the allowlist only — never trust the raw
+  // client filename (path traversal / double-extension / null bytes).
+  const ext = path.extname(file.originalname).toLowerCase();
+  const safeExt = ALLOWED_EXTENSIONS.has(ext) ? ext : "";
+  const unique = crypto.randomBytes(16).toString("hex");
+  return `${Date.now()}-${unique}${safeExt}`;
+};
+
+const makeStorage = (dir: string) =>
+  multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, dir),
+    filename: (_req, file, cb) => cb(null, makeFilename(file)),
+  });
 
 const fileFilter = (
   _req: Request,
@@ -53,12 +61,11 @@ const fileFilter = (
   }
 };
 
-export const upload = multer({
-  storage,
-  fileFilter,
-  limits: {
-    fileSize: CONSTANTS.UPLOAD.MAX_FILE_SIZE,
-    files: 1,
-  },
-});
+const limits = { fileSize: CONSTANTS.UPLOAD.MAX_FILE_SIZE, files: 1 };
+
+// Public marketing assets (admin-managed gallery/project/service/blog images).
+export const upload = multer({ storage: makeStorage(uploadDirectory), fileFilter, limits });
+
+// Private customer artwork — served only via authorized download routes.
+export const privateUpload = multer({ storage: makeStorage(PRIVATE_UPLOAD_DIR), fileFilter, limits });
 

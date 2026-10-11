@@ -1,6 +1,22 @@
 import { Response, NextFunction } from "express";
+import path from "path";
+import fs from "fs";
 import { quoteService } from "../services/quoteService.js";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
+import { PRIVATE_UPLOAD_DIR } from "../middlewares/uploadMiddleware.js";
+
+const legacyPublicDir = path.join(process.cwd(), "uploads");
+
+// Resolve a stored attachment to a real path within an allowed dir (no traversal).
+function resolveDiskPath(fileUrl: string): string | null {
+  const cleaned = fileUrl.replace(/^private:/, "");
+  const base = path.basename(cleaned);
+  const priv = path.join(PRIVATE_UPLOAD_DIR, base);
+  if (fs.existsSync(priv)) return priv;
+  const legacy = path.join(legacyPublicDir, base);
+  if (fs.existsSync(legacy)) return legacy;
+  return null;
+}
 
 export const quoteController = {
   submit: async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -66,6 +82,38 @@ export const quoteController = {
       }
 
       res.status(200).json({ status: "success", data: quote });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Authorized attachment download — the quote owner (matched by email) or
+  // privileged staff only. Streams from private storage.
+  downloadFile: async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ status: "error", message: "Unauthorized access" });
+        return;
+      }
+      const { id } = req.params;
+      const quote = await quoteService.getById(id);
+      if (!quote || !quote.fileUrl) {
+        res.status(404).json({ status: "error", message: "Attachment not found" });
+        return;
+      }
+      const privileged = req.user.role === "admin" || req.user.role === "superadmin";
+      if (!privileged && quote.email !== req.user.email) {
+        res.status(403).json({ status: "error", message: "You do not have access to this file" });
+        return;
+      }
+      const disk = resolveDiskPath(quote.fileUrl);
+      if (!disk) {
+        res.status(404).json({ status: "error", message: "File is no longer available" });
+        return;
+      }
+      res.setHeader("Content-Type", quote.fileType || "application/octet-stream");
+      res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(path.basename(disk))}"`);
+      fs.createReadStream(disk).pipe(res);
     } catch (err) {
       next(err);
     }

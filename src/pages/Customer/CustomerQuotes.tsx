@@ -7,6 +7,8 @@ import Button from "@/components/common/Button";
 import Dialog from "@/components/ui/Dialog";
 import { FileText, FileType } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { filesApi } from "@/services/filesApi";
 
 export default function CustomerQuotes() {
   const { user } = useAuthStore();
@@ -200,9 +202,20 @@ export default function CustomerQuotes() {
               <div className="flex items-center gap-3 p-3 bg-paper-dim rounded-sm border border-line">
                 <FileType className="h-8 w-8 text-accent shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-ink-soft truncate">{selectedQuote.fileUrl}</p>
+                  <p className="font-bold text-ink-soft truncate">Design attachment</p>
                   <p className="text-xs text-muted">{selectedQuote.fileWeight || "Unknown size"} &bull; {selectedQuote.fileType || "PDF / Layout"}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    filesApi
+                      .downloadQuoteFile(selectedQuote.id, `quote-${selectedQuote.id}-artwork`)
+                      .catch(() => toast.error("Could not download attachment"))
+                  }
+                  className="shrink-0 rounded-full border border-line-strong px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  Download
+                </button>
               </div>
             )}
 
