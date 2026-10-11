@@ -8,24 +8,15 @@ import type { LoginPayload } from "../types/auth.types.js";
 import crypto from "crypto";
 import { unauthorized, conflict, badRequest, forbidden, notFound } from "../utils/AppError.js";
 import { mfaService, MFA_PRIVILEGED_ROLES } from "./mfaService.js";
+import { sessionService } from "./sessionService.js";
 
-// Issue the backend access + refresh JWT pair for an authenticated profile.
-const issueTokens = (profile: { id: string; email: string }) => {
-  const token = jwt.sign(
-    { userId: profile.id, email: profile.email },
-    env.JWT_SECRET,
-    { expiresIn: env.JWT_ACCESS_EXPIRY as any }
-  );
-  const refreshToken = jwt.sign(
-    { userId: profile.id },
-    env.JWT_REFRESH_SECRET,
-    { expiresIn: env.JWT_REFRESH_EXPIRY as any }
-  );
-  return { token, refreshToken };
-};
+interface SessionMeta {
+  userAgent?: string;
+  ipAddress?: string;
+}
 
 export const authService = {
-  login: async (payload: LoginPayload) => {
+  login: async (payload: LoginPayload, meta: SessionMeta = {}) => {
     // Local password auth against the PostgreSQL users table.
     const profile = await prisma.user.findUnique({
       where: { email: payload.email },
@@ -58,7 +49,7 @@ export const authService = {
       return { mfaRequired: true, challengeToken };
     }
 
-    const { token, refreshToken } = issueTokens(profile);
+    const session = await sessionService.create(profile, meta);
 
     logger.info(`[Login Success] Email: ${payload.email} - Role: ${roleName}`);
 
@@ -70,15 +61,38 @@ export const authService = {
         role: roleName,
         avatar: profile.avatar || undefined,
       },
-      token,
-      refreshToken,
+      token: session.accessToken,
+      refreshToken: session.refreshToken,
+      csrfToken: session.csrfToken,
       // Nudge privileged accounts without MFA to enrol (non-blocking).
       mfaEnrollmentRequired: privileged && !profile.mfaEnabled,
     };
   },
 
+  // Rotate a refresh token into a fresh access/refresh pair (revocable session).
+  refresh: async (refreshToken: string, meta: SessionMeta = {}) => {
+    if (!refreshToken) throw unauthorized("No refresh token");
+    try {
+      const rotated = await sessionService.rotate(refreshToken, meta);
+      return {
+        user: {
+          id: rotated.user.id,
+          name: rotated.user.name,
+          email: rotated.user.email,
+          role: rotated.user.role?.name || "customer",
+          avatar: rotated.user.avatar || undefined,
+        },
+        token: rotated.accessToken,
+        refreshToken: rotated.refreshToken,
+        csrfToken: rotated.csrfToken,
+      };
+    } catch {
+      throw unauthorized("Session expired. Please sign in again.");
+    }
+  },
+
   // Second step of login for MFA-protected accounts.
-  verifyMfaLogin: async (challengeToken: string, code: string) => {
+  verifyMfaLogin: async (challengeToken: string, code: string, mfaMeta: SessionMeta = {}) => {
     let decoded: { userId: string; purpose?: string };
     try {
       decoded = jwt.verify(challengeToken, env.JWT_SECRET) as any;
@@ -90,7 +104,7 @@ export const authService = {
     }
 
     const user = await mfaService.verifyForLogin(decoded.userId, code);
-    const { token, refreshToken } = issueTokens(user);
+    const session = await sessionService.create(user, mfaMeta);
     logger.info(`[Login MFA] Success for: ${user.email}`);
 
     return {
@@ -101,8 +115,9 @@ export const authService = {
         role: user.role?.name || "customer",
         avatar: user.avatar || undefined,
       },
-      token,
-      refreshToken,
+      token: session.accessToken,
+      refreshToken: session.refreshToken,
+      csrfToken: session.csrfToken,
     };
   },
 
@@ -317,12 +332,17 @@ export const authService = {
       data: { used: true },
     });
 
+    // Revoke every active session for this user — a reset must log out all
+    // devices (handles the account-compromise case).
+    await sessionService.revokeAllForUser(record.userId);
+
     logger.info(`[Reset Password] Password updated for user: ${record.userId}`);
     return { success: true };
   },
 
-  logout: async () => {
-    // Stateless JWT: nothing to revoke server-side. Client discards the token.
+  logout: async (sid?: string) => {
+    // Revoke the server-side session so the token can't be reused.
+    if (sid) await sessionService.revoke(sid);
     return { success: true };
   },
 

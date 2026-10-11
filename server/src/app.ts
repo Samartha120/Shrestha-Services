@@ -14,6 +14,7 @@ import { logger } from "./config/logger.js";
 // Middlewares
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import { apiLimiter } from "./middlewares/rateLimiter.js";
+import { csrfMiddleware } from "./middlewares/csrfMiddleware.js";
 
 // Routes
 import authRoute from "./routes/authRoute.js";
@@ -65,6 +66,8 @@ app.use(cors({
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
+// CSRF defense for cookie-authenticated, state-changing requests.
+app.use(csrfMiddleware);
 
 // Request logging (Morgan wrapped with Winston)
 const morganStream = {

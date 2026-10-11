@@ -218,5 +218,76 @@ test("admin MFA: enrol → login challenge → verify → disable", async () => 
   assert.equal(disable.status, 200);
 });
 
+// ── Sessions, cookies & CSRF ──────────────────────────────────
+const rawLogin = (email, password) =>
+  fetch(BASE + "/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+const parseCookies = (resp) => {
+  const jar = {};
+  for (const c of resp.headers.getSetCookie?.() ?? []) {
+    const [pair] = c.split(";");
+    const i = pair.indexOf("=");
+    jar[pair.slice(0, i)] = { value: pair.slice(i + 1), attrs: c.toLowerCase() };
+  }
+  return jar;
+};
+const cookieHeader = (jar) => Object.entries(jar).map(([k, v]) => `${k}=${v.value}`).join("; ");
+
+test("login sets httpOnly, SameSite=Lax session cookies (csrf readable)", async () => {
+  const jar = parseCookies(await rawLogin(ctx.a.email, "Passw0rd!23"));
+  assert.ok(jar.access_token && jar.refresh_token && jar.csrf_token, "all three cookies set");
+  assert.match(jar.access_token.attrs, /httponly/);
+  assert.match(jar.access_token.attrs, /samesite=lax/);
+  assert.match(jar.refresh_token.attrs, /httponly/);
+  assert.match(jar.refresh_token.attrs, /path=\/api\/v1\/auth/);
+  assert.doesNotMatch(jar.csrf_token.attrs, /httponly/); // JS must read it for double-submit
+});
+
+test("logout revokes the session server-side (token stops working)", async () => {
+  const { token } = await login(ctx.a.email, "Passw0rd!23");
+  assert.equal((await api("/auth/me", { token })).status, 200);
+  await api("/auth/logout", { method: "POST", token });
+  assert.equal((await api("/auth/me", { token })).status, 401); // revoked, not just expired
+});
+
+test("refresh rotates a session via the refresh cookie", async () => {
+  const jar = parseCookies(await rawLogin(ctx.a.email, "Passw0rd!23"));
+  const r = await fetch(BASE + "/auth/refresh", { method: "POST", headers: { Cookie: cookieHeader(jar), "X-CSRF-Token": jar.csrf_token.value } });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.ok(j?.data?.token, "a fresh access token is issued");
+});
+
+test("cookie-authenticated write without a CSRF header is blocked (403)", async () => {
+  const jar = parseCookies(await rawLogin(ctx.a.email, "Passw0rd!23"));
+  const r = await fetch(BASE + "/auth/profile", {
+    method: "PUT",
+    headers: { Cookie: cookieHeader(jar), "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "CSRF Test" }),
+  });
+  assert.equal(r.status, 403);
+});
+
+test("cookie-authenticated write WITH the CSRF header succeeds", async () => {
+  const jar = parseCookies(await rawLogin(ctx.a.email, "Passw0rd!23"));
+  const r = await fetch(BASE + "/auth/profile", {
+    method: "PUT",
+    headers: { Cookie: cookieHeader(jar), "Content-Type": "application/json", "X-CSRF-Token": jar.csrf_token.value },
+    body: JSON.stringify({ name: "CSRF OK" }),
+  });
+  assert.equal(r.status, 200);
+});
+
+test("Bearer write is exempt from CSRF (no auth cookie present)", async () => {
+  const { token } = await login(ctx.a.email, "Passw0rd!23");
+  const r = await api("/auth/profile", { method: "PUT", token, body: { name: "Bearer OK" } });
+  assert.equal(r.status, 200);
+});
+
+
 
 

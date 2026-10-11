@@ -3,6 +3,7 @@ import { mfaService } from "../services/mfaService.js";
 import { authService as authServiceRaw } from "../services/authService.js";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { writeAudit } from "../utils/audit.js";
+import { setAuthCookies } from "../utils/cookies.js";
 
 const authService = authServiceRaw as any;
 
@@ -53,7 +54,17 @@ export const mfaController = {
     try {
       const challengeToken = String(req.body?.challengeToken || "");
       const code = String(req.body?.code || "");
-      const data = await authService.verifyMfaLogin(challengeToken, code);
+      const data = await authService.verifyMfaLogin(challengeToken, code, {
+        userAgent: req.headers["user-agent"] as string | undefined,
+        ipAddress: req.ip,
+      });
+      if (data?.token && data?.refreshToken && data?.csrfToken) {
+        setAuthCookies(res, {
+          accessToken: data.token,
+          refreshToken: data.refreshToken,
+          csrfToken: data.csrfToken,
+        });
+      }
       await writeAudit(req, "auth.login.success", {
         userId: data?.user?.id,
         details: { email: data?.user?.email, role: data?.user?.role, mfa: true },

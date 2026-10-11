@@ -44,11 +44,27 @@ model User {
   mfaRecoveryCodes MfaRecoveryCode[]
   notifications Notification[]
   orders        Order[]
+  sessions      Session[]
   superAdmin    SuperAdmin?
   testimonials  Testimonial[]
   role          Role?          @relation(fields: [roleId], references: [id])
 
   @@map("users")
+}
+
+model Session {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  refreshHash String   @map("refresh_hash")
+  userAgent   String?  @map("user_agent")
+  ipAddress   String?  @map("ip_address")
+  revoked     Boolean  @default(false)
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
 }
 
 model MfaRecoveryCode {

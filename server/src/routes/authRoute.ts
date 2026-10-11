@@ -61,6 +61,7 @@ router.post(
 router.post("/google-callback", authController.googleCallback);
 
 router.post("/logout", authController.logout);
+router.post("/refresh", authController.refresh);
 
 router.get("/me", authMiddleware as any, authController.me as any);
 router.post("/impersonate/stop", authMiddleware as any, authController.stopImpersonation as any);
