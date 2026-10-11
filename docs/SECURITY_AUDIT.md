@@ -17,7 +17,7 @@
 | 5 | Med | Email verification not enforced server-side at registration (`isVerified:true` hardcoded) | `authService.register` | Direct `POST /register` bypasses OTP | **Fixed** |
 | 6 | Med | Quote submission trusted client `email`/`name` (ownership keyed on email) | `quoteService.submit` | Authenticated user files a quote under another person's email | **Fixed** |
 | 7 | Med | OTP code written to server logs; no rate limit on verify; weak quote IDs (900 values) | `authService`, `quoteService` | Sensitive data in logs; OTP/ID enumeration | **Fixed** |
-| 8 | Med | No MFA for administrators | auth | Admin password compromise = full access | **Foundation in place** (see G) |
+| 8 | Med | No MFA for administrators | auth | Admin password compromise = full access | **Fixed** (admin TOTP 2FA — enrol, login challenge, recovery codes) |
 | 9 | Med | Access tokens stored in `localStorage` (XSS-exfiltratable); client-trusted role for UI gating | `authStore`, `authApi`, `config/api.ts` | XSS can steal the session; UI trust only (server re-derives role from DB) | **Documented** (see G) |
 | 10 | Low | CSV export not formula-injection safe | `adminController.exportReport` | Spreadsheet formula execution on export | **Fixed** |
 | 11 | Low | Weak password policy (min 6, no complexity); JWT secret min length 8 | validators, `env.ts` | Weak credentials | **Fixed** (policy min 8 + letter+digit on register/reset) |
@@ -57,6 +57,7 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 
 | Capability | Guest | Customer | Admin | Super-admin |
 |---|---|---|---|---|
+| **MFA (TOTP) at login** | — | optional | **required if enabled** (enrol nudge otherwise) | **required if enabled** |
 | Public reads (services, gallery, projects, blog, testimonials, settings) | ✓ | ✓ | ✓ | ✓ |
 | Register / login / OTP / password reset | ✓ (rate-limited) | — | — | — |
 | View/update own profile; own orders, files, quotes, notifications | — | ✓ (owner-scoped) | ✓ | ✓ |
@@ -101,7 +102,7 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 
 ## G. Remaining Risks & Recommended Next Steps
 
-1. **Admin MFA — finish (foundation done).** `utils/totp.ts` + schema are in place. To complete: stop the dev server → `cd server && npx prisma generate && npx prisma db push` → add `mfaService`/`mfaController` (`/auth/mfa/setup|enable|disable|login-verify`), branch `authService.login` to return an MFA challenge for privileged accounts with `mfaEnabled`, store hashed single-use recovery codes, require re-auth to disable → wire a frontend enrollment card + a login TOTP step. Additive and safe (no behaviour change until an admin enrolls).
+1. **Admin MFA — DONE.** TOTP two-factor is implemented and verified end-to-end (enrol → login challenge → verify → recovery codes → re-auth disable). Seeds stored AES-256-GCM-encrypted; recovery codes are single-use SHA-256 hashes. Enforced as a login step for privileged accounts that enabled it; others get a non-blocking enrolment nudge. *Optional hardening left:* make enrolment mandatory (block privileged actions until enrolled) and render a QR image (currently secret + otpauth URI for manual/scan entry).
 2. **Admin impersonation — not started.** Recommended: super-admin-only `POST /admin/impersonate/:userId` issuing a short-lived token carrying `{ sub: target, act: actor, imp: true }`, blocked for privileged targets, fully audited (`admin.impersonation.start/stop`), with a persistent frontend banner and a safe exit that restores the original session.
 3. **Token storage (localStorage → httpOnly cookie).** Move access/refresh tokens to `HttpOnly; Secure; SameSite=Lax` cookies + CSRF tokens for state-changing requests, and add a server-side refresh-token/session store so logout and compromise can **revoke** sessions (currently stateless JWT can't be revoked). Broad change — do as a dedicated, tested pass.
 4. **Public uploads.** New uploads are validated, but `/uploads` is still served statically. Migrate customer/quote artwork to a non-served `uploads/private/` dir + an authorized streaming route (`GET /files/:id/download`, owner/role-checked, path-traversal-safe) and switch the customer dashboard to fetch it as an authenticated blob. Add magic-byte (signature) validation and per-user storage quotas.
