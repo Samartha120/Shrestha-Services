@@ -74,7 +74,7 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 - **Functional / Analytics / Marketing**: optional, default **OFF**, enabled only on explicit opt-in. No non-essential trackers are currently loaded; `hasConsent(category)` is the guard to gate any future script.
 - **Consent record:** stored in `localStorage` (`ss_cookie_consent`) as `{ version, timestamp, categories }`; re-prompts automatically when `CONSENT_VERSION` changes. For a legally auditable trail, also persist this server-side (documented in G).
 - **UX:** first-visit blocking dialog with equally-weighted *Accept all* / *Reject optional* / *Customise* (no dark patterns, no pre-ticked optional boxes); reopen anytime via footer "Cookie settings". Consent is never treated as authentication.
-- **Session cookies:** the app currently uses bearer tokens, not cookies, so there are no auth-cookie flags to set (see G for the recommended httpOnly-cookie migration and the flags it should use).
+- **Session cookies:** login/MFA/refresh set `access_token` and `refresh_token` as **HttpOnly, SameSite=Lax** (Secure in production), the refresh cookie scoped to `/api/v1/auth`; a JS-readable `csrf_token` backs double-submit CSRF on cookie-authenticated writes. Sessions are server-side and revocable (logout / password-reset / compromise). A Bearer token is still accepted for compatibility.
 
 <!-- MORE2 -->
 
@@ -85,10 +85,10 @@ Server-enforced on every protected route (frontend route guards are UX only; the
 | Frontend typecheck + build | `npm run build` (`tsc -b && vite build`) | **Pass** |
 | Frontend lint (changed files) | `npx eslint <changed>` | **Pass** (only a pre-existing `set-state-in-effect` warning in `MainLayout` route-reset effect remains; not introduced here) |
 | Backend typecheck | `npx tsc --noEmit` (in `server/`) | **Pass** |
-| **Security test suite** | `npm test` (in `server/`, Node test runner — backend must be running) | **14/14 pass** |
+| **Security test suite** | `npm test` (in `server/`, Node test runner — backend must be running) | **20/20 pass** |
 | Cookie-consent flow | Browser: first-visit gate shown → *Accept all* persists record & dismisses | **Pass (verified)** |
 
-The security suite (`server/tests/security.test.mjs`) covers: generic-401 login, OTP-enforced + weak-password registration, mass-assignment, RBAC (unauth 401 / customer→admin 403 / direct-API gating), IDOR (cross-customer file download blocked + not public), upload type-mismatch rejection, privilege escalation (no super-admin grant / self role-change / self-delete), impersonation guard, and the full MFA enrol→challenge→verify→disable cycle. Fixtures are synthetic accounts, cleaned up after.
+The security suite (`server/tests/security.test.mjs`) covers: generic-401 login, OTP-enforced + weak-password registration, mass-assignment, RBAC (unauth 401 / customer→admin 403 / direct-API gating), IDOR (cross-customer file download blocked + not public), upload type-mismatch rejection, privilege escalation (no super-admin grant / self role-change / self-delete), impersonation guard, the full MFA enrol→challenge→verify→disable cycle, and sessions/cookies/CSRF (httpOnly+SameSite cookie flags, logout revokes the token server-side, refresh rotation, CSRF blocked without / allowed with the header, Bearer exempt). Fixtures are synthetic accounts, cleaned up after.
 
 **Still untested:** rate-limit thresholds and CSRF (N/A — no auth cookies yet) are not covered. This audit does **not** claim the app is penetration-tested or vulnerability-free.
 
@@ -108,7 +108,7 @@ The security suite (`server/tests/security.test.mjs`) covers: generic-401 login,
 
 1. **Admin MFA — DONE.** TOTP two-factor is implemented and verified end-to-end (enrol → login challenge → verify → recovery codes → re-auth disable). Seeds stored AES-256-GCM-encrypted; recovery codes are single-use SHA-256 hashes. Enforced as a login step for privileged accounts that enabled it; others get a non-blocking enrolment nudge. *Optional hardening left:* make enrolment mandatory (block privileged actions until enrolled) and render a QR image (currently secret + otpauth URI for manual/scan entry).
 2. **Admin impersonation — DONE.** Super-admin-only, verified end-to-end: `POST /admin/impersonate/:userId` issues a short-lived token (`imp`+`act` claims); refused for self and privileged targets; `authMiddleware` runs the request as the target while recording the initiating admin; `/auth/impersonate/stop` + start are audited; a persistent "Viewing as…" banner with Exit is shown, and a super-admin-only "View as" action sits on customer rows.
-3. **Token storage (localStorage → httpOnly cookie).** Move access/refresh tokens to `HttpOnly; Secure; SameSite=Lax` cookies + CSRF tokens for state-changing requests, and add a server-side refresh-token/session store so logout and compromise can **revoke** sessions (currently stateless JWT can't be revoked). Broad change — do as a dedicated, tested pass.
+3. **Session security — DONE.** Tokens are backed by a revocable server-side `Session` store (`sid` claim); authMiddleware rejects revoked/expired sessions, so logout, password-reset (revokes all sessions) and compromise take effect immediately. Login/MFA/refresh set **httpOnly, SameSite=Lax** cookies (`access_token`, `refresh_token` scoped to the auth path, + a JS-readable `csrf_token`); `POST /auth/refresh` rotates. **CSRF** double-submit guards cookie-authenticated writes. Verified by the suite + from the browser origin. *Note:* a Bearer token (localStorage) is still accepted for backward compatibility; flipping the SPA to cookie-only (and dropping localStorage) is the last optional step.
 4. **Public uploads — DONE for customer artwork.** New customer design files and quote attachments are stored in a non-served `private_uploads/` dir and streamed only through authorized, ownership-checked routes (`GET /files/:id/download`, `GET /quotes/:id/file`) with traversal-safe resolution and magic-byte validation on upload; verified not reachable via `/uploads`. Marketing images remain public by design. *Left:* migrate any pre-existing customer files still sitting in the public `uploads/` dir, and add per-user storage quotas.
 5. **Notification polling loop.** Logged-out clients hammer `GET /api/v1/notifications` (hundreds of 401s). Gate the poll behind `isAuthenticated` and add backoff.
 6. **Legal.** Verify cookie/privacy obligations for the target jurisdiction; this implementation is a technical control, not a compliance guarantee.
@@ -120,11 +120,11 @@ The security suite (`server/tests/security.test.mjs`) covers: generic-401 login,
 | Existing functionality & visual quality preserved | ✓ |
 | Customer / staff / admin privileges strictly separated | ✓ (server-enforced) |
 | Backend blocks direct API access & privilege escalation | ✓ |
-| Session/cookie protections | Partial — bearer-token hardening done; httpOnly-cookie + revocation documented (G‑3) |
+| Session/cookie protections | ✓ — revocable server-side sessions, httpOnly+SameSite cookies, CSRF double-submit, refresh rotation (Bearer still accepted) |
 | Cookie consent respects policy without weakening security | ✓ |
 | Customer orders & artwork access-controlled | Orders ✓; customer artwork now in private storage behind authorized downloads ✓ (legacy public-dir files pending migration) |
 | Prices / order state / payment verified server-side | Prices/estimates server-computed ✓; payments out of scope by request |
-| Critical security tests pass | ✓ — `npm test` (server) 14/14: authz, IDOR, mass-assignment, privilege-escalation, impersonation, uploads, MFA |
+| Critical security tests pass | ✓ — `npm test` (server) 20/20: authz, IDOR, mass-assignment, privilege-escalation, impersonation, uploads, MFA, sessions/cookies/CSRF |
 | Deployment prerequisites & unresolved risks documented | ✓ (F, G) |
 
 
