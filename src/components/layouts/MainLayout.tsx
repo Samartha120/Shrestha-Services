@@ -21,6 +21,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Toaster } from "sonner";
 import CustomCursor from "@/components/motion/CustomCursor";
 import Magnetic from "@/components/motion/Magnetic";
+import { useConsent } from "@/providers/ConsentProvider";
 
 export interface MainLayoutProps {
   children?: ReactNode;
@@ -63,6 +64,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const { fetchSettings } = useSettingsStore();
   const { isDark, setTheme } = useTheme();
   const reduce = useReducedMotion();
+  const { openSettings } = useConsent();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -512,6 +514,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <Link to="/faq" className="transition-colors hover:text-ink">
                 FAQ
               </Link>
+              <button
+                type="button"
+                onClick={openSettings}
+                className="transition-colors hover:text-ink"
+              >
+                Cookie settings
+              </button>
             </div>
           </div>
         </div>
