@@ -1,14 +1,22 @@
 import { Response, NextFunction } from "express";
 import { authService as authServiceRaw } from "../services/authService.js";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
+import { writeAudit } from "../utils/audit.js";
 const authService = authServiceRaw as any;
 
 export const authController = {
   login: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const data = await authService.login(req.body);
+      await writeAudit(req, "auth.login.success", {
+        userId: data?.user?.id,
+        details: { email: data?.user?.email, role: data?.user?.role },
+      });
       res.status(200).json({ status: "success", data });
     } catch (err) {
+      await writeAudit(req, "auth.login.failure", {
+        details: { email: typeof req.body?.email === "string" ? req.body.email : undefined },
+      });
       next(err);
     }
   },

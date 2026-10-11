@@ -2,11 +2,17 @@ import { Response, NextFunction } from "express";
 import { adminService } from "../services/adminService.js";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { prisma } from "../config/prisma.js";
+import { writeAudit } from "../utils/audit.js";
+
+// Formula-injection hardening: a leading =,+,-,@ (or tab/CR) makes spreadsheet
+// apps execute the cell. Prefix such values with a single quote on export.
+const csvSafe = (s: string): string =>
+  /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
 
 // Minimal, dependency-free CSV serialiser with correct quoting/escaping.
 const toCsv = (rows: (string | number | null | undefined)[][]): string => {
   const escape = (val: string | number | null | undefined) => {
-    const s = val === null || val === undefined ? "" : String(val);
+    const s = val === null || val === undefined ? "" : csvSafe(String(val));
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   return rows.map((r) => r.map(escape).join(",")).join("\r\n");
@@ -116,7 +122,15 @@ export const adminController = {
     try {
       const { id } = req.params;
       const { role } = req.body;
-      const user = await adminService.updateUserRole(id, role);
+      if (typeof role !== "string" || !role.trim()) {
+        res.status(400).json({ status: "error", message: "A target role is required." });
+        return;
+      }
+      const user = await adminService.updateUserRole(req.user!, id, role.trim());
+      await writeAudit(req, "admin.user.role_changed", {
+        userId: req.user!.id,
+        details: { targetUserId: id, newRole: role.trim() },
+      });
       res.status(200).json({ status: "success", data: user });
     } catch (err) {
       next(err);
@@ -126,7 +140,11 @@ export const adminController = {
   deleteUser: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      await adminService.deleteUser(id);
+      await adminService.deleteUser(req.user!, id);
+      await writeAudit(req, "admin.user.deleted", {
+        userId: req.user!.id,
+        details: { targetUserId: id },
+      });
       res.status(200).json({ status: "success", message: "User deleted successfully" });
     } catch (err) {
       next(err);

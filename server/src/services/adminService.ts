@@ -1,5 +1,16 @@
 import { prisma } from "../config/prisma.js";
 import { userRepository } from "../repositories/userRepository.js";
+import { badRequest, forbidden, notFound } from "../utils/AppError.js";
+
+// Roles an admin may assign/manage. `superadmin` is deliberately excluded:
+// only a super-administrator can grant or revoke super-administrator.
+const ASSIGNABLE_BY_ADMIN = ["customer", "support", "order_manager", "admin"];
+const PRIVILEGED_ROLES = ["admin", "superadmin"];
+
+interface Actor {
+  id: string;
+  role: string;
+}
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -196,10 +207,37 @@ export const adminService = {
     }));
   },
 
-  updateUserRole: async (id: string, roleName: string) => {
+  updateUserRole: async (actor: Actor, id: string, roleName: string) => {
+    // Deny-by-default guards against privilege escalation / lateral takeover.
+    if (actor.id === id) {
+      throw forbidden("You cannot change your own role.");
+    }
+
+    const target = await prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+    if (!target) throw notFound("User not found.");
+
+    const targetRole = target.role?.name || "customer";
+    const isSuperActor = actor.role === "superadmin";
+
+    // Only a super-admin may assign the super-admin role...
+    if (roleName === "superadmin" && !isSuperActor) {
+      throw forbidden("Only a super-administrator can grant super-administrator.");
+    }
+    // ...or modify an account that is currently privileged (admin/superadmin).
+    if (PRIVILEGED_ROLES.includes(targetRole) && !isSuperActor) {
+      throw forbidden("Only a super-administrator can modify a privileged account.");
+    }
+    // A plain admin may only assign roles up to (and including) admin.
+    if (!isSuperActor && !ASSIGNABLE_BY_ADMIN.includes(roleName)) {
+      throw forbidden("You are not allowed to assign this role.");
+    }
+
     const roleRecord = await prisma.role.findUnique({ where: { name: roleName } });
     if (!roleRecord) {
-      throw new Error(`Role with name '${roleName}' does not exist.`);
+      throw badRequest(`Role '${roleName}' does not exist.`);
     }
 
     const updatedUser = await userRepository.updateRole(id, roleRecord.id);
@@ -212,7 +250,23 @@ export const adminService = {
     };
   },
 
-  deleteUser: async (id: string) => {
+  deleteUser: async (actor: Actor, id: string) => {
+    if (actor.id === id) {
+      throw forbidden("You cannot delete your own account.");
+    }
+
+    const target = await prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+    if (!target) throw notFound("User not found.");
+
+    const targetRole = target.role?.name || "customer";
+    // Only a super-admin may delete a privileged (admin/superadmin) account.
+    if (PRIVILEGED_ROLES.includes(targetRole) && actor.role !== "superadmin") {
+      throw forbidden("Only a super-administrator can delete a privileged account.");
+    }
+
     await userRepository.delete(id);
     return true;
   },

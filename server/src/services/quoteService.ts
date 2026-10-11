@@ -1,12 +1,17 @@
 import { quoteRepository } from "../repositories/quoteRepository.js";
 import { prisma } from "../config/prisma.js";
 import { logger } from "../config/logger.js";
+import crypto from "crypto";
 
 export const quoteService = {
-  submit: async (quoteData: any, file?: any) => {
+  submit: async (
+    quoteData: any,
+    file?: any,
+    owner?: { id: string; email: string; name: string }
+  ) => {
     const baseRate = 15;
     let multiplier = 1.0;
-    
+
     // Price estimation rules matching frontend logic
     if (quoteData.material.includes("Star")) multiplier = 1.3;
     else if (quoteData.material.includes("Backlit")) multiplier = 1.8;
@@ -20,14 +25,20 @@ export const quoteService = {
     const quantity = Number(quoteData.quantity) || 1;
     const estimatedPrice = Math.round(width * height * baseRate * multiplier * quantity);
 
-    const quoteId = `q-${100 + Math.floor(Math.random() * 900)}`;
+    // Collision-resistant id (the old `q-${100+rand(900)}` had only 900 values).
+    const quoteId = `q-${crypto.randomBytes(8).toString("hex")}`;
     const fileUrl = file ? `/uploads/${file.filename}` : null;
+
+    // Identity is taken from the authenticated session, NOT the request body,
+    // so a customer cannot file a quote under another person's email.
+    const email = owner?.email ?? quoteData.email;
+    const customerName = quoteData.customerName || owner?.name || "Customer";
 
     const newQuote = await quoteRepository.create({
       id: quoteId,
       serviceId: quoteData.serviceId,
-      customerName: quoteData.customerName,
-      email: quoteData.email,
+      customerName,
+      email,
       phone: quoteData.phone,
       width,
       height,
@@ -40,7 +51,7 @@ export const quoteService = {
       fileWeight: file ? `${(file.size / 1024).toFixed(1)} KB` : null,
     });
 
-    logger.info(`[Quote System] Registered quote request ID: ${quoteId} for: ${quoteData.customerName}`);
+    logger.info(`[Quote System] Registered quote request ID: ${quoteId}`);
     return newQuote;
   },
 

@@ -100,7 +100,8 @@ export const authService = {
 
     await sendEmail(email, "Verify Your Email - Shrestha Services", emailHtml);
 
-    logger.info(`[OTP Sent] Email: ${email} - Code: ${otp}`);
+    // NOTE: never log the OTP code itself (sensitive data in logs).
+    logger.info(`[OTP Sent] Email: ${email}`);
     return { success: true };
   },
 
@@ -138,6 +139,22 @@ export const authService = {
       throw conflict("An account with this email already exists");
     }
 
+    // Enforce email ownership SERVER-SIDE: a verified OTP for this email must
+    // exist (issued + confirmed via /verify-otp within the last 30 minutes).
+    // This stops direct POST /register calls from bypassing email verification.
+    const verifiedOtp = await (prisma as any).otp.findFirst({
+      where: {
+        email: payload.email,
+        used: true,
+        createdAt: { gt: new Date(Date.now() - 30 * 60 * 1000) },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!verifiedOtp) {
+      logger.warn(`[Registration Blocked] No verified OTP for: ${payload.email}`);
+      throw badRequest("Please verify your email with the code we sent before registering.");
+    }
+
     // Ensure the customer role exists, then create the user + customer profile.
     const customerRole = await prisma.role.upsert({
       where: { name: "customer" },
@@ -145,7 +162,7 @@ export const authService = {
       create: { name: "customer" },
     });
 
-    const hashedPassword = await bcrypt.hash(payload.password, 10);
+    const hashedPassword = await bcrypt.hash(payload.password, 12);
 
     const profile = await prisma.user.create({
       data: {
@@ -242,7 +259,7 @@ export const authService = {
       throw badRequest("This reset link is invalid or has expired. Please request a new one.");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     await prisma.user.update({
       where: { id: record.userId },
       data: { password: hashedPassword },

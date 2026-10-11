@@ -5,8 +5,17 @@ import { AuthRequest } from "../middlewares/authMiddleware.js";
 export const quoteController = {
   submit: async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      // req.file was resolved by the upload middleware
-      const quote = await quoteService.submit(req.body, req.file);
+      if (!req.user) {
+        res.status(401).json({ status: "error", message: "Unauthorized access" });
+        return;
+      }
+      // Bind the quote to the authenticated user — the client cannot submit
+      // under someone else's identity (ownership is keyed on email).
+      const quote = await quoteService.submit(req.body, req.file, {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+      });
       res.status(201).json({ status: "success", data: { quote } });
     } catch (err) {
       next(err);

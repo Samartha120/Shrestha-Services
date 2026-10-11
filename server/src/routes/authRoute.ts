@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authController } from "../controllers/authController.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { authLimiter } from "../middlewares/rateLimiter.js";
+import { authLimiter, otpLimiter } from "../middlewares/rateLimiter.js";
 import {
   loginSchema,
   registerSchema,
@@ -24,30 +24,35 @@ router.post(
 
 router.post(
   "/send-otp",
+  otpLimiter,
   validateRequest(sendOtpSchema),
   authController.sendOtp
 );
 
 router.post(
   "/verify-otp",
+  otpLimiter,
   validateRequest(verifyOtpSchema),
   authController.verifyOtp
 );
 
 router.post(
   "/register",
+  authLimiter,
   validateRequest(registerSchema),
   authController.register
 );
 
 router.post(
   "/forgot-password",
+  authLimiter,
   validateRequest(forgotPasswordSchema),
   authController.forgotPassword
 );
 
 router.post(
   "/reset-password",
+  authLimiter,
   validateRequest(resetPasswordSchema),
   authController.resetPassword
 );
