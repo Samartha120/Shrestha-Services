@@ -80,12 +80,14 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Credentials Tip */}
+        {/* Credentials Tip — development only; never shipped to production. */}
+        {import.meta.env.DEV && (
         <div className="mb-6 bg-accent-soft border border-line rounded-sm p-4 text-xs space-y-1">
           <p className="font-semibold text-accent">Admin Account Info:</p>
           <p className="text-ink-soft">Email: <span className="font-mono text-ink">admin@shrestha.com</span></p>
           <p className="text-ink-soft">Password: <span className="font-mono text-ink">admin123</span></p>
         </div>
+        )}
 
         {/* Error Alert */}
         {(validationError || authError) && (

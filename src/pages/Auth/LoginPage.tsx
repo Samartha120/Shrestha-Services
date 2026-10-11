@@ -93,7 +93,8 @@ export default function LoginPage() {
         </p>
       </motion.div>
 
-      {/* Demo credentials — kept for testing, styled quietly */}
+      {/* Demo credentials — development only; never shipped to production. */}
+      {import.meta.env.DEV && (
       <motion.div
         {...fade(1)}
         className="mt-7 rounded-sm border border-dashed border-line bg-paper-dim/60 p-4 text-xs"
@@ -114,6 +115,7 @@ export default function LoginPage() {
           </div>
         </div>
       </motion.div>
+      )}
 
       <AnimatePresence>
         {(validationError || authError) && (
