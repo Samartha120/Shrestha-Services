@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Container, Eyebrow } from "@/components/marketing/primitives";
 import Magnetic from "@/components/motion/Magnetic";
+import PrintHeadCarriage from "@/components/motion/PrintHeadCarriage";
 import { EASE, EASE_IN_OUT } from "@/lib/motion";
 
 const headline: { text: string; accent?: string }[] = [
@@ -160,7 +161,10 @@ export default function HeroSection() {
       <Container className="relative">
         <div className="grid items-center gap-12 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-28">
           {/* Left — editorial column */}
-          <div>
+          <div className="relative">
+            {/* realistic large-format print-head pass, behind the headline */}
+            <PrintHeadCarriage />
+            <div className="relative z-10">
             <motion.div
               initial={reduce ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -246,6 +250,7 @@ export default function HeroSection() {
                 <dd className="font-display text-2xl text-ink">In-house</dd>
               </div>
             </motion.dl>
+            </div>
           </div>
 
           {/* Right — interactive proof sheet (scroll parallax + entrance) */}
