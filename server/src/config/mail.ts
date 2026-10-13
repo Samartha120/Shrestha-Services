@@ -78,7 +78,21 @@ const resendFallback = async (to: string, subject: string, html: string): Promis
   }
 };
 
-export const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
+export const sendEmail = async (to: string, subject: string, html: string, text?: string): Promise<void> => {
+  const plainText = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const mailOptions = {
+    from: brandedFrom,
+    to,
+    subject,
+    html,
+    text: plainText,
+    priority: "high" as const,
+    headers: {
+      "X-Priority": "1",
+      "Importance": "high",
+    },
+  };
+
   if (!env.SMTP_USER || !env.SMTP_PASS) {
     // Try Resend even without SMTP creds
     if (await resendFallback(to, subject, html)) return;
@@ -88,7 +102,7 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
 
   // 1. Try primary transporter
   try {
-    const info = await primaryTransporter.sendMail({ from: brandedFrom, to, subject, html });
+    const info = await primaryTransporter.sendMail(mailOptions);
     logger.info(`[Mail] Sent to ${to} (${(info as any)?.messageId || "ok"}) - ${subject}`);
     return;
   } catch (err: any) {
@@ -98,7 +112,7 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
     if (isSmtpBlock) {
       try {
         logger.warn(`[Mail] Primary port ${env.SMTP_PORT} timed out. Trying fallback port ${fallbackPort}...`);
-        const info = await fallbackTransporter.sendMail({ from: brandedFrom, to, subject, html });
+        const info = await fallbackTransporter.sendMail(mailOptions);
         logger.info(`[Mail] Sent via port ${fallbackPort} to ${to} (${(info as any)?.messageId || "ok"}) - ${subject}`);
         return;
       } catch (fallbackErr: any) {
@@ -114,9 +128,9 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
 
 // Background sender with retry - lets HTTP respond instantly so Resend never
 // hangs on Gmail; retries are silent (no user-facing "reloading").
-export const sendEmailBackground = (to: string, subject: string, html: string): void => {
+export const sendEmailBackground = (to: string, subject: string, html: string, text?: string): void => {
   const attempt = (n: number) => {
-    sendEmail(to, subject, html).catch((err: any) => {
+    sendEmail(to, subject, html, text).catch((err: any) => {
       const transient = /timeout|ETIMEDOUT|ESOCKET|ECONNECTION|EHOSTUNREACH|EAUTH/i.test(err.message || err.code || "");
       if (transient && n < 3) {
         const delay = n === 1 ? 800 : 2500;

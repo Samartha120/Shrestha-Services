@@ -161,9 +161,11 @@ export const authService = {
       </div>
     `;
 
+    const emailText = `Welcome to Shrestha Services!\n\nYour OTP is: ${otp}\n\nThis OTP is valid for 10 minutes.\nIf you didn't request this, please ignore this email.`;
+
     // Non-blocking: respond instantly; email delivers in background with retries.
     // Works for every email domain - always attempts real Gmail delivery.
-    sendEmailBackground(email, "Verify Your Email - Shrestha Services", emailHtml);
+    sendEmailBackground(email, "Verify Your Email - Shrestha Services", emailHtml, emailText);
     logger.info(`[OTP] Issued for ${email} (email sending in background)`);
     return { success: true };
   },
