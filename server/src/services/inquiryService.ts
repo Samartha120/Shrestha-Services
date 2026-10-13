@@ -1,5 +1,7 @@
 import { inquiryRepository } from "../repositories/inquiryRepository.js";
 import { prisma } from "../config/prisma.js";
+import { sendEmailBackground } from "../config/mail.js";
+import { renderInquiryConfirmationEmail } from "../utils/emailTemplates.js";
 
 export const inquiryService = {
   getAll: async () => {
@@ -21,6 +23,15 @@ export const inquiryService = {
         message: `Inquiry from ${data.name}: "${data.subject || "No Subject"}"`,
       },
     });
+
+    // Dispatch branded inquiry confirmation to the user
+    if (data.email) {
+      const { html, text, subject } = renderInquiryConfirmationEmail({
+        name: data.name,
+        subject: data.subject,
+      });
+      sendEmailBackground(data.email, subject, html, text);
+    }
 
     return inquiry;
   },

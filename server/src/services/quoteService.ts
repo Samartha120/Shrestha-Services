@@ -1,6 +1,8 @@
 import { quoteRepository } from "../repositories/quoteRepository.js";
 import { prisma } from "../config/prisma.js";
 import { logger } from "../config/logger.js";
+import { sendEmailBackground } from "../config/mail.js";
+import { renderQuoteReceivedEmail, renderQuoteStatusEmail } from "../utils/emailTemplates.js";
 import crypto from "crypto";
 
 export const quoteService = {
@@ -53,6 +55,20 @@ export const quoteService = {
     });
 
     logger.info(`[Quote System] Registered quote request ID: ${quoteId}`);
+
+    if (email) {
+      const { html, text, subject } = renderQuoteReceivedEmail({
+        id: quoteId,
+        customerName,
+        material: quoteData.material,
+        width,
+        height,
+        quantity,
+        estimatedPrice,
+      });
+      sendEmailBackground(email, subject, html, text);
+    }
+
     return newQuote;
   },
 
@@ -104,6 +120,18 @@ export const quoteService = {
         });
         
         logger.info(`[Quote System] Approved quote ${id} -> Automatically generated Order: ${orderNumber}`);
+      }
+
+      // Dispatch branded email notification to customer
+      if (updatedQuote.email) {
+        const finalPrice = priceOverride !== undefined ? Number(priceOverride) : Number(updatedQuote.estimatedPrice);
+        const { html, text, subject } = renderQuoteStatusEmail({
+          id: updatedQuote.id,
+          customerName: updatedQuote.customerName,
+          status,
+          price: finalPrice,
+        });
+        sendEmailBackground(updatedQuote.email, subject, html, text);
       }
     }
 

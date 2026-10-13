@@ -4,6 +4,7 @@ import { env } from "../config/env.js";
 import { prisma } from "../config/prisma.js";
 import { logger } from "../config/logger.js";
 import { sendEmail, sendEmailBackground } from "../config/mail.js";
+import { renderOtpEmail, renderPasswordResetEmail } from "../utils/emailTemplates.js";
 import type { LoginPayload } from "../types/auth.types.js";
 import crypto from "crypto";
 import { unauthorized, conflict, badRequest, forbidden, notFound } from "../utils/AppError.js";
@@ -149,23 +150,11 @@ export const authService = {
 
     await (prisma as any).otp.create({ data: { email, otp, expiresAt } });
 
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #d8402a;">Welcome to Shrestha Services!</h2>
-        <p>Thank you for registering. Please use the following OTP to verify your email:</p>
-        <div style="font-size: 32px; font-weight: bold; color: #d8402a; letter-spacing: 8px; margin: 20px 0; text-align: center;">
-          ${otp}
-        </div>
-        <p>This OTP is valid for 10 minutes.</p>
-        <p style="color: #64748b;">If you didn't request this, please ignore this email.</p>
-      </div>
-    `;
-
-    const emailText = `Welcome to Shrestha Services!\n\nYour OTP is: ${otp}\n\nThis OTP is valid for 10 minutes.\nIf you didn't request this, please ignore this email.`;
+    const { html, text, subject } = renderOtpEmail(otp);
 
     // Non-blocking: respond instantly; email delivers in background with retries.
     // Works for every email domain - always attempts real Gmail delivery.
-    sendEmailBackground(email, "Verify Your Email - Shrestha Services", emailHtml, emailText);
+    sendEmailBackground(email, subject, html, text);
     logger.info(`[OTP] Issued for ${email} (email sending in background)`);
     return { success: true };
   },
@@ -291,20 +280,9 @@ export const authService = {
     const appOrigin = env.CORS_ORIGIN.split(",")[0].trim();
     const resetUrl = `${appOrigin}/reset-password?token=${rawToken}`;
 
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #d8402a;">Reset your password</h2>
-        <p>We received a request to reset the password for your Shrestha Services account.</p>
-        <p style="margin: 24px 0; text-align: center;">
-          <a href="${resetUrl}" style="background: #d8402a; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; display: inline-block;">Reset password</a>
-        </p>
-        <p>Or paste this link into your browser:</p>
-        <p style="word-break: break-all; color: #64748b;">${resetUrl}</p>
-        <p>This link is valid for 1 hour. If you didn't request a reset, you can safely ignore this email.</p>
-      </div>
-    `;
+    const { html, text, subject } = renderPasswordResetEmail(resetUrl);
 
-    await sendEmail(email, "Reset Your Password - Shrestha Services", emailHtml);
+    await sendEmail(email, subject, html, text);
     logger.info(`[Forgot Password] Reset link issued for: ${email}`);
     return { success: true };
   },
