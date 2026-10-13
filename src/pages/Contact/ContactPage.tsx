@@ -255,7 +255,7 @@ export default function ContactPage() {
                     className={`${fieldClass} appearance-none`}
                   >
                     {subjects.map((s) => (
-                      <option key={s} value={s}>
+                      <option key={s} value={s} className="bg-paper text-ink">
                         {s}
                       </option>
                     ))}

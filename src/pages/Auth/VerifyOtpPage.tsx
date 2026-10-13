@@ -16,6 +16,8 @@ export default function VerifyOtpPage() {
   const [countdown, setCountdown] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const [resendFeedback, setResendFeedback] = useState<string | null>(null);
+
   const registrationPayload = location.state || {};
   const email = registrationPayload.email || "";
 
@@ -52,12 +54,19 @@ export default function VerifyOtpPage() {
   };
 
   const handleResendOtp = async () => {
+    if (loading) return;
     setLoading(true);
+    setResendFeedback(null);
     clearError();
     try {
-      await useAuthStore.getState().sendOtp(email);
+      const data: any = await useAuthStore.getState().sendOtp(email);
       setCountdown(60);
-    } catch (err) {
+      if (data?.reused) {
+        setResendFeedback("Code already sent - check your inbox (or wait 45s to resend).");
+      } else {
+        setResendFeedback("Verification code sent. Check your inbox.");
+      }
+    } catch (err: any) {
       console.error(err);
     } finally {
       setLoading(false);
@@ -120,6 +129,12 @@ export default function VerifyOtpPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {resendFeedback && (
+        <p className="mt-4 border-l-2 border-ok bg-ok/10 px-4 py-3 text-sm font-medium text-ok">
+          {resendFeedback}
+        </p>
+      )}
 
       <motion.div {...fade(1)} className="mt-8">
         <label className={authLabelClass}>Verification code</label>

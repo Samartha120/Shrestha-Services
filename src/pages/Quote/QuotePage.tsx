@@ -258,9 +258,9 @@ export default function QuotePage() {
                       <div className="mt-3 h-10 animate-pulse rounded-sm bg-surface-2" />
                     ) : (
                       <select {...register("serviceId")} className={`${fieldClass} mt-3 appearance-none`}>
-                        <option value="">Choose a service…</option>
+                        <option value="" className="bg-paper text-ink">Choose a service…</option>
                         {services.map((service) => (
-                          <option key={service.id} value={service.id}>
+                          <option key={service.id} value={service.id} className="bg-paper text-ink">
                             {service.title}
                           </option>
                         ))}
@@ -279,9 +279,9 @@ export default function QuotePage() {
                     >
                       <label className={labelClass}>Material *</label>
                       <select {...register("material")} className={`${fieldClass} mt-3 appearance-none`}>
-                        <option value="">Select material…</option>
+                        <option value="" className="bg-paper text-ink">Select material…</option>
                         {selectedService.materials.map((mat) => (
-                          <option key={mat} value={mat}>
+                          <option key={mat} value={mat} className="bg-paper text-ink">
                             {mat}
                           </option>
                         ))}

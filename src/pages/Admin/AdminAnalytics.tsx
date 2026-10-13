@@ -94,7 +94,7 @@ export default function AdminAnalytics() {
   const gridStroke = isDark ? "rgba(44,40,34,0.9)" : "rgba(230,225,214,0.9)";
   const axisTickFill = isDark ? "#948b7d" : "#776f64";
   const barFill1 = isDark ? "url(#revenueGradDark)" : "url(#revenueGrad)";
-  const lineStroke = isDark ? "#c04b57" : "#8c2f39";
+  const lineStroke = isDark ? "#93c5fd" : "#1e3a8a";
   const lineDotStroke = isDark ? "#201d18" : "#ffffff";
 
   useEffect(() => {
@@ -210,12 +210,12 @@ export default function AdminAnalytics() {
                 />
                 <defs>
                   <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8c2f39" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#8c2f39" stopOpacity={0.55} />
+                    <stop offset="0%" stopColor="#1e3a8a" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#1e3a8a" stopOpacity={0.55} />
                   </linearGradient>
                   <linearGradient id="revenueGradDark" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#c04b57" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#c04b57" stopOpacity={0.55} />
+                    <stop offset="0%" stopColor="#93c5fd" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#93c5fd" stopOpacity={0.55} />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -293,7 +293,7 @@ export default function AdminAnalytics() {
                 />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(140,47,57,0.07)" }} />
                 <Bar dataKey="submitted" fill={isDark ? "#948b7d" : "#776f64"} radius={[2, 2, 0, 0]} />
-                <Bar dataKey="approved" fill={isDark ? "#c04b57" : "#8c2f39"} radius={[2, 2, 0, 0]} />
+                <Bar dataKey="approved" fill={isDark ? "#93c5fd" : "#1e3a8a"} radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

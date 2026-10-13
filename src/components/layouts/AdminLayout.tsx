@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       >
         {/* Sidebar Header */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-line">
-          <Link to="/" className="flex items-center gap-3 overflow-hidden">
+          <Link to="/admin/dashboard" className="flex items-center gap-3 overflow-hidden">
             <div className="h-10 w-10 rounded-sm bg-ink flex items-center justify-center shrink-0">
               <Printer className="h-5 w-5 text-inverse" />
             </div>
@@ -298,12 +298,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       <p className="text-xs font-semibold text-muted">Account Role</p>
                       <p className="text-sm font-bold text-ink truncate">{user?.name || "Administrator"}</p>
                     </div>
-                    <Link
-                      to="/"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-sm text-ink-soft hover:bg-paper-dim mt-1"
-                    >
-                      Back to Website
-                    </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-sm text-err hover:bg-paper-dim mt-1"

@@ -88,10 +88,10 @@ export default function AdminDashboard() {
     loadData();
   }, []);
 
-  const COLORS = ["#8c2f39", "#1a1714", "#776f64", "#2f7d54", "#b5730f", "#74252e"];
+  const COLORS = ["#1e3a8a", "#1a1714", "#776f64", "#2f7d54", "#b5730f", "#172554"];
   const gridStroke = isDark ? "rgba(44,40,34,0.9)" : "rgba(230,225,214,0.9)";
   const axisTickFill = isDark ? "#948b7d" : "#776f64";
-  const accentStroke = isDark ? "#c04b57" : "#8c2f39";
+  const accentStroke = isDark ? "#93c5fd" : "#1e3a8a";
   const tooltipBg = isDark ? "#201d18" : "#ffffff";
   const tooltipBorder = isDark ? "#2c2822" : "#e6e1d6";
   const tooltipText = isDark ? "#f4f0e8" : "#1a1714";
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="p-6 border border-line rounded-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-sm bg-accent-soft text-accent flex items-center justify-center shrink-0">
+          <div className="h-12 w-12 rounded-sm bg-ok-soft text-ok flex items-center justify-center shrink-0">
             <DollarSign size={24} />
           </div>
           <div className="min-w-0 flex-1">

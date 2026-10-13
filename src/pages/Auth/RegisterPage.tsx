@@ -96,6 +96,10 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!email || !email.includes("@")) {
+      setValidationError("Please enter a valid email address.");
+      return;
+    }
     setLoading(true);
     try {
       await sendOtp(email);
@@ -114,7 +118,7 @@ export default function RegisterPage() {
         },
       });
     } catch {
-      // Handled by store
+      // Stays on Review; authError banner shows why (e.g. duplicate email / rate limit).
     } finally {
       setLoading(false);
     }

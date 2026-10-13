@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { env } from "../config/env.js";
 import { prisma } from "../config/prisma.js";
 import { logger } from "../config/logger.js";
-import { sendEmail } from "../config/mail.js";
+import { sendEmail, sendEmailBackground } from "../config/mail.js";
 import type { LoginPayload } from "../types/auth.types.js";
 import crypto from "crypto";
 import { unauthorized, conflict, badRequest, forbidden, notFound } from "../utils/AppError.js";
@@ -127,27 +127,28 @@ export const authService = {
   },
 
   sendOtp: async (email: string) => {
-    // Prevent sending OTP if email already has an account
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      logger.warn(`[OTP Request Failed] Email already in use: ${email}`);
+      logger.warn(`[OTP] Already registered: ${email}`);
       throw conflict("An account with this email already exists");
     }
 
-    // Generate 6-digit OTP
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Save OTP to database
-    await (prisma as any).otp.create({
-      data: {
-        email,
-        otp,
-        expiresAt,
-      },
+    // Throttle: at most one fresh OTP per 45s to prevent rapid re-send spam while
+    // still keeping UX instant. Resend inside that window reuses the last code.
+    const recent = await (prisma as any).otp.findFirst({
+      where: { email, used: false, expiresAt: { gt: new Date() }, createdAt: { gt: new Date(Date.now() - 45_000) } },
+      orderBy: { createdAt: "desc" },
     });
+    if (recent) {
+      logger.info(`[OTP] Reusing recent OTP for ${email}`);
+      return { success: true, reused: true };
+    }
 
-    // Send email with OTP (mail is mocked to the server log when SMTP is unset)
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await (prisma as any).otp.create({ data: { email, otp, expiresAt } });
+
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #d8402a;">Welcome to Shrestha Services!</h2>
@@ -160,10 +161,10 @@ export const authService = {
       </div>
     `;
 
-    await sendEmail(email, "Verify Your Email - Shrestha Services", emailHtml);
-
-    // NOTE: never log the OTP code itself (sensitive data in logs).
-    logger.info(`[OTP Sent] Email: ${email}`);
+    // Non-blocking: respond instantly; email delivers in background with retries.
+    // Works for every email domain - always attempts real Gmail delivery.
+    sendEmailBackground(email, "Verify Your Email - Shrestha Services", emailHtml);
+    logger.info(`[OTP] Issued for ${email} (email sending in background)`);
     return { success: true };
   },
 
